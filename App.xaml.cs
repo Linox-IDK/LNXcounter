@@ -4,12 +4,13 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
+using LNXcounter.Services;
 
 namespace LNXcounter;
 
 public partial class App : Application
 {
-    public const string Version = "1.7.0";
+    public const string Version = "1.8.0";
     public static AppModel Model { get; private set; } = null!;
     public static OverlayWindow Overlay { get; private set; } = null!;
     public static bool Quitting { get; private set; }
@@ -25,6 +26,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        Efficiency.Enable();   // Windows "Efficiency mode" from the very first moment
 
         // one copy only: starting the exe again just brings the running one to the front
         mutex = new Mutex(true, "LNXcounter.SingleInstance.v1", out bool first);
@@ -47,8 +49,20 @@ public partial class App : Application
         if (Model.Settings.OverlayVisible) Overlay.Show();
 
         CreateTray();
+        KeepMemoryLow();
 
         if (e.Args.Contains("--selftest-menu")) { var t = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) }; t.Tick += (_, _) => { t.Stop(); ShowTrayMenu(); }; t.Start(); }
+    }
+
+    /// <summary>Gives unused memory back to Windows shortly after start, whenever the window is hidden or shown, and every 30 seconds while hidden.</summary>
+    void KeepMemoryLow()
+    {
+        MemoryTrim.Schedule(5000);
+        MainWindow.IsVisibleChanged += (_, _) => MemoryTrim.Schedule(MainWindow.IsVisible ? 6000 : 2000);
+        MainWindow.StateChanged += (_, _) => MemoryTrim.Schedule(MainWindow.WindowState == WindowState.Minimized ? 2000 : 6000);
+        var t = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        t.Tick += (_, _) => { if (!MainWindow.IsVisible || MainWindow.WindowState == WindowState.Minimized) MemoryTrim.Now(); };
+        t.Start();
     }
 
     void CreateTray()
@@ -64,7 +78,7 @@ public partial class App : Application
             if (ev.Button == System.Windows.Forms.MouseButtons.Left) ShowMain();
             else if (ev.Button == System.Windows.Forms.MouseButtons.Right) ShowTrayMenu();
         });
-        void UpdateTip() => tray.Text = $"LNXcounter Â· {Model.TotalOpened} chests";
+        void UpdateTip() => tray.Text = $"LNXcounter - {Model.TotalOpened} chests";
         UpdateTip();
         Model.PropertyChanged += (_, ev) => { if (ev.PropertyName == nameof(AppModel.TotalOpened)) UpdateTip(); };
     }

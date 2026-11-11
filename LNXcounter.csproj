@@ -9,9 +9,16 @@
     <AssemblyName>LNXcounter</AssemblyName>
     <RootNamespace>LNXcounter</RootNamespace>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
-    <Version>1.7.0</Version>
+    <Version>1.8.0</Version>
     <NoWarn>$(NoWarn);CS8618;NU1701</NoWarn>
+    <!-- memory: workstation non-concurrent GC (no extra GC thread), conserve memory, no PGO instrumentation -->
+    <ServerGarbageCollector>false</ServerGarbageCollector>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <TieredPGO>false</TieredPGO>
   </PropertyGroup>
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="System.GC.ConserveMemory" Value="7" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FortniteReplayReader" Version="3.1.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4314.35" />

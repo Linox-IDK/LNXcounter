@@ -20,6 +20,12 @@ public partial class MainWindow : Window
             else if (a == "--play") App.Model.Drops.ToggleJam();
             else if (a.StartsWith("--vol=") && int.TryParse(a[6..], out var vv)) App.Model.Drops.Audio.Volume = vv;
             else if (a == "--preview") App.Model.Drops.StartPreview();
+            else if (a.StartsWith("--closeafter=") && int.TryParse(a[13..], out var ca))
+            {
+                var ct = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(ca) };
+                ct.Tick += (_, _) => { ct.Stop(); App.Model.Drops.CloseModal(); };
+                ct.Start();
+            }
             else if (a.StartsWith("--week=") && int.TryParse(a[7..], out var wk)) App.Model.Drops.Select(wk);
         }
     }

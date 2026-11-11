@@ -181,6 +181,7 @@ public class AppModel : Notify
                 Rebuild();
                 Save();
             }
+            if (todo.Count > 0) MemoryTrim.Schedule(3000);   // reading a replay allocates a lot: give it back
             firstScanDone = true;
             Status = failed > 0 ? $"Watching for new matches  ·  {failed} replay(s) could not be read (game update?)"
                 : inProgress ? "Match in progress, it will be counted as soon as it ends" : "Watching for new matches";

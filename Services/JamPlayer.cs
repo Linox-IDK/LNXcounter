@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Threading;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 
@@ -69,17 +70,54 @@ public class JamPlayer : Notify
         await StartAsync(id);
     }
 
+    // The browser behind the preview is only kept alive while it is useful: it is released a short while after the song stops
+    // (or a few minutes after a pause, remembering the position), which frees all of its memory.
+    DispatcherTimer? idle;
+    double resumeAt;
+    bool ended;
+
+    void UpdateIdle()
+    {
+        if (web == null) return;
+        if (playing || loading) { idle?.Stop(); return; }
+        idle ??= new DispatcherTimer();
+        idle.Interval = TimeSpan.FromSeconds(videoId == null || ended ? 20 : 180);
+        idle.Tick -= OnIdle; idle.Tick += OnIdle;
+        idle.Stop(); idle.Start();
+    }
+
+    void OnIdle(object? s, EventArgs e)
+    {
+        idle?.Stop();
+        if (playing || loading || starting) return;
+        Release();
+    }
+
+    void Release()
+    {
+        if (web == null) return;
+        resumeAt = videoId != null && !ended ? pos : 0;
+        try { web.Dispose(); } catch { }
+        try { host?.Close(); } catch { }
+        web = null; host = null;
+        Log("released");
+        MemoryTrim.Schedule(1500);
+    }
+
     async Task StartAsync(string id)
     {
         if (starting) return;
         starting = true;
         try
         {
-            Failed = false; Message = ""; IsLoading = true; Pos = 0; Dur = 0; videoId = id;
+            double from = videoId == id && !ended ? resumeAt : 0;
+            resumeAt = 0; ended = false;
+            Failed = false; Message = ""; IsLoading = true; Pos = from; Dur = 0; videoId = id;
+            idle?.Stop();
             Log("start " + id);
             await EnsureWebAsync();
             Log("web ready, navigating");
-            web!.CoreWebView2.Navigate($"https://lnx.player/player.html?v={Uri.EscapeDataString(id)}&vol={volume}");
+            web!.CoreWebView2.Navigate($"https://lnx.player/player.html?v={Uri.EscapeDataString(id)}&vol={volume}&t={(int)from}");
         }
         catch (Exception e)
         {
@@ -97,6 +135,7 @@ public class JamPlayer : Notify
         if (videoId == null) return;
         videoId = null; IsPlaying = false; IsLoading = false; Failed = false; Message = ""; Pos = 0; Dur = 0;
         try { web?.CoreWebView2?.Navigate("about:blank"); } catch { }
+        UpdateIdle();
     }
 
     void Script(string js)
@@ -105,6 +144,12 @@ public class JamPlayer : Notify
     }
 
     // ----- WebView plumbing -----
+    // The page is only used to play a song, so the browser is run as light as possible: no GPU process, one renderer, no site isolation,
+    // no extensions or background services. This cuts its memory use by more than half.
+    const string BrowserArgs = "--autoplay-policy=no-user-gesture-required --disable-gpu --disable-site-isolation-trials " +
+        "--disable-features=IsolateOrigins,site-per-process,Translate,OptimizationHints --renderer-process-limit=1 " +
+        "--disable-extensions --disable-background-networking --disable-sync --no-first-run";
+
     async Task EnsureWebAsync()
     {
         if (web?.CoreWebView2 != null) return;
@@ -122,7 +167,7 @@ public class JamPlayer : Notify
         host.Show();
 
         var env = await CoreWebView2Environment.CreateAsync(null, Path.Combine(Store.Dir, "webview2"),
-            new CoreWebView2EnvironmentOptions("--autoplay-policy=no-user-gesture-required"));
+            new CoreWebView2EnvironmentOptions(BrowserArgs));
         await web.EnsureCoreWebView2Async(env);
         web.CoreWebView2.SetVirtualHostNameToFolderMapping("lnx.player", dir, CoreWebView2HostResourceAccessKind.Allow);
         web.CoreWebView2.WebMessageReceived += OnMessage;
@@ -147,7 +192,9 @@ public class JamPlayer : Notify
                     int s = r.GetProperty("s").GetInt32();      // -1 unstarted, 0 ended, 1 playing, 2 paused, 3 buffering, 5 cued
                     IsPlaying = s == 1;
                     IsLoading = s == 3 || s == -1 || s == 5;
-                    if (s == 0) { IsPlaying = false; IsLoading = false; Pos = 0; }
+                    ended = s == 0;
+                    if (ended) { IsPlaying = false; IsLoading = false; Pos = 0; }
+                    UpdateIdle();
                     break;
                 case "log":
                     Log(r.GetProperty("m").GetString() ?? "");
@@ -184,7 +231,7 @@ function startPlayer() {
   post({ t: 'log', m: 'api ready' });
   player = new YT.Player('p', {
     width: '240', height: '135', videoId: q.get('v'),
-    playerVars: { autoplay: 1, controls: 0, playsinline: 1, rel: 0, origin: location.origin },
+    playerVars: { autoplay: 1, controls: 0, playsinline: 1, rel: 0, start: parseInt(q.get('t') || '0'), origin: location.origin },
     events: {
       onReady: function (e) { ready = true; e.target.setVolume(parseInt(q.get('vol') || '60')); e.target.playVideo(); },
       onStateChange: function (e) { post({ t: 'state', s: e.data }); },

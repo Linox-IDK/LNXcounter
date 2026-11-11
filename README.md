@@ -68,10 +68,30 @@ Click a jam track reward to **listen to its song** right inside the app, with pl
 
 > **Windows SmartScreen warning:** the app is not code-signed, so Windows may show *"Windows protected your PC"*. Click **More info → Run anyway**.
 
-**Requirements**
-- Windows 10 or 11, 64-bit
-- Fortnite replays enabled (the game saves them by default in `%LOCALAPPDATA%\FortniteGame\Saved\Demos`). If your replays are somewhere else, click **Folder…** in the app to choose the folder
-- For the jam track preview: the Microsoft Edge **WebView2 runtime**, which is already included in Windows 11
+## Requirements
+
+### Supported Windows versions
+
+| System | Supported? |
+| --- | --- |
+| **Windows 11** (x64) | ✅ Yes. This is what the app is developed and tested on |
+| **Windows 10** (x64), version 1607 or newer (22H2 recommended) | ✅ Yes, this is the oldest version the .NET 10 runtime it is built on supports |
+| Windows 11 on ARM | ⚠️ Should work through Windows' built-in x64 emulation, but it is untested |
+| Windows 7, 8, 8.1 and 32-bit Windows | ❌ No |
+| macOS, Linux | ❌ No (it is a Windows-only WPF app, and Fortnite replays are read from the Windows install) |
+
+- **Nothing to install:** the exe contains the .NET runtime, so you do **not** need to install .NET.
+- **Fortnite replays on:** the game saves them by default in `%LOCALAPPDATA%\FortniteGame\Saved\Demos`. If yours are somewhere else, click **Folder…** in the app to choose the folder.
+- **Jam track preview only:** the Microsoft Edge **WebView2 runtime**. It comes with Windows 11 and with most up-to-date Windows 10 installs. If it is missing, the app tells you and you can [download it from Microsoft](https://developer.microsoft.com/microsoft-edge/webview2/). Everything else works without it.
+- **Disk:** the exe is about 170 MB (it is not compressed, which is what keeps its RAM use low, see below).
+
+## Light on your PC
+
+LNXcounter is meant to sit in the tray while you play, so it is built to stay out of the way:
+
+- **Starts in Windows' Efficiency mode:** the app marks itself as a background process every time it starts. It runs on the power-efficient cores at lower priority and never competes with Fortnite for the CPU. On Windows 11 you can see the Efficiency mode leaf next to it in Task Manager; on Windows 10 it applies too, just without the leaf icon.
+- **Small RAM footprint:** about **15–45 MB** of working memory while it sits in the tray and about **40–70 MB** with the window open, instead of the ~290 MB it used before (measured in Task Manager's working set on Windows 11). It regularly gives unused memory back to Windows, especially when the window is hidden or after it has read a match.
+- **The song preview cleans up after itself:** the jam track player runs in a stripped-down browser (no GPU process, a single renderer), and it is shut down completely about 20 seconds after the song stops, so it uses no memory when you are not listening. If you only pause, it is kept for 3 minutes and then released too.
 
 ## How it works
 
@@ -90,8 +110,10 @@ dotnet build -c Release
 To produce the single-file exe:
 
 ```bash
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o dist
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=false -o dist
 ```
+
+Compression is turned off on purpose: a compressed single-file exe makes .NET unpack all its libraries into private memory, which costs about 70 MB more RAM.
 
 Built with WPF on .NET, [FortniteReplayReader](https://github.com/Shiqan/FortniteReplayDecompressor) for reading replays and Microsoft WebView2 for the song preview.
 
