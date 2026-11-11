@@ -17,7 +17,18 @@ No login, no account, no data sent anywhere. Everything happens on your PC.
 - List of your recent matches with the number of chests opened in each
 - A new match is picked up automatically **about 8–20 seconds after it ends**, no need to restart or click anything
 - Your progress is saved on your PC between launches
-- **Add chests from other devices:** the app can only see the replays on the PC it runs on. In the **Settings** tab you can add the chests you opened elsewhere (or before installing the app), or just type your exact season total. They are counted as normal chests and used for your drop odds too
+- **Add chests from other devices** in the Settings tab (see below)
+
+### ⚙️ Settings: add chests from other devices
+LNXcounter can only count the matches it finds as replay files **on the PC it runs on**. If you also play on another device (console, another PC, phone), or you played before installing the app, those chests are not in your count. The **Settings** tab lets you add them yourself:
+
+![Settings tab](screenshots/settings.png)
+
+- **Add / Remove:** type a number and press **Add** to add chests, or **Remove** to take some back (the Enter key works too)
+- **Set your exact total:** already know how many chests you opened this season? Type your total and press **Set total**. LNXcounter adds whatever its replays did not count to reach it
+- The summary box shows how many chests were **added by hand**, how many were **counted from replays**, and your **total**
+- Chests added by hand are counted as **normal chests**, and they are also used for the drop odds, the overlay and the tray tooltip. The average per match is not affected
+- They are **kept when you press Rescan all**, and cleared by **Reset**
 
 ### ⏰ Treasure Hours (all times in Paris time)
 - The next Treasure Hour with a **live countdown** (days : hours : minutes : seconds)
