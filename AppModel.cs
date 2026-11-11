@@ -58,6 +58,45 @@ public class AppModel : Notify
     public int MatchCount { get => matchCount; set => Set(ref matchCount, value); }
     public int SessionOpened { get => sessionOpened; set { if (Set(ref sessionOpened, value)) Raise(nameof(OverlayStatus)); } }
     public int LastMatchOpened { get => lastMatchOpened; set { if (Set(ref lastMatchOpened, value)) Raise(nameof(OverlayStatus)); } }
+    // ----- chests added by hand (Settings tab) -----
+    public int ReplayChests { get; private set; }
+    public int ManualChests => state.Settings.ManualChests;
+    public string CountNote => ManualChests > 0
+        ? $"counted from your replays + {ManualChests:N0} added by hand"
+        : "counted from your replays, only the ones you opened yourself";
+    public string ManualInfo => ManualChests > 0
+        ? $"Added by hand so far: {ManualChests:N0}   ·   Counted from replays: {ReplayChests:N0}   ·   Total: {TotalOpened:N0}"
+        : $"Nothing added by hand yet   ·   Counted from replays: {ReplayChests:N0}";
+    string settingsMessage = "";
+    public string SettingsMessage { get => settingsMessage; set => Set(ref settingsMessage, value); }
+
+    public const int MaxManual = 10_000_000;
+
+    /// <summary>Adds (or, with a negative number, removes) chests by hand. They count as normal chests.</summary>
+    public void AddManual(int n)
+    {
+        int before = ManualChests;
+        state.Settings.ManualChests = Math.Clamp(before + n, 0, MaxManual);
+        int delta = ManualChests - before;
+        Rebuild(); Save();
+        SettingsMessage = delta == 0 ? (n < 0 ? "There is nothing added by hand to remove." : "Nothing changed.")
+            : delta > 0 ? $"Added {delta:N0} chests. Your total is now {TotalOpened:N0}."
+            : $"Removed {-delta:N0} chests. Your total is now {TotalOpened:N0}.";
+    }
+
+    /// <summary>Makes the total equal <paramref name="total"/> by adding whatever the replays did not count.</summary>
+    public void SetTotal(int total)
+    {
+        if (total < ReplayChests)
+        {
+            SettingsMessage = $"LNXcounter already counted {ReplayChests:N0} chests from your replays, so your total can't be lower than that.";
+            return;
+        }
+        state.Settings.ManualChests = Math.Min(total - ReplayChests, MaxManual);
+        Rebuild(); Save();
+        SettingsMessage = $"Done. Your total is now {TotalOpened:N0} ({ReplayChests:N0} from replays + {ManualChests:N0} added by hand).";
+    }
+
     public string AvgText { get => avgText; set => Set(ref avgText, value); }
     public string Status { get => status; set => Set(ref status, value); }
     public string FolderText { get => folderText; set => Set(ref folderText, value); }
@@ -193,17 +232,20 @@ public class AppModel : Notify
     void Rebuild()
     {
         var ok = state.Matches.Where(m => m.Error == null).OrderByDescending(m => m.Started).ToList();
-        TotalOpened = ok.Sum(m => m.Opened);
+        ReplayChests = ok.Sum(m => m.Opened);
+        TotalOpened = ReplayChests + ManualChests;
         TotalBroken = ok.Sum(m => m.Broken);
         MatchCount = ok.Count;
-        AvgText = ok.Count == 0 ? "0" : (TotalOpened / (double)ok.Count).ToString("0.#", CultureInfo.CurrentCulture);
+        AvgText = ok.Count == 0 ? "0" : (ReplayChests / (double)ok.Count).ToString("0.#", CultureInfo.CurrentCulture);
         Matches.Clear();
         foreach (var m in ok.Take(60)) Matches.Add(m);
         var byType = new Dictionary<string, int>();
         foreach (var m in ok) foreach (var kv in m.OpenedByType) byType[kv.Key] = byType.GetValueOrDefault(kv.Key) + kv.Value;
+        if (ManualChests > 0) byType["normal"] = byType.GetValueOrDefault("normal") + ManualChests;   // added by hand = normal chests
         Types.Clear();
         foreach (var kv in byType.OrderByDescending(k => k.Value))
             Types.Add(new TypeRow(TypeNames.GetValueOrDefault(kv.Key, kv.Key), kv.Value, $"/Assets/{TypeIcons.GetValueOrDefault(kv.Key, "plus")}.png"));
+        Raise(nameof(ReplayChests)); Raise(nameof(ManualChests)); Raise(nameof(CountNote)); Raise(nameof(ManualInfo));
         Drops?.Refresh();
     }
 
@@ -211,6 +253,8 @@ public class AppModel : Notify
     {
         // keeps the replay files as "already counted" so old matches are not re-imported
         foreach (var m in state.Matches) m.Opened = m.Broken = 0;
+        state.Settings.ManualChests = 0;
+        SettingsMessage = "";
         foreach (var m in state.Matches) m.OpenedByType.Clear();
         SessionOpened = 0; LastMatchOpened = -1;
         Rebuild(); Save();

@@ -21,6 +21,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <RadioButton x:Name="OverviewTab" Style="{StaticResource TabRadio}" Content="OVERVIEW" GroupName="tabs" IsChecked="True" Checked="Tab_Checked"/>
                     <RadioButton x:Name="DropsTab" Style="{StaticResource TabRadio}" Content="DROPS" GroupName="tabs" Checked="Tab_Checked"/>
+                    <RadioButton x:Name="SettingsTab" Style="{StaticResource TabRadio}" Content="SETTINGS" GroupName="tabs" Checked="Tab_Checked"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource CaptionButton}" Content="—" Click="Min_Click"/>
@@ -51,7 +52,7 @@
                             <StackPanel>
                                 <TextBlock Text="CHESTS OPENED" Style="{StaticResource Label}"/>
                                 <TextBlock Text="{Binding TotalOpened}" FontSize="92" FontWeight="Bold" Foreground="{StaticResource GoldGradient}" Margin="0,-6,0,-4"/>
-                                <TextBlock Text="counted from your replays, only the ones you opened yourself" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
+                                <TextBlock Text="{Binding CountNote}" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
                             </StackPanel>
                             <Image Source="/Assets/chest.png" Width="96" Height="96" HorizontalAlignment="Right" VerticalAlignment="Center" Opacity="0.9"
                                    RenderOptions.BitmapScalingMode="HighQuality"/>
@@ -222,6 +223,47 @@
                     </Border>
                 </Grid>
             </Grid>
+
+            <!-- ===== SETTINGS ===== -->
+            <ScrollViewer x:Name="SettingsPanel" Grid.Row="1" Margin="24,14,24,10" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                <StackPanel MaxWidth="760" HorizontalAlignment="Left">
+                    <TextBlock Text="SETTINGS" FontFamily="Segoe UI Black" FontSize="30" Foreground="White"/>
+
+                    <Border Style="{StaticResource Card}" Margin="0,16,0,0" Padding="22,18">
+                        <StackPanel>
+                            <TextBlock Text="ADD CHESTS TO YOUR COUNT" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,0" LineHeight="19"
+                                       Text="LNXcounter can only count the matches it finds as replay files on this PC. If you also play on another device, or played before you installed the app, add those chests here. They are counted as normal chests and are used for your drop odds too."/>
+                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                <TextBox x:Name="AddBox" Style="{StaticResource GoldBox}" Width="190" MaxLength="9" PreviewTextInput="Number_PreviewTextInput" KeyDown="AddBox_KeyDown"/>
+                                <Button Style="{StaticResource GoldButton}" Content="Add" Margin="12,0,0,0" MinWidth="84" Click="AddChests_Click"/>
+                                <Button Style="{StaticResource GoldButton}" Content="Remove" Margin="8,0,0,0" MinWidth="84" Click="RemoveChests_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="22,18">
+                        <StackPanel>
+                            <TextBlock Text="OR SET YOUR EXACT TOTAL" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,0" LineHeight="19"
+                                       Text="Already know how many chests you opened this season? Type your total and LNXcounter adds whatever its replays did not count to reach it."/>
+                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                <TextBox x:Name="TotalBox" Style="{StaticResource GoldBox}" Width="190" MaxLength="9" PreviewTextInput="Number_PreviewTextInput" KeyDown="TotalBox_KeyDown"/>
+                                <Button Style="{StaticResource GoldButton}" Content="Set total" Margin="12,0,0,0" MinWidth="84" Click="SetTotal_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="22,16">
+                        <StackPanel>
+                            <TextBlock Text="{Binding ManualInfo}" Foreground="{StaticResource GoldLightBrush}" FontSize="13" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding SettingsMessage}" Foreground="#FF6FDB8C" FontSize="13" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                            <TextBlock Foreground="{StaticResource MutedBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,10,0,0"
+                                       Text="Chests added by hand are kept when you press Rescan all, and cleared by Reset."/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
 
             <!-- ===== DROPS ===== -->
             <Grid x:Name="DropsPanel" Grid.Row="1" Margin="24,10,12,6" Visibility="Collapsed">

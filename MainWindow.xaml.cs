@@ -15,6 +15,8 @@ public partial class MainWindow : Window
         foreach (var a in Environment.GetCommandLineArgs())
         {
             if (a == "--tab=drops") DropsTab.IsChecked = true;
+            else if (a == "--tab=settings") SettingsTab.IsChecked = true;
+            else if (a.StartsWith("--addchests=") && int.TryParse(a[12..], out var ac)) App.Model.AddManual(ac);
             else if (a == "--selftest-found") { foreach (var t in App.Model.Drops.Tiles.Where(t => t.Title.Contains("TOKEN") || t.Category == "OUTFIT")) t.SetFoundSilently(true); }
             else if (a.StartsWith("--open=")) { var t = App.Model.Drops.Tiles.FirstOrDefault(x => x.Title.Contains(a[7..].ToUpperInvariant()) || x.Category == a[7..].ToUpperInvariant()); if (t != null) App.Model.Drops.OpenTile(t); }
             else if (a == "--play") App.Model.Drops.ToggleJam();
@@ -34,10 +36,10 @@ public partial class MainWindow : Window
 
     void Tab_Checked(object sender, RoutedEventArgs e)
     {
-        if (OverviewPanel == null || DropsPanel == null) return; // fires once during InitializeComponent
-        bool drops = DropsTab.IsChecked == true;
-        OverviewPanel.Visibility = drops ? Visibility.Collapsed : Visibility.Visible;
-        DropsPanel.Visibility = drops ? Visibility.Visible : Visibility.Collapsed;
+        if (OverviewPanel == null || DropsPanel == null || SettingsPanel == null) return; // fires once during InitializeComponent
+        OverviewPanel.Visibility = OverviewTab.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        DropsPanel.Visibility = DropsTab.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        SettingsPanel.Visibility = SettingsTab.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
     }
 
     // click a reward tile -> details popup (the checkbox inside the tile handles its own click)
@@ -111,9 +113,26 @@ public partial class MainWindow : Window
             await M.RescanAllAsync();
     }
 
+    // ----- Settings: chests added by hand -----
+    void Number_PreviewTextInput(object sender, TextCompositionEventArgs e) => e.Handled = !e.Text.All(char.IsDigit);
+
+    bool TryNumber(System.Windows.Controls.TextBox box, out int n)
+    {
+        var txt = box.Text.Replace(" ", "").Replace(",", "").Replace(".", "");
+        if (int.TryParse(txt, out n) && n > 0 && n <= AppModel.MaxManual) return true;
+        M.SettingsMessage = "Type a whole number above 0.";
+        return false;
+    }
+
+    void AddChests_Click(object sender, RoutedEventArgs e) { if (TryNumber(AddBox, out var n)) { M.AddManual(n); AddBox.Clear(); } }
+    void RemoveChests_Click(object sender, RoutedEventArgs e) { if (TryNumber(AddBox, out var n)) { M.AddManual(-n); AddBox.Clear(); } }
+    void SetTotal_Click(object sender, RoutedEventArgs e) { if (TryNumber(TotalBox, out var n)) { M.SetTotal(n); TotalBox.Clear(); } }
+    void AddBox_KeyDown(object sender, KeyEventArgs e) { if (e.Key == Key.Enter) AddChests_Click(sender, e); }
+    void TotalBox_KeyDown(object sender, KeyEventArgs e) { if (e.Key == Key.Enter) SetTotal_Click(sender, e); }
+
     void Reset_Click(object sender, RoutedEventArgs e)
     {
-        if (MessageBox.Show(this, "Set all counters to zero? Existing replays will not be counted again, only new matches.", "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+        if (MessageBox.Show(this, "Set all counters to zero, including chests you added by hand? Existing replays will not be counted again, only new matches.", "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             M.ResetAll();
     }
 }

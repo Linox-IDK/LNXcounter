@@ -24,6 +24,8 @@ public class Settings
     public bool OverlayCollapsed { get; set; }
     public string? ReplayFolder { get; set; }
     public int Volume { get; set; } = 60;
+    /// <summary>Chests added by hand (played on another device, or before the app was installed). Counted as normal chests.</summary>
+    public int ManualChests { get; set; }
 }
 
 public class StateFile
@@ -38,7 +40,10 @@ public class StateFile
 /// <summary>JSON save file in %APPDATA%\LNXcounter. Written atomically, with a .bak of the previous save.</summary>
 public static class Store
 {
-    public static readonly string Dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LNXcounter");
+    // LNX_DATA is only meant for testing: it points the app at another folder so a test run never touches the real save
+    public static readonly string Dir = Environment.GetEnvironmentVariable("LNX_DATA") is { Length: > 0 } custom
+        ? custom
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LNXcounter");
     static readonly string FilePath = Path.Combine(Dir, "state.json");
     static readonly JsonSerializerOptions Opt = new() { WriteIndented = true };
 

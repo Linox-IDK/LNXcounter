@@ -17,6 +17,7 @@ No login, no account, no data sent anywhere. Everything happens on your PC.
 - List of your recent matches with the number of chests opened in each
 - A new match is picked up automatically **about 8–20 seconds after it ends**, no need to restart or click anything
 - Your progress is saved on your PC between launches
+- **Add chests from other devices:** the app can only see the replays on the PC it runs on. In the **Settings** tab you can add the chests you opened elsewhere (or before installing the app), or just type your exact season total. They are counted as normal chests and used for your drop odds too
 
 ### ⏰ Treasure Hours (all times in Paris time)
 - The next Treasure Hour with a **live countdown** (days : hours : minutes : seconds)
@@ -67,6 +68,8 @@ Click a jam track reward to **listen to its song** right inside the app, with pl
 2. Run it. It is a single file and there is nothing to install.
 
 > **Windows SmartScreen warning:** the app is not code-signed, so Windows may show *"Windows protected your PC"*. Click **More info → Run anyway**.
+
+See the [**changelog**](CHANGELOG.md) for what changed in every version.
 
 ## Requirements
 

@@ -10,7 +10,7 @@ namespace LNXcounter;
 
 public partial class App : Application
 {
-    public const string Version = "1.8.0";
+    public const string Version = "1.9.0";
     public static AppModel Model { get; private set; } = null!;
     public static OverlayWindow Overlay { get; private set; } = null!;
     public static bool Quitting { get; private set; }

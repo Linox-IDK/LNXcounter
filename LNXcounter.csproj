@@ -9,7 +9,7 @@
     <AssemblyName>LNXcounter</AssemblyName>
     <RootNamespace>LNXcounter</RootNamespace>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
-    <Version>1.8.0</Version>
+    <Version>1.9.0</Version>
     <NoWarn>$(NoWarn);CS8618;NU1701</NoWarn>
     <!-- memory: workstation non-concurrent GC (no extra GC thread), conserve memory, no PGO instrumentation -->
     <ServerGarbageCollector>false</ServerGarbageCollector>
