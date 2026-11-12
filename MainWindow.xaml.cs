@@ -20,6 +20,7 @@ public partial class MainWindow : Window
             else if (a.StartsWith("--addchests=") && int.TryParse(a[12..], out var ac)) App.Model.AddManual(ac);
             else if (a.StartsWith("--toast")) { int tm = a.Length > 8 && int.TryParse(a[8..], out var tv) ? tv : 0; System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(() => App.Model.TestHourAlert(tm)); }
             else if (a == "--updatenow") { var ut = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(22) }; ut.Tick += async (_, _) => { ut.Stop(); await App.Model.InstallUpdateAsync(); }; ut.Start(); }
+            else if (a == "--scrollend") Loaded += (_, _) => Dispatcher.BeginInvoke(() => SettingsPanel.ScrollToEnd(), System.Windows.Threading.DispatcherPriority.ContextIdle);
             else if (a == "--fakehour") App.Model.Drops.ForceHour(new LNXcounter.Services.TreasureWindow(DateTime.UtcNow.AddHours(-1), DateTime.UtcNow.AddHours(1), true));
             else if (a == "--selftest-found") { foreach (var t in App.Model.Drops.Tiles.Where(t => t.Title.Contains("TOKEN") || t.Category == "OUTFIT")) t.SetFoundSilently(true); }
             else if (a.StartsWith("--open=")) { var t = App.Model.Drops.Tiles.FirstOrDefault(x => x.Title.Contains(a[7..].ToUpperInvariant()) || x.Category == a[7..].ToUpperInvariant()); if (t != null) App.Model.Drops.OpenTile(t); }
