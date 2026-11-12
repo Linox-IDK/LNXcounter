@@ -80,6 +80,11 @@ public partial class MainWindow : Window
         App.Restart(save: false);
     }
 
+    void Kofi_Click(object sender, RoutedEventArgs e)
+    {
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://ko-fi.com/lnxidk") { UseShellExecute = true }); } catch { }
+    }
+
     void Alert_Click(object sender, RoutedEventArgs e) { M.Settings.HourAlert = AlertBox.IsChecked == true; M.Save(); }
     void Warn_Click(object sender, RoutedEventArgs e) { M.Settings.HourWarn = WarnBox.IsChecked == true; M.Save(); }
     void AlertTest_Click(object sender, RoutedEventArgs e) => M.TestHourAlert();

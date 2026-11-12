@@ -370,6 +370,8 @@
                                        Text="{loc:Tr 'Chests added by hand are kept when you press Rescan all, and cleared by Reset.'}"/>
                         </StackPanel>
                     </Border>
+
+                    <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Support on Ko-fi (optional)'}" HorizontalAlignment="Left" Margin="0,14,0,6" Padding="18,0" Click="Kofi_Click"/>
                 </StackPanel>
             </ScrollViewer>
 

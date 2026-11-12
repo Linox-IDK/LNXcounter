@@ -22,6 +22,7 @@ Every update of LNXcounter, newest first. Download any version from the [Release
 - **Your Fortnite name** is shown next to the app name. Replays only contain Epic account ids, so it is read from Fortnite's own log on your PC; nothing is sent anywhere.
 - **Already-read replays are never read again** (only *Rescan all* does that), so old matches do not get the treasure markers retroactively.
 - **Cleaner look:** every outline is now gold and every separator black, and the hover tooltips (for example on the treasure star) have the same dark and gold style.
+- A small optional **Support on Ko-fi** button at the bottom of *Settings*.
 - **`LNXcounter.exe -up`** in a terminal opened in the exe folder updates the app from the command line.
 - **Start with Windows:** a checkbox in *Settings* (also in the tray icon and overlay right-click menus) opens the app quietly in the tray at login.
 
