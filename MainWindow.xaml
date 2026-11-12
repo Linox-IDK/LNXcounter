@@ -72,6 +72,7 @@
                                 <TextBlock Text="{loc:Tr 'CHESTS OPENED'}" Style="{StaticResource Label}"/>
                                 <TextBlock Text="{Binding TotalOpened}" FontSize="92" FontWeight="Bold" Foreground="{StaticResource GoldGradient}" Margin="0,-6,0,-4"/>
                                 <TextBlock Text="{Binding CountNote}" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
+                                <TextBlock Text="{Binding TreasureNote}" Foreground="{StaticResource GoldBrush}" FontSize="11.5" Margin="0,2,0,0"/>
                             </StackPanel>
                             <Image Source="/Assets/chest.png" Width="96" Height="96" HorizontalAlignment="Right" VerticalAlignment="Center" Opacity="0.9"
                                    RenderOptions.BitmapScalingMode="HighQuality"/>
@@ -98,17 +99,33 @@
 
                     <Border Grid.Row="4" Style="{StaticResource Card}">
                         <Grid>
-                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                             <TextBlock Text="{loc:Tr 'RECENT MATCHES'}" Style="{StaticResource Label}" Margin="0,0,0,8"/>
-                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <StackPanel Grid.Row="1" Margin="0,0,0,10">
+                                <TextBlock Text="{Binding BestMatchText}" FontSize="19" FontWeight="Black" Foreground="{StaticResource GoldGradient}"/>
+                                <TextBlock Text="{Binding RecordsLine}" FontSize="12.5" Foreground="{StaticResource GoldLightBrush}" Margin="0,1,0,0"/>
+                                <StackPanel Margin="0,8,0,0">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers><DataTrigger Binding="{Binding GoalVisible}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <TextBlock Text="{Binding GoalText}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource GoldBrush}"/>
+                                    <Border Height="6" CornerRadius="3" Background="#33D4AF37" Margin="0,4,0,0">
+                                        <local:FractionBar Fraction="{Binding GoalFraction}"/>
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+                            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                                 <ItemsControl ItemsSource="{Binding Matches}" Margin="0,0,14,0">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Margin="0,0,0,1" Height="30">
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="90"/><ColumnDefinition Width="90"/>
+                                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="90"/><ColumnDefinition Width="90"/><ColumnDefinition Width="34"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Border Grid.ColumnSpan="3" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1"/>
+                                                <Border Grid.ColumnSpan="4" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1"/>
                                                 <TextBlock VerticalAlignment="Center" Foreground="{StaticResource TextBrush}" ToolTip="{Binding FindsDetail}" Background="Transparent">
                                                     <Run Text="{Binding DateText, Mode=OneWay}"/><Run Text="{Binding FindsText, Mode=OneWay}" Foreground="{StaticResource GoldBrush}"/>
                                                 </TextBlock>
@@ -118,6 +135,10 @@
                                                 <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{StaticResource GoldLightBrush}">
                                                     <Run Text="{Binding Broken, Mode=OneWay}"/><Run Text="{loc:Tr ' broken'}" Foreground="{StaticResource MutedBrush}" FontSize="11"/>
                                                 </TextBlock>
+                                                <Button Grid.Column="3" Style="{StaticResource EyeButton}" Visibility="{Binding EyeVisibility}" Click="Eye_Click" ToolTip="{loc:Tr 'Show where the chests were'}">
+                                                    <Path Width="18" Height="18" Stretch="Uniform" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                                          Data="M12 4.5C7 4.5 2.7 7.6 1 12c1.7 4.4 6 7.5 11 7.5s9.3-3.1 11-7.5c-1.7-4.4-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
+                                                </Button>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -327,6 +348,23 @@
                             <StackPanel Orientation="Horizontal">
                                 <CheckBox x:Name="AlertBox" Style="{StaticResource SettingCheck}" Content="{loc:Tr 'Alert me when a Treasure Hour starts'}" Click="Alert_Click" IsChecked="True"/>
                                 <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Test'}" Margin="18,0,0,0" MinWidth="72" Click="AlertTest_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="22,18">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Tr 'GOAL (OPTIONAL)'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,0" LineHeight="19"
+                                       Text="{loc:Tr 'Set yourself a target and a progress bar appears above your matches on the Overview. Only chests counted from replays are used.'}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                <RadioButton x:Name="GoalOff" Style="{StaticResource TabRadio}" Content="{loc:Tr 'No goal'}" GroupName="goal" Click="Goal_Click" IsChecked="True"/>
+                                <RadioButton x:Name="GoalDay" Style="{StaticResource TabRadio}" Content="{loc:Tr 'Per day'}" GroupName="goal" Click="Goal_Click"/>
+                                <RadioButton x:Name="GoalWeek" Style="{StaticResource TabRadio}" Content="{loc:Tr 'Per week'}" GroupName="goal" Click="Goal_Click"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <TextBox x:Name="GoalBox" Style="{StaticResource GoldBox}" Width="110" PreviewTextInput="Number_PreviewTextInput" KeyDown="GoalBox_KeyDown"/>
+                                <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Set target'}" Margin="10,0,0,0" MinWidth="96" Click="Goal_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>

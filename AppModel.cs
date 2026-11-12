@@ -67,6 +67,79 @@ public class AppModel : Notify
     public string ManualInfo => ManualChests > 0
         ? Loc.F("Added by hand so far: {0}   ·   Counted from replays: {1}   ·   Total: {2}", ManualChests.ToString("N0"), ReplayChests.ToString("N0"), TotalOpened.ToString("N0"))
         : Loc.F("Nothing added by hand yet   ·   Counted from replays: {0}", ReplayChests.ToString("N0"));
+    // ----- records, streak, goal, Treasure Hour count (Overview) -----
+    string bestMatchText = "", recordsLine = "", goalText = "", treasureNote = "";
+    double goalFraction;
+    bool goalVisible;
+    public string BestMatchText { get => bestMatchText; private set => Set(ref bestMatchText, value); }
+    public string RecordsLine { get => recordsLine; private set => Set(ref recordsLine, value); }
+    public string GoalText { get => goalText; private set => Set(ref goalText, value); }
+    public double GoalFraction { get => goalFraction; private set => Set(ref goalFraction, value); }
+    public bool GoalVisible { get => goalVisible; private set => Set(ref goalVisible, value); }
+    public string TreasureNote { get => treasureNote; private set => Set(ref treasureNote, value); }
+    public int GoalKind => state.Settings.GoalKind;
+    public int GoalTarget => state.Settings.GoalTarget;
+    DateTime recordsDay;
+
+    public void SetGoal(int kind, int target)
+    {
+        state.Settings.GoalKind = Math.Clamp(kind, 0, 2);
+        if (target > 0) state.Settings.GoalTarget = Math.Min(target, 100000);
+        Raise(nameof(GoalKind)); Raise(nameof(GoalTarget));
+        RebuildRecords(); Save();
+    }
+
+    static DateTime ParisDay(DateTime local) => Paris.FromLocal(local).Date;
+
+    void RebuildRecords()
+    {
+        var ok = state.Matches.Where(m => m.Error == null && m.Opened > 0).ToList();
+        var today = Paris.FromUtc(DateTime.UtcNow).Date;
+        recordsDay = today;
+        var best = ok.OrderByDescending(m => m.Opened).ThenByDescending(m => m.Started).FirstOrDefault();
+        BestMatchText = best == null ? "" : Loc.F(best.Opened == 1 ? "★ BEST MATCH · {0} chest · {1}" : "★ BEST MATCH · {0} chests · {1}", best.Opened, Paris.Day(Paris.FromLocal(best.Started)));
+
+        var perDay = ok.GroupBy(m => ParisDay(m.Started)).ToDictionary(g => g.Key, g => g.Sum(m => m.Opened));
+        int bestDay = perDay.Count == 0 ? 0 : perDay.Values.Max();
+        var days = perDay.Keys.OrderBy(d => d).ToList();
+        int bestStreak = 0, run = 0; DateTime? prev = null;
+        foreach (var d in days) { run = prev != null && (d - prev.Value).Days == 1 ? run + 1 : 1; bestStreak = Math.Max(bestStreak, run); prev = d; }
+        int streak = 0;
+        var cur = perDay.ContainsKey(today) ? today : today.AddDays(-1);
+        while (perDay.ContainsKey(cur)) { streak++; cur = cur.AddDays(-1); }
+        var parts = new List<string>();
+        if (bestDay > 0) parts.Add(Loc.F("Best day {0}", bestDay));
+        if (bestStreak > 0) parts.Add(Loc.F(streak == 1 ? "Streak {0} day" : "Streak {0} days", streak) + (bestStreak > streak ? Loc.F(" (best {0})", bestStreak) : ""));
+        RecordsLine = string.Join("  ·  ", parts);
+
+        // goal
+        int kind = state.Settings.GoalKind, target = Math.Max(1, state.Settings.GoalTarget);
+        GoalVisible = kind != 0;
+        if (kind != 0)
+        {
+            var from = kind == 1 ? today : today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+            int done = perDay.Where(kv => kv.Key >= from).Sum(kv => kv.Value);
+            GoalFraction = Math.Min(1, done / (double)target);
+            GoalText = done >= target
+                ? Loc.F(kind == 1 ? "GOAL REACHED · {0}/{1} today" : "GOAL REACHED · {0}/{1} this week", done, target)
+                : Loc.F(kind == 1 ? "GOAL TODAY · {0}/{1}" : "GOAL THIS WEEK · {0}/{1}", done, target);
+        }
+
+        // chests opened while a Treasure Hour was running: the match start (file name) plus the moment of each chest
+        int inHour = 0;
+        foreach (var m in ok)
+        {
+            var start = DateTime.SpecifyKind(m.Started, DateTimeKind.Local).ToUniversalTime();
+            foreach (var s in m.Spots)
+            {
+                if (s.Broken) continue;
+                var t = start.AddSeconds(s.AtSeconds);
+                if (treasure.Any(w => w.StartUtc <= t && t < w.EndUtc)) inHour++;
+            }
+        }
+        TreasureNote = Loc.F("({0} during Treasure Hours)", inHour);
+    }
+
     string settingsMessage = "";
     public string SettingsMessage { get => settingsMessage; set => Set(ref settingsMessage, value); }
 
@@ -307,13 +380,16 @@ public class AppModel : Notify
             foreach (var m in state.Matches) recByFile[m.File] = m;
 
             var todo = new List<FileInfo>();
+            var mapOnly = new HashSet<string>();   // replays read before 1.20: only the chest positions are added, their counts stay
             bool inProgress = false;
             foreach (var f in all)
             {
                 recByFile.TryGetValue(f.Name, out var rec);
                 bool isNew = !known.Contains(f.Name);
                 bool grown = rec != null && rec.Size > 0 && f.Length > rec.Size + 50_000;
-                if (!isNew && !grown) continue;   // a replay that was already read is never read again (only "Rescan all" does that)
+                bool needsMap = rec != null && rec.Error == null && rec.Analysis < ChestAnalyzer.Version && rec.Spots.Count == 0;
+                if (!isNew && !grown && !needsMap) continue;   // a replay that was already read is never counted again (only "Rescan all" does that)
+                if (needsMap && !grown) mapOnly.Add(f.Name);
                 if (retryAt.TryGetValue(f.Name, out var t) && now < t) continue;
                 if (IsFinished(f, now)) todo.Add(f);
                 else if (isNew) inProgress = true;
@@ -322,7 +398,7 @@ public class AppModel : Notify
             int i = 0;
             foreach (var f in todo.OrderBy(f => f.LastWriteTimeUtc))
             {
-                Status = Loc.F("Reading match {0}/{1}…", ++i, todo.Count);
+                Status = Loc.F(mapOnly.Contains(f.Name) ? "Adding map data {0}/{1}…" : "Reading match {0}/{1}…", ++i, todo.Count);
                 long size = f.Length;
                 var rec = await Task.Run(() => ChestAnalyzer.Analyze(f.FullName));
                 rec.Size = size;
@@ -336,6 +412,13 @@ public class AppModel : Notify
                 }
 
                 var old = state.Matches.FirstOrDefault(m => m.File == rec.File);
+                if (mapOnly.Contains(rec.File) && old != null)
+                {
+                    if (rec.Error == null) old.Spots = rec.Spots;
+                    old.Analysis = ChestAnalyzer.Version;
+                    Rebuild(); Save();
+                    continue;
+                }
                 int delta = rec.Opened - (old?.Opened ?? 0);
                 if (old != null) state.Matches.Remove(old);
                 known.Add(rec.File);
@@ -374,6 +457,7 @@ public class AppModel : Notify
             Types.Add(new TypeRow(TypeNames.GetValueOrDefault(kv.Key, kv.Key), kv.Value, $"/Assets/{TypeIcons.GetValueOrDefault(kv.Key, "plus")}.png"));
         Raise(nameof(ReplayChests)); Raise(nameof(ManualChests)); Raise(nameof(CountNote)); Raise(nameof(ManualInfo));
         Drops?.Refresh();
+        RebuildRecords();
     }
 
     public void ResetAll()
@@ -400,6 +484,7 @@ public class AppModel : Notify
         var now = DateTime.UtcNow;
         Drops?.Tick();
         CheckHourAlert(now);
+        if (recordsDay != default && Paris.FromUtc(now).Date != recordsDay) RebuildRecords();   // a new day: the goal starts again
         var w = TreasureHours.Next(treasure, now);
 
         // the list: live / next first, then the upcoming ones, then the ended ones (latest first)

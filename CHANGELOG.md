@@ -2,6 +2,14 @@
 
 Every update of LNXcounter, newest first. Download any version from the [Releases](../../releases) page.
 
+## v1.20.0
+**Records, goals and a chest map**
+- **Chest map:** every match in *Recent matches* has a small **eye**. Click it to see the **map** with every chest you opened (or broke) in that match, drawn with its own icon (normal, rare, buried, relic, sprite). Hover one to see what it was and when. A chest is drawn where it is in the game; when the replay does not store its place, it is drawn where you stood when you opened it.
+- **Records:** a gold **BEST MATCH** line above the matches list, with your **best day** and your **streak** (days in a row with at least one chest opened).
+- **Goal (optional):** *Settings > Goal* lets you set a target **per day** or **per week**. A progress bar shows above your matches and says when you reached it. Off by default.
+- **Treasure Hour count:** under the main counter, in small gold: how many of your chests were opened **during a Treasure Hour**.
+- Matches counted by an earlier version get their map positions added once, while their replay is still on your PC. Their counts do not change.
+
 ## v1.10.0
 **Treasure Hunters rewards read from your replays**
 - When a chest gives a reward, the game puts a **golden chest** in the match. LNXcounter now reads it: a reward **you** got is **ticked as found** on the Drops page by itself (Pirate Shop Access, and the weekly outfit, pickaxe or back bling, vehicle decal, jam track and loading screen of weeks 1 and 2; weeks 3-5 are added when their ids are known).

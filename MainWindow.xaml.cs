@@ -19,6 +19,8 @@ public partial class MainWindow : Window
             else if (a == "--tab=settings") SettingsTab.IsChecked = true;
             else if (a.StartsWith("--addchests=") && int.TryParse(a[12..], out var ac)) App.Model.AddManual(ac);
             else if (a.StartsWith("--toast")) { int tm = a.Length > 8 && int.TryParse(a[8..], out var tv) ? tv : 0; System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(() => App.Model.TestHourAlert(tm)); }
+            else if (a.StartsWith("--goal=")) { var gp = a[7..].Split(','); if (gp.Length == 2 && int.TryParse(gp[0], out var gk) && int.TryParse(gp[1], out var gt)) App.Model.SetGoal(gk, gt); }
+            else if (a == "--map") { var mt = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(10) }; mt.Tick += (_, _) => { mt.Stop(); if (App.Model.Matches.FirstOrDefault(x => x.Spots.Count > 0) is { } mm) new MapWindow(mm) { Owner = this }.Show(); }; mt.Start(); }
             else if (a == "--updatenow") { var ut = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(22) }; ut.Tick += async (_, _) => { ut.Stop(); await App.Model.InstallUpdateAsync(); }; ut.Start(); }
             else if (a == "--scrollend") Loaded += (_, _) => Dispatcher.BeginInvoke(() => SettingsPanel.ScrollToEnd(), System.Windows.Threading.DispatcherPriority.ContextIdle);
             else if (a == "--fakehour") App.Model.Drops.ForceHour(new LNXcounter.Services.TreasureWindow(DateTime.UtcNow.AddHours(-1), DateTime.UtcNow.AddHours(1), true));
@@ -45,7 +47,7 @@ public partial class MainWindow : Window
         OverviewPanel.Visibility = OverviewTab.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
         DropsPanel.Visibility = DropsTab.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
         SettingsPanel.Visibility = SettingsTab.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
-        if (SettingsTab.IsChecked == true) { StartupBox.IsChecked = LNXcounter.Services.Startup.IsEnabled; AlertBox.IsChecked = M.Settings.HourAlert; WarnBox.IsChecked = M.Settings.HourWarn; AutoUpdateBox.IsChecked = M.Settings.AutoUpdateCheck; }   // it can also be switched from the tray menu
+        if (SettingsTab.IsChecked == true) { StartupBox.IsChecked = LNXcounter.Services.Startup.IsEnabled; AlertBox.IsChecked = M.Settings.HourAlert; WarnBox.IsChecked = M.Settings.HourWarn; AutoUpdateBox.IsChecked = M.Settings.AutoUpdateCheck; GoalOff.IsChecked = M.GoalKind == 0; GoalDay.IsChecked = M.GoalKind == 1; GoalWeek.IsChecked = M.GoalKind == 2; GoalBox.Text = M.GoalTarget.ToString(); }   // it can also be switched from the tray menu
     }
 
     // ----- Settings: start with Windows, CSV export -----
@@ -197,6 +199,20 @@ public partial class MainWindow : Window
     void SetTotal_Click(object sender, RoutedEventArgs e) { if (TryNumber(TotalBox, out var n)) { M.SetTotal(n); TotalBox.Clear(); } }
     void AddBox_KeyDown(object sender, KeyEventArgs e) { if (e.Key == Key.Enter) AddChests_Click(sender, e); }
     void TotalBox_KeyDown(object sender, KeyEventArgs e) { if (e.Key == Key.Enter) SetTotal_Click(sender, e); }
+
+    void Eye_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: MatchRecord m } && m.Spots.Count > 0) new MapWindow(m) { Owner = this }.Show();
+    }
+
+    void Goal_Click(object sender, RoutedEventArgs e)
+    {
+        int kind = GoalWeek.IsChecked == true ? 2 : GoalDay.IsChecked == true ? 1 : 0;
+        int.TryParse(GoalBox.Text.Replace(" ", ""), out var target);
+        M.SetGoal(kind, target);
+        GoalBox.Text = M.GoalTarget.ToString();
+    }
+    void GoalBox_KeyDown(object sender, KeyEventArgs e) { if (e.Key == Key.Enter) Goal_Click(sender, e); }
 
     void Reset_Click(object sender, RoutedEventArgs e)
     {

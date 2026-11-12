@@ -13,7 +13,7 @@ namespace LNXcounter.Services;
 public static class ChestAnalyzer
 {
     /// <summary>Raise when the analysis learns something new: matches whose replay is still on disk are then read again.</summary>
-    public const int Version = 2;   // 2 = treasure finds (golden chest prizes, gizmos)
+    public const int Version = 3;   // 2 = treasure finds (golden chest prizes, gizmos), 3 = where each chest was opened
 
     public static MatchRecord Analyze(string path)
     {
@@ -36,7 +36,7 @@ public static class ChestAnalyzer
         return File.GetCreationTime(path);
     }
 
-    sealed class Track { public uint Actor; public string Class = ""; public bool Searched; public double SearchedAt; public uint? LastPawn, PawnAtOpen; }
+    sealed class Track { public uint Actor; public string Class = ""; public bool Searched; public double SearchedAt; public uint? LastPawn, PawnAtOpen; public (double X, double Y)? PawnSpot; }
 
     sealed class ChestReader : FortniteReplayReader.ReplayReader
     {
@@ -46,10 +46,17 @@ public static class ChestAnalyzer
         readonly Dictionary<uint, Track> tracks = new();
         readonly List<(uint hitter, uint target, bool fatal, double t)> hits = new();
         uint? recorder; double now, firstTime;
+        readonly Dictionary<uint, (double X, double Y)> chanSpot = new(), pawnPos = new();   // chest spawn spot by actor, last seen spot of each pawn by actor
 
         public ChestReader() : base(null!, ParseMode.Full) { }
 
-        protected override void OnChannelOpened(uint ch, NetworkGUID? actor) { base.OnChannelOpened(ch, actor); if (actor != null) chanToActor[ch] = actor.Value; }
+        protected override void OnChannelOpened(uint ch, NetworkGUID? actor)
+        {
+            base.OnChannelOpened(ch, actor);
+            if (actor == null) return;
+            chanToActor[ch] = actor.Value;
+            try { if (Channels[ch]?.Actor?.Location is { } l && (l.X != 0 || l.Y != 0)) chanSpot[actor.Value] = (l.X, l.Y); } catch { }
+        }
         protected override void OnChannelClosed(uint ch, NetworkGUID? actor) { chanToActor.Remove(ch); base.OnChannelClosed(ch, actor); }
 
         protected override void OnExportRead(uint ch, INetFieldExportGroup? g)
@@ -61,7 +68,12 @@ public static class ChestAnalyzer
                 else if (gs.ReplicatedWorldTimeSeconds is float s && s > 0) now = s;
                 if (firstTime == 0 && now > 0) firstTime = now;
             }
-            else if (g is PlayerPawn pp && pp.PlayerState is uint ps && ps != 0 && chanToActor.TryGetValue(ch, out var a)) pawnToPS[a] = ps;
+            else if (g is PlayerPawn pp && chanToActor.TryGetValue(ch, out var a))
+            {
+                if (pp.PlayerState is uint ps && ps != 0) pawnToPS[a] = ps;
+                var loc = pp.ReplicatedMovement?.Location ?? pp.Location;
+                if (loc != null && (loc.X != 0 || loc.Y != 0)) pawnPos[a] = (loc.X, loc.Y);
+            }
             else if (g is BatchedDamageCues dc && chanToActor.TryGetValue(ch, out var hitter))
             {
                 if (dc.NonPlayerHitActor is uint t1 && t1 != 0) hits.Add((hitter, t1, dc.NonPlayerbIsFatal == true, now));
@@ -160,13 +172,13 @@ public static class ChestAnalyzer
                     case "bAlreadySearched":
                     {
                         bool b = ar.ReadBit(); if (bits > 1) ar.SkipBits(bits - 1);
-                        if (b && !t.Searched) { t.Searched = true; t.SearchedAt = now; t.PawnAtOpen = t.LastPawn; }
+                        if (b && !t.Searched) { t.Searched = true; t.SearchedAt = now; t.PawnAtOpen = t.LastPawn; if (t.LastPawn is uint lp && pawnPos.TryGetValue(lp, out var sp)) t.PawnSpot = sp; }
                         break;
                     }
                     case "SearchingPawn":
                     {
                         uint p = new NetBitReader(ar.ReadBits(bits), bits).SerializePropertyObject();
-                        if (p != 0) { t.LastPawn = p; if (t.Searched) t.PawnAtOpen ??= p; }
+                        if (p != 0) { t.LastPawn = p; if (t.Searched) { t.PawnAtOpen ??= p; if (t.PawnSpot == null && pawnPos.TryGetValue(p, out var sp2)) t.PawnSpot = sp2; } }
                         break;
                     }
                     default: ar.SkipBits(bits); break;
@@ -198,6 +210,11 @@ public static class ChestAnalyzer
                 bool broke = !opened && myKills.TryGetValue(t.Actor, out var kt) && (!t.Searched || t.SearchedAt > kt);
                 if (opened) { rec.Opened++; rec.OpenedByType[type] = rec.OpenedByType.GetValueOrDefault(type) + 1; }
                 else if (broke) rec.Broken++;
+                if (opened || broke)
+                {
+                    var spot = chanSpot.TryGetValue(t.Actor, out var cs) ? cs : t.PawnSpot;
+                    if (spot is { } sp) rec.Spots.Add(new ChestSpot { X = (int)sp.X, Y = (int)sp.Y, Type = type, Broken = !opened, AtSeconds = (int)Math.Max(0, t.SearchedAt - (firstTime > 0 ? firstTime : 0)), Exact = chanSpot.ContainsKey(t.Actor) });
+                }
             }
 
             double t0 = firstTime > 0 ? firstTime : 0;

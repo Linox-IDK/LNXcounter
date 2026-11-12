@@ -15,6 +15,9 @@ public class MatchRecord
     public int Analysis { get; set; }
     /// <summary>Treasure Hunters rewards and gizmos seen in this match (golden chest prizes, equipped gizmos).</summary>
     public List<TreasureFind> Finds { get; set; } = new();
+    /// <summary>Where each chest you opened (or broke) was, in Fortnite map units. Used by the map view.</summary>
+    public List<ChestSpot> Spots { get; set; } = new();
+    [JsonIgnore] public System.Windows.Visibility EyeVisibility => Spots.Count > 0 ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
     [JsonIgnore] public string FindsText => Finds.Count(f => f.Mine) is var n and > 0 ? Loc.F(n > 1 ? "  ★ {0} treasures" : "  ★ {0} treasure", n) : Finds.Count > 0 ? "  ☆" : "";
     /// <summary>Tooltip of the match row: every treasure seen, yours first.</summary>
     [JsonIgnore] public string? FindsDetail => Finds.Count == 0 ? null
@@ -23,6 +26,17 @@ public class MatchRecord
     /// <summary>Replay file size when it was read. If the file later grows, it is read again.</summary>
     public long Size { get; set; }
     [JsonIgnore] public string DateText => Paris.FromLocal(Started).ToString("ddd d MMM · HH:mm");
+}
+
+public class ChestSpot
+{
+    public int X { get; set; }
+    public int Y { get; set; }
+    public string Type { get; set; } = "";
+    public bool Broken { get; set; }
+    public int AtSeconds { get; set; }
+    /// <summary>true = the chest's own position; false = where you stood when it opened.</summary>
+    public bool Exact { get; set; }
 }
 
 /// <summary>One treasure seen in a replay. Kind: "prize" (golden chest reward) or "gizmo". Mine = it was for the recording player.</summary>
@@ -55,6 +69,9 @@ public class Settings
     public bool AutoUpdateCheck { get; set; } = true;
     /// <summary>Chests added by hand (played on another device, or before the app was installed). Counted as normal chests.</summary>
     public int ManualChests { get; set; }
+    /// <summary>Optional goal: 0 = none, 1 = chests per day, 2 = chests per week (Monday to Sunday).</summary>
+    public int GoalKind { get; set; }
+    public int GoalTarget { get; set; } = 50;
 }
 
 public class StateFile

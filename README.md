@@ -35,6 +35,8 @@ LNXcounter can only count the matches it finds as replay files **on the PC it ru
 - **Export to CSV or PDF:** save your chests **per day, per week (Monday to Sunday) or per month**. CSV opens in Excel / Google Sheets (with chests by type); PDF is a small black and gold report with totals, a bar per period and the treasures you found
 - **Treasure Hour alert:** a pop-up with a short chime slides in at the top right of your screen when a Treasure Hour starts, plus a silent warning 30 minutes before and one with the chime 10 minutes before (switch them off or press *Test* in Settings)
 - **Your language:** French, Spanish or German when Windows is set to it (English otherwise), and your Fortnite name next to the app name
+- **Chest map:** an eye on every match shows where each chest you opened was on the map
+- **Records, streak and an optional goal** above the matches list, and how many chests you opened during Treasure Hours
 - **Backup and restore:** save all your stats to one file and load it back, for example on a new PC
 - **Updates:** the app checks GitHub for a new version (can be switched off). When one exists, a red dot shows on *SETTINGS* and the *Updates* card says *New update available vX.Y.Z*; *Update now* installs it and restarts. You can also run `LNXcounter.exe -up` in a terminal opened in the exe folder
 
