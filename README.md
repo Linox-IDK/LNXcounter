@@ -5,6 +5,8 @@ It reads the replay files your own game already saves and counts **only the ches
 
 No login, no account, no data sent anywhere. Everything happens on your PC.
 
+[![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-support%20the%20project-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/lnxidk) Totally optional: if you enjoy the app and want to chip in, you can. If not, no worries.
+
 ![Overview](screenshots/overview.png)
 
 ---
