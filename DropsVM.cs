@@ -13,7 +13,7 @@ public class WeekTab : Notify
     public int Number { get; init; }
     public string Label { get; init; } = "";
     public bool Available { get; init; }
-    public string Tip => Available ? "" : "Not announced yet";
+    public string Tip => Available ? "" : Loc.T("Not announced yet");
     bool selected, ended, live;
     public bool IsSelected { get => selected; set => Set(ref selected, value); }
     public bool Ended { get => ended; set => Set(ref ended, value); }
@@ -24,6 +24,7 @@ public class TileVM : Notify
 {
     readonly DropsVM owner;
     readonly string key;
+    public string Key => key;
     public TileVM(DropsVM owner, string key) { this.owner = owner; this.key = key; }
 
     public string Category { get; init; } = "";
@@ -57,9 +58,9 @@ public class TileVM : Notify
     public Visibility SharedNoteVisibility => IsToken ? Visibility.Visible : Visibility.Collapsed;
     public Stretch ModalStretch => IsLoading && !Unknown ? Stretch.UniformToFill : Stretch.Uniform;
     public Thickness ModalMargin => IsLoading && !Unknown ? new Thickness(0) : new Thickness(18);
-    public string ModalTitle => Unknown ? "UNKNOWN" : Title;
+    public string ModalTitle => Unknown ? Loc.T("UNKNOWN") : Title;
 
-    public string TierText => Tier switch { "supreme" => "SUPREME PRIZE", "major" => "MAJOR PRIZE", _ => "STANDARD PRIZE" };
+    public string TierText => Tier switch { "supreme" => Loc.T("SUPREME PRIZE"), "major" => Loc.T("MAJOR PRIZE"), _ => Loc.T("STANDARD PRIZE") };
     public Brush TierFg => Tier switch { "supreme" => Br("#F5D76E"), "major" => Br("#C58BFF"), _ => Br("#5CC4F7") };
     public Brush TierBg => Tier switch { "supreme" => Br("#3A3015"), "major" => Br("#3A2A52"), _ => Br("#163448") };
     static Brush Br(string hex) { var b = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex)); b.Freeze(); return b; }
@@ -79,13 +80,21 @@ public class TileVM : Notify
 }
 
 /// <summary>One row of the odds list under the grid: icon, name, "1 in N" and (percent).</summary>
-public class OddsRow
+public class OddsRow : Notify
 {
     public string Name { get; init; } = "";
-    public string OneInText { get; init; } = "";
-    public string PctText { get; init; } = "";
     public string Icon { get; init; } = "";
     public Brush IconBg { get; init; } = Brushes.Transparent;
+    /// <summary>Drop slot ("token", "outfit"...) and its normal "1 in N" rate.</summary>
+    public string DropId { get; init; } = "";
+    public int BaseOneIn { get; init; }
+
+    string oneInText = "", pctText = "", badge = ""; bool boosted;
+    public string OneInText { get => oneInText; set => Set(ref oneInText, value); }
+    public string PctText { get => pctText; set => Set(ref pctText, value); }
+    /// <summary>"TREASURE HOUR 7.5×" while a Treasure Hour boosts this drop.</summary>
+    public string Badge { get => badge; set => Set(ref badge, value); }
+    public bool Boosted { get => boosted; set => Set(ref boosted, value); }
 }
 
 /// <summary>Drops page: week tabs, the tile grid, "found" ticks (saved) and the countdown.</summary>
@@ -147,11 +156,16 @@ public class DropsVM : Notify
         else
         {
             double chance = (1 - Math.Pow(1 - 1.0 / t.OneIn, n)) * 100;
-            string rate = $"1 in {t.OneIn:N0} per chest ({DropsData.Percent(t.OneIn)})";
-            string extra = t.IsGizmo ? " for any gizmo" : "";
-            if (t.Song != null) rate = "Song: " + t.Song + "\n" + rate;
+            string dropId = t.Key.Contains(':') ? t.Key[(t.Key.IndexOf(':') + 1)..] : t.Key;
+            double boost = Boost(dropId);
+            int shown = EffectiveOneIn(dropId, t.OneIn);
+            string rate = boost > 1
+                ? Loc.F("1 in {0} per chest ({1})  ·  Treasure Hour {2}× (normally 1 in {3})", shown.ToString("N0"), DropsData.Percent(shown), boost.ToString("0.##", CultureInfo.InvariantCulture), t.OneIn.ToString("N0"))
+                : Loc.F("1 in {0} per chest ({1})", t.OneIn.ToString("N0"), DropsData.Percent(t.OneIn));
+            string extra = t.IsGizmo ? Loc.T(" for any gizmo") : "";
+            if (t.Song != null) rate = Loc.T("Song: ") + t.Song + "\n" + rate;
             t.Info = n == 0 ? rate + extra
-                : $"{rate}{extra}\nWith your {n:N0} chests there is a {(chance >= 99.5 ? ">99" : Fmt(chance))}% chance you would have found one by now.";
+                : $"{rate}{extra}\n" + Loc.F("With your {0} chests there is a {1}% chance you would have found one by now.", n.ToString("N0"), chance >= 99.5 ? ">99" : Fmt(chance));
         }
         Open = t;
     }
@@ -200,12 +214,51 @@ public class DropsVM : Notify
     public string ExpectedText { get => expected; set => Set(ref expected, value); }
     public Brush AccentBrush { get => accent; set => Set(ref accent, value); }
 
-    public DropsVM(StateFile state, Action save, Func<int> chests)
+    readonly Func<DateTime, TreasureWindow?> hourAt;
+    TreasureWindow? liveHour, forcedHour; bool hourKnown;
+    /// <summary>Test hook (--fakehour): pretends a Treasure Hour is running.</summary>
+    public void ForceHour(TreasureWindow w) { forcedHour = w; CheckHour(); }
+
+    /// <summary>How much the Treasure Hour running right now multiplies the odds of a drop (1 when none, or for drops it does not boost).</summary>
+    public double Boost(string dropId) => liveHour == null ? 1 : dropId switch
     {
-        this.state = state; this.save = save; this.chests = chests;
+        "outfit" => liveHour.Outfit,
+        "token" => liveHour.Token,
+        "vehicle" => liveHour.Vehicle,
+        _ => 1,
+    };
+
+    /// <summary>The "1 in N" a drop has right now: the normal rate divided by the Treasure Hour boost.</summary>
+    public int EffectiveOneIn(string dropId, int baseOneIn) => (int)Math.Max(1, Math.Round(baseOneIn / Boost(dropId)));
+
+    /// <summary>Called every second: when a Treasure Hour starts or ends, the odds list switches rates (and goes green while boosted).</summary>
+    void CheckHour()
+    {
+        var w = forcedHour ?? hourAt(DateTime.UtcNow);
+        if (hourKnown && ReferenceEquals(w, liveHour)) return;
+        liveHour = w; hourKnown = true;
+        ApplyBoost();
+    }
+
+    void ApplyBoost()
+    {
+        foreach (var r in Odds)
+        {
+            double b = Boost(r.DropId);
+            int one = EffectiveOneIn(r.DropId, r.BaseOneIn);
+            r.OneInText = DropsData.OneInText(one);
+            r.PctText = $"({DropsData.Percent(one)})";
+            r.Boosted = b > 1;
+            r.Badge = b > 1 ? Loc.F("TREASURE HOUR  {0}×", b.ToString("0.##", CultureInfo.InvariantCulture)) : "";
+        }
+    }
+
+    public DropsVM(StateFile state, Action save, Func<int> chests, Func<DateTime, TreasureWindow?> hourAt)
+    {
+        this.state = state; this.save = save; this.chests = chests; this.hourAt = hourAt;
         Audio = new JamPlayer(state.Settings.Volume, VolumeChanged);
         foreach (var w in DropsData.Weeks)
-            Weeks.Add(new WeekTab { Number = w.Number, Label = $"WEEK {w.Number}", Available = w.Available });
+            Weeks.Add(new WeekTab { Number = w.Number, Label = Loc.F("WEEK {0}", w.Number), Available = w.Available });
         Select(CurrentWeekNumber());
     }
 
@@ -227,7 +280,7 @@ public class DropsVM : Notify
         CloseModal();
         foreach (var t in Weeks) t.IsSelected = t.Number == number;
         AccentBrush = Frozen(new SolidColorBrush((Color)ColorConverter.ConvertFromString(def.AccentHex)));
-        WeekLabel = $"WEEK {def.Number} · {def.Range}";
+        WeekLabel = Loc.F("WEEK {0} · {1}", def.Number, def.Range);
         Title = def.Title;
         HeroIcon = $"/Assets/{def.HeroIcon}.png";
 
@@ -254,9 +307,10 @@ public class DropsVM : Notify
             Tiles.Add(tile);
 
             if (d.Listed)
-                Odds.Add(new OddsRow { Name = d.ListName, OneInText = DropsData.OneInText(d.OneIn), PctText = $"({DropsData.Percent(d.OneIn)})",
+                Odds.Add(new OddsRow { Name = d.ListName, DropId = d.Id, BaseOneIn = d.OneIn,
                                        Icon = $"/Assets/{item.Icon}.png", IconBg = Palette(d.Kind) });
         }
+        hourKnown = false; CheckHour();   // fills the rates (boosted ones during a Treasure Hour)
         UpdateFoundText();
         Refresh();
         Tick();
@@ -266,6 +320,16 @@ public class DropsVM : Notify
     bool IsFound(string key) => key == "token"
         ? state.Found.Keys.Any(k => k == "token" || k.EndsWith(":token"))
         : state.Found.GetValueOrDefault(key);
+
+    /// <summary>A reward seen in one of the player's own replays (golden chest): ticks it as found, like the player would.</summary>
+    public void AutoFound(string key)
+    {
+        if (IsFound(key)) return;
+        state.Found[key] = true;
+        foreach (var t in Tiles.Where(t => t.Key == key)) t.SetFoundSilently(true);
+        UpdateFoundText();
+        save();
+    }
 
     public void OnFoundChanged(string key, bool value)
     {
@@ -280,7 +344,7 @@ public class DropsVM : Notify
     {
         int total = DropsData.Drops.Count(d => d.Trackable);
         int found = Tiles.Count(t => t.CheckVisibility == Visibility.Visible && t.Found);
-        FoundText = $"{found}/{total} FOUND";
+        FoundText = Loc.F("{0}/{1} FOUND", found, total);
         HasFound = found > 0;
     }
 
@@ -288,6 +352,7 @@ public class DropsVM : Notify
     public void Tick()
     {
         var now = DateTime.UtcNow;
+        CheckHour();
         if (follow && CurrentWeekNumber() != week.Number) { Select(CurrentWeekNumber()); return; }   // next week just started
         foreach (var w in Weeks)
         {
@@ -300,9 +365,9 @@ public class DropsVM : Notify
         HeroIcon = $"/Assets/{week.HeroIcon}{(inactive ? "_bw" : "")}.png";   // black and white and shadowed unless the week is live
         TitleBrush = inactive ? InactiveTitle : Brushes.White;
         LabelOpacity = inactive ? 0.6 : 1.0;
-        if (ended) { EndLabel = "ENDED"; Countdown = ""; return; }
+        if (ended) { EndLabel = Loc.T("ENDED"); Countdown = ""; return; }
         var left = week.EndUtc - now;
-        EndLabel = now < week.StartUtc ? "STARTS IN" : "ENDS IN";
+        EndLabel = now < week.StartUtc ? Loc.T("STARTS IN") : Loc.T("ENDS IN");
         if (now < week.StartUtc) left = week.StartUtc - now;
         Countdown = $"{(int)left.TotalDays}:{left.Hours:00}:{left.Minutes:00}:{left.Seconds:00}";
     }
@@ -314,8 +379,8 @@ public class DropsVM : Notify
         var parts = DropsData.Drops.Where(d => d.Listed)
             .OrderBy(d => d.OneIn)
             .Select(d => $"{d.ListName} {Fmt((double)n / d.OneIn)}");
-        ExpectedText = n == 0 ? "Open some chests and your expected drops will show up here."
-            : $"At {n:N0} chests you'd expect about:  " + string.Join("   ·   ", parts);
+        ExpectedText = n == 0 ? Loc.T("Open some chests and your expected drops will show up here.")
+                        : Loc.F("At {0} chests you'd expect about:  ", n.ToString("N0")) + string.Join("   ·   ", parts);
     }
 
     static string Fmt(double v) => v >= 10 ? v.ToString("0", CultureInfo.CurrentCulture)

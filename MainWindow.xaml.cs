@@ -1,3 +1,4 @@
+using LNXcounter.Services;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
@@ -17,6 +18,9 @@ public partial class MainWindow : Window
             if (a == "--tab=drops") DropsTab.IsChecked = true;
             else if (a == "--tab=settings") SettingsTab.IsChecked = true;
             else if (a.StartsWith("--addchests=") && int.TryParse(a[12..], out var ac)) App.Model.AddManual(ac);
+            else if (a.StartsWith("--toast")) { int tm = a.Length > 8 && int.TryParse(a[8..], out var tv) ? tv : 0; System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(() => App.Model.TestHourAlert(tm)); }
+            else if (a == "--updatenow") { var ut = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(22) }; ut.Tick += async (_, _) => { ut.Stop(); await App.Model.InstallUpdateAsync(); }; ut.Start(); }
+            else if (a == "--fakehour") App.Model.Drops.ForceHour(new LNXcounter.Services.TreasureWindow(DateTime.UtcNow.AddHours(-1), DateTime.UtcNow.AddHours(1), true));
             else if (a == "--selftest-found") { foreach (var t in App.Model.Drops.Tiles.Where(t => t.Title.Contains("TOKEN") || t.Category == "OUTFIT")) t.SetFoundSilently(true); }
             else if (a.StartsWith("--open=")) { var t = App.Model.Drops.Tiles.FirstOrDefault(x => x.Title.Contains(a[7..].ToUpperInvariant()) || x.Category == a[7..].ToUpperInvariant()); if (t != null) App.Model.Drops.OpenTile(t); }
             else if (a == "--play") App.Model.Drops.ToggleJam();
@@ -40,6 +44,64 @@ public partial class MainWindow : Window
         OverviewPanel.Visibility = OverviewTab.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
         DropsPanel.Visibility = DropsTab.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
         SettingsPanel.Visibility = SettingsTab.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        if (SettingsTab.IsChecked == true) { StartupBox.IsChecked = LNXcounter.Services.Startup.IsEnabled; AlertBox.IsChecked = M.Settings.HourAlert; WarnBox.IsChecked = M.Settings.HourWarn; AutoUpdateBox.IsChecked = M.Settings.AutoUpdateCheck; }   // it can also be switched from the tray menu
+    }
+
+    // ----- Settings: start with Windows, CSV export -----
+    void Startup_Click(object sender, RoutedEventArgs e)
+    {
+        LNXcounter.Services.Startup.Set(StartupBox.IsChecked == true);
+        StartupBox.IsChecked = LNXcounter.Services.Startup.IsEnabled;   // shows what Windows really has
+    }
+
+    async void UpdateNow_Click(object sender, RoutedEventArgs e) => await M.InstallUpdateAsync();
+    async void CheckUpdate_Click(object sender, RoutedEventArgs e) => await M.CheckUpdateAsync(true);
+    void AutoUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        M.Settings.AutoUpdateCheck = AutoUpdateBox.IsChecked == true; M.Save();
+        if (M.Settings.AutoUpdateCheck) _ = M.CheckUpdateAsync(false);
+    }
+
+    void Backup_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new SaveFileDialog { Title = Loc.T("Save a backup of your stats"), Filter = "LNXcounter backup (*.json)|*.json", DefaultExt = ".json", AddExtension = true, FileName = $"LNXcounter-backup-{DateTime.Now:yyyy-MM-dd}.json" };
+        if (dlg.ShowDialog(this) != true) return;
+        try { M.BackupTo(dlg.FileName); M.BackupMessage = Loc.F("Backup saved: {0}.", System.IO.Path.GetFileName(dlg.FileName)); }
+        catch (Exception ex) { M.BackupMessage = Loc.T("Could not save the backup: ") + ex.Message; }
+    }
+
+    void Restore_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new OpenFileDialog { Title = Loc.T("Choose a LNXcounter backup"), Filter = "LNXcounter backup (*.json)|*.json|All files (*.*)|*.*" };
+        if (dlg.ShowDialog(this) != true) return;
+        if (MessageBox.Show(this, Loc.T("Replace your current stats with this backup? The current stats are kept as state.json.bak. The app restarts afterwards."), "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+        var err = M.RestoreFrom(dlg.FileName);
+        if (err != null) { M.BackupMessage = err; return; }
+        App.Restart(save: false);
+    }
+
+    void Alert_Click(object sender, RoutedEventArgs e) { M.Settings.HourAlert = AlertBox.IsChecked == true; M.Save(); }
+    void Warn_Click(object sender, RoutedEventArgs e) { M.Settings.HourWarn = WarnBox.IsChecked == true; M.Save(); }
+    void AlertTest_Click(object sender, RoutedEventArgs e) => M.TestHourAlert();
+    void WarnTest_Click(object sender, RoutedEventArgs e) => M.TestHourAlert(10);
+
+    void ExportCsv_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not System.Windows.Controls.Button b || !Enum.TryParse<LNXcounter.Services.CsvExport.Period>(b.Tag as string, out var period)) return;
+        bool pdf = FormatPdf.IsChecked == true;
+        var dlg = new SaveFileDialog
+        {
+            Title = Loc.T(pdf ? "Save your chests as PDF" : "Save your chests as CSV"),
+            Filter = pdf ? "PDF file (*.pdf)|*.pdf" : "CSV file (*.csv)|*.csv", DefaultExt = pdf ? ".pdf" : ".csv", AddExtension = true,
+            FileName = $"LNXcounter-{period.ToString().ToLowerInvariant()}-{DateTime.Now:yyyy-MM-dd}" + (pdf ? ".pdf" : ".csv"),
+        };
+        if (dlg.ShowDialog(this) != true) return;
+        try
+        {
+            if (pdf) LNXcounter.Services.PdfExport.Save(dlg.FileName, M.BuildPdf(period)); else LNXcounter.Services.CsvExport.Save(dlg.FileName, M.BuildCsv(period));
+            M.ExportMessage = Loc.F("Saved {0}.", System.IO.Path.GetFileName(dlg.FileName));
+        }
+        catch (Exception ex) { M.ExportMessage = Loc.T("Could not save the file: ") + ex.Message; }
     }
 
     // click a reward tile -> details popup (the checkbox inside the tile handles its own click)
@@ -103,13 +165,13 @@ public partial class MainWindow : Window
 
     void Folder_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new OpenFolderDialog { Title = "Choose the Fortnite replays folder (Demos)", InitialDirectory = M.ReplayFolder };
+        var dlg = new OpenFolderDialog { Title = Loc.T("Choose the Fortnite replays folder (Demos)"), InitialDirectory = M.ReplayFolder };
         if (dlg.ShowDialog(this) == true) M.SetFolder(dlg.FolderName);
     }
 
     async void Rescan_Click(object sender, RoutedEventArgs e)
     {
-        if (MessageBox.Show(this, "Re-read every replay in the folder and rebuild your totals from scratch?", "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        if (MessageBox.Show(this, Loc.T("Re-read every replay in the folder and rebuild your totals from scratch?"), "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             await M.RescanAllAsync();
     }
 
@@ -120,7 +182,7 @@ public partial class MainWindow : Window
     {
         var txt = box.Text.Replace(" ", "").Replace(",", "").Replace(".", "");
         if (int.TryParse(txt, out n) && n > 0 && n <= AppModel.MaxManual) return true;
-        M.SettingsMessage = "Type a whole number above 0.";
+        M.SettingsMessage = Loc.T("Type a whole number above 0.");
         return false;
     }
 
@@ -132,7 +194,7 @@ public partial class MainWindow : Window
 
     void Reset_Click(object sender, RoutedEventArgs e)
     {
-        if (MessageBox.Show(this, "Set all counters to zero, including chests you added by hand? Existing replays will not be counted again, only new matches.", "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+        if (MessageBox.Show(this, Loc.T("Set all counters to zero, including chests you added by hand? Existing replays will not be counted again, only new matches."), "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             M.ResetAll();
     }
 }

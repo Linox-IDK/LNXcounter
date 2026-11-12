@@ -107,7 +107,7 @@ public static class DropsData
     }
 
     public static string Rate(int oneIn) => "1:" + oneIn.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
-    public static string OneInText(int oneIn) => "1 in " + oneIn.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
+    public static string OneInText(int oneIn) => Loc.F("1 in {0}", oneIn.ToString("N0", System.Globalization.CultureInfo.InvariantCulture));
 
     /// <summary>Random Fortnite-flavoured tips for the loading screen preview.</summary>
     public static readonly string[] Tips =

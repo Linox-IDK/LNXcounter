@@ -1,6 +1,7 @@
 <Window x:Class="LNXcounter.OverlayWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:LNXcounter.Services"
         Title="LNXcounter overlay" Width="280" SizeToContent="Height" WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ShowInTaskbar="False" Topmost="True" ResizeMode="NoResize" ShowActivated="False" Icon="/Assets/logo.png">
     <Border Background="#F2101010" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1" CornerRadius="9"
@@ -22,7 +23,7 @@
                 <Border Height="1" Background="{StaticResource LineBrush}" Margin="0,0,0,8"/>
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                    <TextBlock Text="Treasure Hours" FontWeight="SemiBold" Foreground="{StaticResource GoldBrush}" FontSize="12.5"/>
+                    <TextBlock Text="{loc:Tr 'Treasure Hours'}" FontWeight="SemiBold" Foreground="{StaticResource GoldBrush}" FontSize="12.5"/>
                     <TextBlock Grid.Column="1" Text="{Binding PirateShort}" HorizontalAlignment="Right" FontSize="12.5" Foreground="{StaticResource TextBrush}"/>
                 </Grid>
                 <TextBlock Text="{Binding PirateCountdown}" HorizontalAlignment="Right" FontSize="10.5" Foreground="{StaticResource MutedBrush}" Margin="0,1,0,0"/>

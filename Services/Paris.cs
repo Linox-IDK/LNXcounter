@@ -6,7 +6,8 @@ namespace LNXcounter.Services;
 public static class Paris
 {
     public static readonly TimeZoneInfo Zone = Find();
-    static readonly CultureInfo En = CultureInfo.InvariantCulture;
+    static readonly CultureInfo En = CultureInfo.CurrentCulture;   // Windows format: 8:00 PM or 20:00, Sat or sam.
+    static readonly bool Use12h = En.DateTimeFormat.ShortTimePattern.Contains('t');
 
     static TimeZoneInfo Find()
     {
@@ -25,12 +26,12 @@ public static class Paris
         catch { return local; }
     }
 
-    public static string Day(DateTime t) => t.ToString("ddd, MMM d", En);                 // Sat, Nov 14
-    public static string Clock(DateTime t) => t.ToString("h:mm tt", En);                  // 8:00 PM
+    public static string Day(DateTime t) => t.ToString(En.TwoLetterISOLanguageName == "en" ? "ddd, MMM d" : "ddd d MMM", En);   // Sat, Nov 14 / sam. 14 nov.
+    public static string Clock(DateTime t) => t.ToString(Use12h ? "h:mm tt" : "HH:mm", En);   // 8:00 PM / 20:00
 
     /// <summary>"8:00 – 10:00 PM", or "11:00 PM – 1:00 AM" when the window crosses noon or midnight.</summary>
     public static string Range(DateTime s, DateTime e) =>
-        s.ToString("tt", En) == e.ToString("tt", En) ? $"{s.ToString("h:mm", En)} – {Clock(e)}" : $"{Clock(s)} – {Clock(e)}";
+        Use12h && s.ToString("tt", En) == e.ToString("tt", En) ? $"{s.ToString("h:mm", En)} – {Clock(e)}" : $"{Clock(s)} – {Clock(e)}";
 
     /// <summary>"3:00:52:32" (days:hours:minutes:seconds), like the countdown on fortnite.bot.</summary>
     public static string Countdown(TimeSpan t)

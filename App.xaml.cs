@@ -10,7 +10,7 @@ namespace LNXcounter;
 
 public partial class App : Application
 {
-    public const string Version = "1.9.0";
+    public const string Version = "1.10.0";
     public static AppModel Model { get; private set; } = null!;
     public static OverlayWindow Overlay { get; private set; } = null!;
     public static bool Quitting { get; private set; }
@@ -26,6 +26,16 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        Loc.Install();   // texts follow the language of Windows
+
+        // "LNXcounter.exe -up" in a terminal: update and exit, no window
+        if (e.Args.Contains("-up") || e.Args.Contains("--up")) { Environment.ExitCode = Updater.RunCli(); Shutdown(); return; }
+
+        // started by a restart (update / restore): wait for the previous copy to be gone
+        foreach (var a in e.Args)
+            if (a.StartsWith("--after=") && int.TryParse(a[8..], out var pid))
+                try { System.Diagnostics.Process.GetProcessById(pid).WaitForExit(15000); } catch { }
+
         Efficiency.Enable();   // Windows "Efficiency mode" from the very first moment
 
         // one copy only: starting the exe again just brings the running one to the front
@@ -36,6 +46,7 @@ public partial class App : Application
             Shutdown();
             return;
         }
+        Updater.Cleanup();
         showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, "LNXcounter.ShowMain");
         new Thread(() => { while (showEvent.WaitOne()) Dispatcher.BeginInvoke(ShowMain); }) { IsBackground = true }.Start();
 
@@ -137,11 +148,18 @@ public partial class App : Application
         Model.Save();
     }
 
-    public static void Quit()
+    /// <summary>Closes this copy and starts a fresh one (after an update or a restore).</summary>
+    public static void Restart(bool save = true)
+    {
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!, $"--after={Environment.ProcessId}") { UseShellExecute = false }); } catch { }
+        Quit(save);
+    }
+
+    public static void Quit(bool save = true)
     {
         Quitting = true;
         var app = (App)Current;
-        Model.Save();
+        if (save) Model.Save();
         if (app.tray != null) { app.tray.Visible = false; app.tray.Dispose(); }
         Overlay.Close();
         Current.MainWindow?.Close();

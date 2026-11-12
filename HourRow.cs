@@ -51,9 +51,9 @@ public class HourRow : Notify
     public void Update(DateTime nowUtc, bool isNext)
     {
         bool ended = nowUtc >= W.EndUtc, live = W.StartUtc <= nowUtc && !ended;
-        if (live) { group = 0; Badge = "LIVE NOW"; BadgeFg = LiveFg; BadgeBg = LiveBg; Opacity = 1; Label = "ENDS IN"; Clock = Paris.Countdown(W.EndUtc - nowUtc); Countdown = "Ends in " + Clock; }
-        else if (ended) { group = 2; Badge = "ENDED"; BadgeFg = EndFg; BadgeBg = EndBg; Opacity = 0.5; Label = ""; Clock = ""; Countdown = ""; }
-        else if (isNext) { group = 0; Badge = "NEXT TREASURE HOUR"; BadgeFg = NextFg; BadgeBg = NextBg; Opacity = 1; Label = "STARTS IN"; Clock = Paris.Countdown(W.StartUtc - nowUtc); Countdown = "In " + Clock; }
-        else { group = 1; Badge = "UPCOMING"; BadgeFg = UpFg; BadgeBg = UpBg; Opacity = 1; Label = ""; Clock = ""; Countdown = ""; }
+        if (live) { group = 0; Badge = Loc.T("LIVE NOW"); BadgeFg = LiveFg; BadgeBg = LiveBg; Opacity = 1; Label = Loc.T("ENDS IN"); Clock = Paris.Countdown(W.EndUtc - nowUtc); Countdown = Loc.T("Ends in ") + Clock; }
+        else if (ended) { group = 2; Badge = Loc.T("ENDED"); BadgeFg = EndFg; BadgeBg = EndBg; Opacity = 0.5; Label = ""; Clock = ""; Countdown = ""; }
+        else if (isNext) { group = 0; Badge = Loc.T("NEXT TREASURE HOUR"); BadgeFg = NextFg; BadgeBg = NextBg; Opacity = 1; Label = Loc.T("STARTS IN"); Clock = Paris.Countdown(W.StartUtc - nowUtc); Countdown = Loc.T("In ") + Clock; }
+        else { group = 1; Badge = Loc.T("UPCOMING"); BadgeFg = UpFg; BadgeBg = UpBg; Opacity = 1; Label = ""; Clock = ""; Countdown = ""; }
     }
 }

@@ -24,8 +24,8 @@ public class AppModel : Notify
 {
     static readonly Dictionary<string, string> TypeNames = new()
     {
-        ["normal"] = "Normal chests", ["rare"] = "Rare chests", ["sprite"] = "Sprite chests", ["sprite_jewel"] = "Jewel sprite chests",
-        ["buried"] = "Buried chests", ["wanted"] = "Wanted posters", ["relic"] = "Relic chests", ["other"] = "Other chests",
+        ["normal"] = Loc.T("Normal chests"), ["rare"] = Loc.T("Rare chests"), ["sprite"] = Loc.T("Sprite chests"), ["sprite_jewel"] = Loc.T("Jewel sprite chests"),
+        ["buried"] = Loc.T("Buried chests"), ["wanted"] = Loc.T("Wanted posters"), ["relic"] = Loc.T("Relic chests"), ["other"] = Loc.T("Other chests"),
     };
 
     // chest type -> icon file in Assets (swap the PNGs to change them)
@@ -50,7 +50,7 @@ public class AppModel : Notify
     public ObservableCollection<TypeRow> Types { get; } = new();
 
     int totalOpened, totalBroken, matchCount, sessionOpened, lastMatchOpened = -1;
-    string status = "Starting…", folderText = "", pirateShort = "", pirateCountdown = "", pirateBadge = "", avgText = "0";
+    string status = Loc.T("Starting…"), folderText = "", pirateShort = "", pirateCountdown = "", pirateBadge = "", avgText = "0";
     bool folderOk, pirateLive;
 
     public int TotalOpened { get => totalOpened; set => Set(ref totalOpened, value); }
@@ -62,13 +62,136 @@ public class AppModel : Notify
     public int ReplayChests { get; private set; }
     public int ManualChests => state.Settings.ManualChests;
     public string CountNote => ManualChests > 0
-        ? $"counted from your replays + {ManualChests:N0} added by hand"
-        : "counted from your replays, only the ones you opened yourself";
+        ? Loc.F("counted from your replays + {0} added by hand", ManualChests.ToString("N0"))
+        : Loc.T("counted from your replays, only the ones you opened yourself");
     public string ManualInfo => ManualChests > 0
-        ? $"Added by hand so far: {ManualChests:N0}   ·   Counted from replays: {ReplayChests:N0}   ·   Total: {TotalOpened:N0}"
-        : $"Nothing added by hand yet   ·   Counted from replays: {ReplayChests:N0}";
+        ? Loc.F("Added by hand so far: {0}   ·   Counted from replays: {1}   ·   Total: {2}", ManualChests.ToString("N0"), ReplayChests.ToString("N0"), TotalOpened.ToString("N0"))
+        : Loc.F("Nothing added by hand yet   ·   Counted from replays: {0}", ReplayChests.ToString("N0"));
     string settingsMessage = "";
     public string SettingsMessage { get => settingsMessage; set => Set(ref settingsMessage, value); }
+
+    string exportMessage = "";
+    public string ExportMessage { get => exportMessage; set => Set(ref exportMessage, value); }
+
+    /// <summary>The CSV text for a period (the window asks the user where to save it).</summary>
+    public string BuildCsv(CsvExport.Period period) => CsvExport.Build(state.Matches, ManualChests, period);
+
+    public byte[] BuildPdf(CsvExport.Period period) => PdfExport.Build(state.Matches, ManualChests, period);
+
+    DateTime alertedStart;
+    readonly HashSet<(DateTime, int)> warned = new();
+    /// <summary>Pop-up + chime when a Treasure Hour has just started (not when the app is opened in the middle of one).</summary>
+    void CheckHourAlert(DateTime now)
+    {
+        if (state.Settings.HourWarn && treasure.Where(w => w.StartUtc > now).MinBy(w => w.StartUtc) is { } next)
+        {
+            var left = next.StartUtc - now;
+            foreach (var m in new[] { 30, 10 })   // only when the moment is fresh, so opening the app at 12 minutes left does not show the 30 minute one
+                if (left <= TimeSpan.FromMinutes(m) && left > TimeSpan.FromMinutes(m - 5) && warned.Add((next.StartUtc, m))) { HourToast.Show(next, m); break; }
+        }
+        var live = treasure.FirstOrDefault(w => w.StartUtc <= now && now < w.EndUtc);
+        if (live == null || live.StartUtc == alertedStart) return;
+        alertedStart = live.StartUtc;
+        if (state.Settings.HourAlert && now - live.StartUtc < TimeSpan.FromMinutes(10)) HourToast.Show(live);
+    }
+
+    public void TestHourAlert(int minutes = 0)
+    {
+        var now = DateTime.UtcNow;
+        var w = treasure.FirstOrDefault(x => x.StartUtc <= now && now < x.EndUtc) ?? treasure.Where(x => x.StartUtc > now).MinBy(x => x.StartUtc) ?? new TreasureWindow(now, now.AddHours(2), true);
+        HourToast.Show(w, minutes);
+    }
+
+    // ----- backup and restore (Settings tab) -----
+    string backupMessage = "";
+    public string BackupMessage { get => backupMessage; set => Set(ref backupMessage, value); }
+
+    public void BackupTo(string path)
+    {
+        Save();
+        File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(state, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    /// <summary>Loads a backup file as this app's data. Returns an error text, or null when it worked (the app then restarts).</summary>
+    public string? RestoreFrom(string path)
+    {
+        StateFile? s;
+        try { s = System.Text.Json.JsonSerializer.Deserialize<StateFile>(File.ReadAllText(path)); }
+        catch { return Loc.T("That file is not a LNXcounter backup."); }
+        if (s == null || s.Matches == null || s.Settings == null || (s.Matches.Count == 0 && s.Settings.ManualChests == 0 && s.Found.Count == 0))
+            return Loc.T("That file is not a LNXcounter backup (or it is empty).");
+        // the folder and the overlay position belong to this PC, not to the backup
+        var mine = state.Settings;
+        s.Settings.ReplayFolder = mine.ReplayFolder; s.Settings.OverlayLeft = mine.OverlayLeft; s.Settings.OverlayTop = mine.OverlayTop;
+        s.Settings.OverlayVisible = mine.OverlayVisible; s.Settings.OverlayCollapsed = mine.OverlayCollapsed;
+        Store.Save(s);   // keeps the previous save as state.json.bak
+        return null;
+    }
+
+    // ----- the player's Fortnite name -----
+    public string PlayerName => state.Settings.PlayerName ?? "";
+    void RefreshPlayerName()
+    {
+        _ = Task.Run(() =>
+        {
+            var n = Services.PlayerName.Find();
+            if (n != null && n != state.Settings.PlayerName)
+                System.Windows.Application.Current.Dispatcher.Invoke(() => { state.Settings.PlayerName = n; Raise(nameof(PlayerName)); Save(); });
+        });
+    }
+
+    // ----- updates -----
+    UpdateInfo? update;
+    string updateHeadline = "";
+    string updateNote = "";
+    bool updateAvailable, updateBusy;
+    public bool UpdateAvailable { get => updateAvailable; private set => Set(ref updateAvailable, value); }
+    public bool UpdateBusy { get => updateBusy; private set => Set(ref updateBusy, value); }
+    public string UpdateHeadline { get => updateHeadline; private set => Set(ref updateHeadline, value); }
+    public string UpdateNote { get => updateNote; private set => Set(ref updateNote, value); }
+
+    public async Task CheckUpdateAsync(bool manual)
+    {
+        if (UpdateBusy) return;
+        if (manual) UpdateNote = Loc.T("Checking...");
+        var (info, err) = await Updater.CheckAsync();
+        if (info != null)
+        {
+            update = info; UpdateAvailable = true;
+            UpdateHeadline = Loc.F("New update available {0}", info.Tag);
+            UpdateNote = Loc.F("You have v{0}. Press Update to download it ({1} MB) and restart.", Updater.Current.ToString(3), info.Size / 1_048_576);
+        }
+        else if (err != null) { if (manual) UpdateNote = err; }
+        else
+        {
+            update = null; UpdateAvailable = false;
+            UpdateHeadline = $"LNXcounter v{Updater.Current.ToString(3)}";
+            UpdateNote = manual ? Loc.T("You have the newest version.") : UpdateNote;
+        }
+    }
+
+    public async Task InstallUpdateAsync()
+    {
+        if (update == null || UpdateBusy) return;
+        UpdateBusy = true;
+        var res = await Updater.InstallAsync(update, new Progress<int>(p => UpdateNote = Loc.F("Downloading {0}... {1}%", update.Tag, p)));
+        UpdateBusy = false;
+        if (res != null) { UpdateNote = res; return; }
+        UpdateNote = Loc.T("Updated. Restarting...");
+        await Task.Delay(600);
+        App.Restart();
+    }
+
+    readonly DispatcherTimer updateTimer = new() { Interval = TimeSpan.FromHours(6) };
+    void StartUpdateChecks()
+    {
+        UpdateHeadline = $"LNXcounter v{Updater.Current.ToString(3)}";
+        updateTimer.Tick += async (_, _) => { if (state.Settings.AutoUpdateCheck) await CheckUpdateAsync(false); };
+        updateTimer.Start();
+        var first = new DispatcherTimer { Interval = TimeSpan.FromSeconds(15) };
+        first.Tick += async (_, _) => { first.Stop(); if (state.Settings.AutoUpdateCheck) await CheckUpdateAsync(false); };
+        first.Start();
+    }
 
     public const int MaxManual = 10_000_000;
 
@@ -79,9 +202,9 @@ public class AppModel : Notify
         state.Settings.ManualChests = Math.Clamp(before + n, 0, MaxManual);
         int delta = ManualChests - before;
         Rebuild(); Save();
-        SettingsMessage = delta == 0 ? (n < 0 ? "There is nothing added by hand to remove." : "Nothing changed.")
-            : delta > 0 ? $"Added {delta:N0} chests. Your total is now {TotalOpened:N0}."
-            : $"Removed {-delta:N0} chests. Your total is now {TotalOpened:N0}.";
+        SettingsMessage = delta == 0 ? (n < 0 ? Loc.T("There is nothing added by hand to remove.") : Loc.T("Nothing changed."))
+            : delta > 0 ? Loc.F("Added {0} chests. Your total is now {1}.", delta.ToString("N0"), TotalOpened.ToString("N0"))
+            : Loc.F("Removed {0} chests. Your total is now {1}.", (-delta).ToString("N0"), TotalOpened.ToString("N0"));
     }
 
     /// <summary>Makes the total equal <paramref name="total"/> by adding whatever the replays did not count.</summary>
@@ -89,12 +212,12 @@ public class AppModel : Notify
     {
         if (total < ReplayChests)
         {
-            SettingsMessage = $"LNXcounter already counted {ReplayChests:N0} chests from your replays, so your total can't be lower than that.";
+            SettingsMessage = Loc.F("LNXcounter already counted {0} chests from your replays, so your total can't be lower than that.", ReplayChests.ToString("N0"));
             return;
         }
         state.Settings.ManualChests = Math.Min(total - ReplayChests, MaxManual);
         Rebuild(); Save();
-        SettingsMessage = $"Done. Your total is now {TotalOpened:N0} ({ReplayChests:N0} from replays + {ManualChests:N0} added by hand).";
+        SettingsMessage = Loc.F("Done. Your total is now {0} ({1} from replays + {2} added by hand).", TotalOpened.ToString("N0"), ReplayChests.ToString("N0"), ManualChests.ToString("N0"));
     }
 
     public string AvgText { get => avgText; set => Set(ref avgText, value); }
@@ -120,15 +243,15 @@ public class AppModel : Notify
     public bool PirateLive { get => pirateLive; set => Set(ref pirateLive, value); }
 
     public string OverlayStatus => LastMatchOpened >= 0
-        ? $"This session: {SessionOpened}  ·  Last match: +{LastMatchOpened}"
-        : $"This session: {SessionOpened}";
+        ? Loc.F("This session: {0}  ·  Last match: +{1}", SessionOpened, LastMatchOpened)
+        : Loc.F("This session: {0}", SessionOpened);
 
     public string ReplayFolder => Settings.ReplayFolder ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FortniteGame", "Saved", "Demos");
 
     public void Start()
     {
         foreach (var m in state.Matches) known.Add(m.File);
-        Drops = new DropsVM(state, Save, () => TotalOpened);
+        Drops = new DropsVM(state, Save, () => TotalOpened, now => treasure.FirstOrDefault(w => w.StartUtc <= now && now < w.EndUtc));
         foreach (var w in treasure) hourRows.Add(new HourRow(w));
         Rebuild();
         UpdateFolder();
@@ -138,6 +261,8 @@ public class AppModel : Notify
         scanTimer.Tick += async (_, _) => await ScanAsync();
         scanTimer.Start();
         _ = ScanAsync();
+        StartUpdateChecks();
+        RefreshPlayerName();
     }
 
     void UpdateFolder()
@@ -174,7 +299,7 @@ public class AppModel : Notify
         try
         {
             UpdateFolder();
-            if (!FolderOk) { Status = "Replay folder not found. Click Folder… to choose it."; return; }
+            if (!FolderOk) { Status = Loc.T("Replay folder not found. Click Folder… to choose it."); return; }
             var now = DateTime.UtcNow;
             var all = new DirectoryInfo(ReplayFolder).GetFiles("*.replay").Where(f => f.Length > 1_000_000).ToList();
 
@@ -188,7 +313,7 @@ public class AppModel : Notify
                 recByFile.TryGetValue(f.Name, out var rec);
                 bool isNew = !known.Contains(f.Name);
                 bool grown = rec != null && rec.Size > 0 && f.Length > rec.Size + 50_000;
-                if (!isNew && !grown) continue;
+                if (!isNew && !grown) continue;   // a replay that was already read is never read again (only "Rescan all" does that)
                 if (retryAt.TryGetValue(f.Name, out var t) && now < t) continue;
                 if (IsFinished(f, now)) todo.Add(f);
                 else if (isNew) inProgress = true;
@@ -197,7 +322,7 @@ public class AppModel : Notify
             int i = 0;
             foreach (var f in todo.OrderBy(f => f.LastWriteTimeUtc))
             {
-                Status = $"Reading match {++i}/{todo.Count}…";
+                Status = Loc.F("Reading match {0}/{1}…", ++i, todo.Count);
                 long size = f.Length;
                 var rec = await Task.Run(() => ChestAnalyzer.Analyze(f.FullName));
                 rec.Size = size;
@@ -215,6 +340,8 @@ public class AppModel : Notify
                 if (old != null) state.Matches.Remove(old);
                 known.Add(rec.File);
                 state.Matches.Add(rec);
+                foreach (var tf in rec.Finds.Where(x => x.Mine && x.DropId != ""))
+                    Drops?.AutoFound(tf.DropId == "token" ? "token" : $"w{tf.Week}:{tf.DropId}");   // a golden chest reward of yours ticks itself
                 if (rec.Error != null) failed++;
                 else if (firstScanDone) { SessionOpened += delta; LastMatchOpened = rec.Opened; }
                 Rebuild();
@@ -222,10 +349,10 @@ public class AppModel : Notify
             }
             if (todo.Count > 0) MemoryTrim.Schedule(3000);   // reading a replay allocates a lot: give it back
             firstScanDone = true;
-            Status = failed > 0 ? $"Watching for new matches  ·  {failed} replay(s) could not be read (game update?)"
-                : inProgress ? "Match in progress, it will be counted as soon as it ends" : "Watching for new matches";
+            Status = failed > 0 ? Loc.F("Watching for new matches  ·  {0} replay(s) could not be read (game update?)", failed)
+                : inProgress ? Loc.T("Match in progress, it will be counted as soon as it ends") : Loc.T("Watching for new matches");
         }
-        catch (Exception e) { Status = "Scan error: " + e.Message; }
+        catch (Exception e) { Status = Loc.T("Scan error: ") + e.Message; }
         finally { scanning = false; }
     }
 
@@ -272,6 +399,7 @@ public class AppModel : Notify
     {
         var now = DateTime.UtcNow;
         Drops?.Tick();
+        CheckHourAlert(now);
         var w = TreasureHours.Next(treasure, now);
 
         // the list: live / next first, then the upcoming ones, then the ended ones (latest first)
@@ -282,8 +410,8 @@ public class AppModel : Notify
         var head = hourRows.FirstOrDefault(r => ReferenceEquals(r.W, w));
         if (w == null || head == null)
         {
-            HeadBadge = "NO UPCOMING HOUR"; HeadLabel = ""; HeadClock = "--"; HeadWhen = "Nothing announced yet";
-            PirateShort = "none scheduled"; PirateCountdown = ""; PirateBadge = ""; PirateLive = false;
+            HeadBadge = Loc.T("NO UPCOMING HOUR"); HeadLabel = ""; HeadClock = "--"; HeadWhen = Loc.T("Nothing announced yet");
+            PirateShort = Loc.T("none scheduled"); PirateCountdown = ""; PirateBadge = ""; PirateLive = false;
             return;
         }
         HeadBadge = head.Badge; HeadLabel = head.Label; HeadClock = head.Clock; HeadWhen = head.When;
@@ -291,10 +419,10 @@ public class AppModel : Notify
 
         // overlay + tray menu (Paris time too)
         PirateLive = w.StartUtc <= now;
-        PirateBadge = PirateLive ? "LIVE NOW" : w.Confirmed ? "CONFIRMED" : "ESTIMATED";
+        PirateBadge = PirateLive ? Loc.T("LIVE NOW") : w.Confirmed ? Loc.T("CONFIRMED") : Loc.T("ESTIMATED");
         var left = PirateLive ? w.EndUtc - now : w.StartUtc - now;
         string cd = left.TotalDays >= 1 ? $"{(int)left.TotalDays}d {left.Hours:00}:{left.Minutes:00}:{left.Seconds:00}" : $"{left.Hours:00}:{left.Minutes:00}:{left.Seconds:00}";
-        PirateCountdown = PirateLive ? $"ends in {cd}" : $"starts in {cd}";
-        PirateShort = PirateLive ? $"LIVE · ends {Paris.Clock(head.EndParis)}" : $"{Paris.Day(head.StartParis)} · {Paris.Clock(head.StartParis)}";
+        PirateCountdown = PirateLive ? Loc.F("ends in {0}", cd) : Loc.F("starts in {0}", cd);
+        PirateShort = PirateLive ? Loc.F("LIVE · ends {0}", Paris.Clock(head.EndParis)) : $"{Paris.Day(head.StartParis)} · {Paris.Clock(head.StartParis)}";
     }
 }

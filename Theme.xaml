@@ -10,7 +10,7 @@
     <SolidColorBrush x:Key="GoldDimBrush" Color="#8C6D1F"/>
     <SolidColorBrush x:Key="TextBrush" Color="#EDE6D2"/>
     <SolidColorBrush x:Key="MutedBrush" Color="#8F8869"/>
-    <SolidColorBrush x:Key="LineBrush" Color="#3A3220"/>
+    <SolidColorBrush x:Key="LineBrush" Color="#FF000000"/>   <!-- separators are black; every outline is gold -->
     <SolidColorBrush x:Key="LiveBrush" Color="#7DDB7D"/>
     <LinearGradientBrush x:Key="GoldGradient" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#F6DE8B" Offset="0"/>
@@ -23,10 +23,30 @@
         <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
     </Style>
 
+    <!-- tooltips: dark card with the gold outline, like everything else -->
+    <Style TargetType="ToolTip">
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="HasDropShadow" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Border Background="#F7121212" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1.5" CornerRadius="8" Padding="11,7" MaxWidth="380">
+                        <ContentPresenter TextElement.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter.Resources>
+                                <Style TargetType="TextBlock"><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/></Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="Card" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource PanelBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource LineBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{StaticResource GoldDimBrush}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius" Value="10"/>
         <Setter Property="Padding" Value="16,14"/>
     </Style>
@@ -198,12 +218,12 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
-                    <Border x:Name="b" Width="22" Height="22" CornerRadius="6" Background="#55302A10" BorderBrush="#B3FFFFFF" BorderThickness="1.2">
+                    <Border x:Name="b" Width="22" Height="22" CornerRadius="6" Background="#55302A10" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1.2">
                         <Path x:Name="c" Data="M 0,5 L 3.5,8.5 L 10,1" Stroke="White" StrokeThickness="2.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
                               Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="BorderBrush" Value="#FFFFFFFF"/></Trigger>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="BorderBrush" Value="{StaticResource GoldLightBrush}"/></Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="b" Property="Background" Value="#FF22B04F"/>
                             <Setter TargetName="b" Property="BorderBrush" Value="#FF22B04F"/>
@@ -248,7 +268,7 @@
                 <ControlTemplate TargetType="CheckBox">
                     <Border x:Name="bg" Background="#FF2C2C2C" CornerRadius="10" Padding="12,9">
                         <StackPanel Orientation="Horizontal">
-                            <Border x:Name="box" Width="22" Height="22" CornerRadius="6" BorderBrush="#B3FFFFFF" BorderThickness="1.6" Background="Transparent">
+                            <Border x:Name="box" Width="22" Height="22" CornerRadius="6" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1.6" Background="Transparent">
                                 <Path x:Name="c" Data="M 0,5 L 3.5,8.5 L 10,1" Stroke="White" StrokeThickness="2.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
                                       Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
                             </Border>
@@ -262,6 +282,35 @@
                             <Setter TargetName="box" Property="BorderBrush" Value="#FF22B04F"/>
                             <Setter TargetName="c" Property="Visibility" Value="Visible"/>
                             <Setter TargetName="t" Property="Text" Value="FOUND"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- check box with a label, for the Settings tab -->
+    <Style x:Key="SettingCheck" TargetType="CheckBox">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontFamily" Value="Segoe UI Black"/>
+        <Setter Property="FontSize" Value="13.5"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <Border x:Name="box" Width="24" Height="24" CornerRadius="7" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1.6" Background="#FF1B1B1B">
+                            <Path x:Name="c" Data="M 0,5 L 3.5,8.5 L 10,1" Stroke="White" StrokeThickness="2.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                        </Border>
+                        <ContentPresenter Margin="12,0,0,0" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="box" Property="BorderBrush" Value="{StaticResource GoldBrush}"/></Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="box" Property="Background" Value="#FF22B04F"/>
+                            <Setter TargetName="box" Property="BorderBrush" Value="#FF22B04F"/>
+                            <Setter TargetName="c" Property="Visibility" Value="Visible"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -287,7 +336,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ring" Property="BorderBrush" Value="#F2FFFFFF"/>
+                            <Setter TargetName="ring" Property="BorderBrush" Value="{StaticResource GoldBrush}"/>
                             <Setter TargetName="ring" Property="Background" Value="#40FFFFFF"/>
                             <Setter TargetName="ring" Property="Effect">
                                 <Setter.Value><DropShadowEffect Color="White" BlurRadius="22" ShadowDepth="0" Opacity="0.75"/></Setter.Value>
@@ -306,11 +355,11 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="b" Background="#B3000000" CornerRadius="9" Padding="12,7" BorderBrush="#40FFFFFF" BorderThickness="1">
+                    <Border x:Name="b" Background="#B3000000" CornerRadius="9" Padding="12,7" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1.5">
                         <TextBlock Text="{TemplateBinding Content}" FontFamily="Segoe UI Black" FontSize="12.5" Foreground="{TemplateBinding Foreground}"/>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#E6000000"/><Setter TargetName="b" Property="BorderBrush" Value="#99FFFFFF"/></Trigger>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#E6000000"/><Setter TargetName="b" Property="BorderBrush" Value="{StaticResource GoldBrush}"/></Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

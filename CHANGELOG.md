@@ -2,6 +2,29 @@
 
 Every update of LNXcounter, newest first. Download any version from the [Releases](../../releases) page.
 
+## v1.10.0
+**Treasure Hunters rewards read from your replays**
+- When a chest gives a reward, the game puts a **golden chest** in the match. LNXcounter now reads it: a reward **you** got is **ticked as found** on the Drops page by itself (Pirate Shop Access, and the weekly outfit, pickaxe or back bling, vehicle decal, jam track and loading screen of weeks 1 and 2; weeks 3-5 are added when their ids are known).
+- A match with a treasure gets a **★** in *Recent matches*. Hover it to see what was found and when. Rewards found by **other players near you** are listed there too (☆).
+- **Gizmos** you equip in a match are listed the same way (a gizmo you never equip is not written in the replay).
+- Matches counted by an earlier version are read again once, while their replay is still on your PC.
+- Only what happens near you is recorded by the game.
+- The idea was inspired by LED-N's Fortnite-ChestCounter (credited in the README); the code is LNXcounter's own.
+
+**Also in this version**
+- **Treasure Hour odds:** while a Treasure Hour is on, the drop rates on the Drops page are multiplied by the boost (outfit, Pirate Shop Access, vehicle), shown in **lucky green** with a *TREASURE HOUR* badge. The normal rate stays in the details popup.
+- **Export to CSV or PDF:** *Settings > Export* saves your chests per **day**, **week** (Monday to Sunday) or **month**. Pick **CSV** (Excel / Google Sheets, with chests by type) or **PDF** (a black and gold report with totals, a bar per period and the treasures you found).
+- **Treasure Hour alert:** when a Treasure Hour starts, a pop-up slides in at the **top right** of the screen with a short chime, then slides out by itself (click it to close). Can be switched off in *Settings*, with a *Test* button.
+- **Warnings before the hour:** a silent pop-up **30 minutes** before and one with the chime **10 minutes** before. Separate switch in *Settings*.
+- **Backup and restore:** *Settings > Backup and restore* saves all your stats (matches, chests added by hand, ticked drops) to one file and loads it back, for example on a new PC. Restoring keeps the old stats as `state.json.bak` and restarts the app.
+- **Updates:** the app checks GitHub for a newer version when it starts and every 6 hours (can be switched off). When there is one, a **red dot** appears on the *SETTINGS* tab and the *Updates* card says *"New update available vX.Y.Z"* with an **Update now** button that downloads it and restarts. *Check now* checks by hand.
+- **Your language:** the app follows the language of Windows: **French, Spanish and German** for now, English for anything else. Dates and times use your Windows format too.
+- **Your Fortnite name** is shown next to the app name. Replays only contain Epic account ids, so it is read from Fortnite's own log on your PC; nothing is sent anywhere.
+- **Already-read replays are never read again** (only *Rescan all* does that), so old matches do not get the treasure markers retroactively.
+- **Cleaner look:** every outline is now gold and every separator black, and the hover tooltips (for example on the treasure star) have the same dark and gold style.
+- **`LNXcounter.exe -up`** in a terminal opened in the exe folder updates the app from the command line.
+- **Start with Windows:** a checkbox in *Settings* (also in the tray icon and overlay right-click menus) opens the app quietly in the tray at login.
+
 ## v1.9.0
 **Add chests that the replays can't see**
 - New **SETTINGS** tab.

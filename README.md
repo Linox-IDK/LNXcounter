@@ -29,11 +29,18 @@ LNXcounter can only count the matches it finds as replay files **on the PC it ru
 - The summary box shows how many chests were **added by hand**, how many were **counted from replays**, and your **total**
 - Chests added by hand are counted as **normal chests**, and they are also used for the drop odds, the overlay and the tray tooltip. The average per match is not affected
 - They are **kept when you press Rescan all**, and cleared by **Reset**
+- **Start with Windows:** one checkbox opens LNXcounter quietly in the tray when you log in (the same switch is in the right-click menu of the tray icon and of the overlay)
+- **Export to CSV or PDF:** save your chests **per day, per week (Monday to Sunday) or per month**. CSV opens in Excel / Google Sheets (with chests by type); PDF is a small black and gold report with totals, a bar per period and the treasures you found
+- **Treasure Hour alert:** a pop-up with a short chime slides in at the top right of your screen when a Treasure Hour starts, plus a silent warning 30 minutes before and one with the chime 10 minutes before (switch them off or press *Test* in Settings)
+- **Your language:** French, Spanish or German when Windows is set to it (English otherwise), and your Fortnite name next to the app name
+- **Backup and restore:** save all your stats to one file and load it back, for example on a new PC
+- **Updates:** the app checks GitHub for a new version (can be switched off). When one exists, a red dot shows on *SETTINGS* and the *Updates* card says *New update available vX.Y.Z*; *Update now* installs it and restarts. You can also run `LNXcounter.exe -up` in a terminal opened in the exe folder
 
 ### ⏰ Treasure Hours (all times in Paris time)
 - The next Treasure Hour with a **live countdown** (days : hours : minutes : seconds)
 - The full list of past and upcoming windows with their boosts (Gold Outfit, Pirate Shop Access, Vehicle & Decal)
 - Switches to **LIVE NOW** while a window is running, and past windows are dimmed
+- While a Treasure Hour is on, the drop rates on the Drops page are **multiplied by the boost** and turn **lucky green**
 - Every time shown in the app (Treasure Hours, overlay, tray menu, match times) is converted to **Paris time**, whatever your PC's time zone is
 
 ### 🏴‍☠️ Drops: Treasure Hunters mini-season
@@ -54,6 +61,17 @@ Each reward has its official drop rate, and the app turns your own chest count i
 Click any reward to see its details. For every item the app **calculates your possible odds of already having it**, based on how many chests you have opened in total:
 
 ![Pirate Shop Token](screenshots/token.png)
+
+#### Rewards found in your replays
+When a chest gives a Treasure Hunters reward, the game shows a golden chest in the match, and that is written in the replay too. LNXcounter reads it:
+
+- A reward you got is **ticked as found for you** on the Drops page (the Pirate Shop Access, and the weekly outfit, pickaxe or back bling, vehicle decal, jam track and loading screen)
+- The match in **Recent matches** gets a **★** and a tooltip with what was found and when (`★ You: …`, `☆ Nearby player: …`). Rewards found by other players near you are listed too
+- **Gizmos** you equip in a match are listed the same way. A gizmo you get but never equip is not written in the replay, so it cannot be seen
+- Only what happens **near you** is recorded by the game, so a reward found far away is not in the file
+- Matches counted by an older version are read again once (while their replay is still on your PC)
+
+> This reading is new. The prize ids for the weeks that are still hidden (3 to 5) are added as soon as they are known.
 
 #### Loading screen preview
 Click a loading screen reward and press **▶ PREVIEW** to see it full screen in 16:9, with the animated "connecting" dots and random Fortnite tips, just like in the game.
@@ -134,5 +152,6 @@ Built with WPF on .NET, [FortniteReplayReader](https://github.com/Shiqan/Fortnit
 ## Credits and disclaimer
 
 - Treasure Hours, drop rates and the weekly rewards come from [fortnite.bot/treasure](https://fortnite.bot/treasure) and from Epic Games' announcements.
+- The idea of reading the Treasure Hunters rewards (golden chest prize ids, equipped gizmos) from the replay was inspired by [LED-N's Fortnite-ChestCounter](https://github.com/LED-N/Fortnite-ChestCounter) (MIT). LNXcounter uses its own code. The prize ids of the known rewards come from that project's public list.
 - Jam track previews play the official YouTube videos through YouTube's own embedded player. Nothing is downloaded or copied.
 - **LNXcounter is a fan-made tool. It is not affiliated with, endorsed by or sponsored by Epic Games.** Fortnite and all related names, images and logos are trademarks of Epic Games, Inc.
