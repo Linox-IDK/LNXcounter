@@ -8,6 +8,7 @@ Every update of LNXcounter, newest first. Download any version from the [Release
 - **Records:** a gold **BEST MATCH** line above the matches list, with your **best day** and your **streak** (days in a row with at least one chest opened).
 - **Goal (optional):** *Settings > Goal* lets you set a target **per day** or **per week**. A progress bar shows above your matches and says when you reached it. Off by default.
 - **Treasure Hour count:** under the main counter, in small gold: how many of your chests were opened **during a Treasure Hour**.
+- **Tab slide:** moving between *Overview*, *Drops* and *Settings* now slides and fades the pages instead of switching instantly.
 - Matches counted by an earlier version get their map positions added once, while their replay is still on your PC. Their counts do not change.
 
 ## v1.10.0

@@ -1,6 +1,7 @@
 using LNXcounter.Services;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Microsoft.Win32;
 
 namespace LNXcounter;
@@ -41,12 +42,47 @@ public partial class MainWindow : Window
 
     AppModel M => App.Model;
 
+    // ----- tab change: the old page slides out, the new one slides in from the side it is on -----
+    int curPanel;
+    int slideGen;
+    FrameworkElement[] Panels => new FrameworkElement[] { OverviewPanel, DropsPanel, SettingsPanel };
+
+    void SwitchPanel(int to)
+    {
+        var panels = Panels;
+        foreach (var p in panels) if (p.RenderTransform is not TranslateTransform) p.RenderTransform = new TranslateTransform();
+        if (!IsLoaded || to == curPanel)
+        {
+            for (int i = 0; i < panels.Length; i++) panels[i].Visibility = i == to ? Visibility.Visible : Visibility.Collapsed;
+            curPanel = to; return;
+        }
+        int gen = ++slideGen, dir = to > curPanel ? 1 : -1;
+        for (int i = 0; i < panels.Length; i++)   // a quick second click: put everything else away at once
+        {
+            if (i == to || i == curPanel) continue;
+            panels[i].BeginAnimation(OpacityProperty, null); panels[i].Visibility = Visibility.Collapsed;
+        }
+        var from = panels[curPanel]; var next = panels[to]; curPanel = to;
+        var outT = (TranslateTransform)from.RenderTransform; var inT = (TranslateTransform)next.RenderTransform;
+        var ease = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut };
+        System.Windows.Media.Animation.DoubleAnimation A(double f, double t, int ms) => new(f, t, TimeSpan.FromMilliseconds(ms)) { EasingFunction = ease };
+
+        outT.BeginAnimation(TranslateTransform.XProperty, A(outT.X, -dir * 70, 180));
+        var fade = A(from.Opacity, 0, 160);
+        fade.Completed += (_, _) => { if (gen == slideGen) { from.Visibility = Visibility.Collapsed; from.BeginAnimation(OpacityProperty, null); from.Opacity = 1; outT.BeginAnimation(TranslateTransform.XProperty, null); outT.X = 0; } };
+        from.BeginAnimation(OpacityProperty, fade);
+
+        next.Opacity = 0; next.Visibility = Visibility.Visible;
+        inT.BeginAnimation(TranslateTransform.XProperty, A(dir * 90, 0, 340));
+        var show = A(0, 1, 300);
+        show.Completed += (_, _) => { if (gen == slideGen) { next.BeginAnimation(OpacityProperty, null); next.Opacity = 1; inT.BeginAnimation(TranslateTransform.XProperty, null); inT.X = 0; } };
+        next.BeginAnimation(OpacityProperty, show);
+    }
+
     void Tab_Checked(object sender, RoutedEventArgs e)
     {
         if (OverviewPanel == null || DropsPanel == null || SettingsPanel == null) return; // fires once during InitializeComponent
-        OverviewPanel.Visibility = OverviewTab.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
-        DropsPanel.Visibility = DropsTab.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
-        SettingsPanel.Visibility = SettingsTab.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        SwitchPanel(OverviewTab.IsChecked == true ? 0 : DropsTab.IsChecked == true ? 1 : 2);
         if (SettingsTab.IsChecked == true) { StartupBox.IsChecked = LNXcounter.Services.Startup.IsEnabled; AlertBox.IsChecked = M.Settings.HourAlert; WarnBox.IsChecked = M.Settings.HourWarn; AutoUpdateBox.IsChecked = M.Settings.AutoUpdateCheck; GoalOff.IsChecked = M.GoalKind == 0; GoalDay.IsChecked = M.GoalKind == 1; GoalWeek.IsChecked = M.GoalKind == 2; GoalBox.Text = M.GoalTarget.ToString(); }   // it can also be switched from the tray menu
     }
 
