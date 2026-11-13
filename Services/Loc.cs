@@ -206,6 +206,7 @@ public static class Loc
         ["{0}/{1} FOUND"] = new[] { "{0}/{1} TROUVÉS", "{0}/{1} ENCONTRADOS", "{0}/{1} GEFUNDEN" },
         ["1 in {0} per chest ({1})  ·  Treasure Hour {2}× (normally 1 in {3})"] = new[] { "1 sur {0} par coffre ({1})  ·  Heure du trésor {2}× (normalement 1 sur {3})", "1 de cada {0} por cofre ({1})  ·  Hora del tesoro {2}× (normalmente 1 de cada {3})", "1 von {0} pro Truhe ({1})  ·  Schatzstunde {2}× (normal 1 von {3})" },
         ["1 in {0} per chest ({1})"] = new[] { "1 sur {0} par coffre ({1})", "1 de cada {0} por cofre ({1})", "1 von {0} pro Truhe ({1})" },
+        ["Treasure gizmo"] = new[] { "Gadget de trésor", "Gadget del tesoro", "Schatz-Gizmo" },
         [" for any gizmo"] = new[] { " pour n'importe quel gadget", " para cualquier gadget", " für irgendein Gizmo" },
         ["Song: "] = new[] { "Chanson : ", "Canción: ", "Song: " },
         ["With your {0} chests there is a {1}% chance you would have found one by now."] = new[] { "Avec tes {0} coffres, il y a {1} % de chances que tu en aies déjà trouvé un.", "Con tus {0} cofres hay un {1} % de probabilidad de que ya hubieras encontrado uno.", "Mit deinen {0} Truhen besteht eine Chance von {1} %, dass du schon einen gefunden hättest." },

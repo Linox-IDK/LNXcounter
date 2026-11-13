@@ -4,6 +4,8 @@ Every update of LNXcounter, newest first. Download any version from the [Release
 
 ## v1.20.0
 **Records, goals and a chest map**
+- Chests smashed by your car (or an explosion) are now counted like opened ones: the replay names who destroyed them.
+- Treasure gizmos are counted from the moment they are given to you, even if you never equip them (the name shows when you do).
 - **Chest map:** every match in *Recent matches* has a small **eye**. Click it to see the **map** with every chest you opened (or broke) in that match, drawn with its own icon (normal, rare, buried, relic, sprite). Hover one to see what it was and when. A chest is drawn where it is in the game; when the replay does not store its place, it is drawn where you stood when you opened it.
 - **Records:** a gold **BEST MATCH** line above the matches list, with your **best day** and your **streak** (days in a row with at least one chest opened).
 - **Goal (optional):** *Settings > Goal* lets you set a target **per day** or **per week**. A progress bar shows above your matches and says when you reached it. Off by default.

@@ -36,17 +36,94 @@ public static class ChestAnalyzer
         return File.GetCreationTime(path);
     }
 
-    sealed class Track { public uint Actor; public string Class = ""; public bool Searched; public double SearchedAt; public uint? LastPawn, PawnAtOpen; public (double X, double Y)? PawnSpot; }
+    sealed class Track { public uint Actor; public string Class = ""; public bool Searched; public double SearchedAt; public uint? LastPawn, PawnAtOpen; public (double X, double Y)? PawnSpot; public bool Destroyed; public double DestroyedAt; public uint? Destroyer; }
 
     sealed class ChestReader : FortniteReplayReader.ReplayReader
     {
-        static readonly HashSet<string> Fields = new() { "bAlreadySearched", "SearchingPawn", "SearchedMesh", "SearchAnimationCount" };
+        static readonly HashSet<string> Fields = new() { "bAlreadySearched", "SearchingPawn", "SearchedMesh", "SearchAnimationCount", "bDestroyed" };
         readonly Dictionary<string, bool> groupCache = new();
         readonly Dictionary<uint, uint> chanToActor = new(), pawnToPS = new();
         readonly Dictionary<uint, Track> tracks = new();
         readonly List<(uint hitter, uint target, bool fatal, double t)> hits = new();
         uint? recorder; double now, firstTime;
         readonly Dictionary<uint, (double X, double Y)> chanSpot = new(), pawnPos = new();   // chest spawn spot by actor, last seen spot of each pawn by actor
+
+        // ---- treasure grants: every treasure the recorder receives adds a "GA_TreasureHandler_*" ability to their ability system ----
+        readonly List<(double At, uint Actor, int Element)> grants = new();
+        NetGuidCache? guidCache;
+        string PathOfGuid(uint g)
+        {
+            try
+            {
+                guidCache ??= (NetGuidCache)typeof(Unreal.Core.ReplayReader<FortniteReplayReader.Models.FortniteReplay>).GetField("_netGuidCache", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(this)!;
+                return guidCache.NetGuidToPathName.TryGetValue(g, out var p) ? p : "";
+            }
+            catch { return ""; }
+        }
+
+        public override bool ReadFieldHeaderAndPayload(FBitArchive archive, NetFieldExportGroup group, out NetFieldExport outField, out uint? payload)
+        {
+            bool ok = base.ReadFieldHeaderAndPayload(archive, group, out outField, out payload);
+            if (ok && payload is uint nb && nb >= 129 && nb < 20000 && outField?.Name == "ActivatableAbilities"
+                && group.PathName.Contains("AbilitySystemComponent", StringComparison.Ordinal))
+            {
+                try
+                {
+                    int start = (int)archive.Position;
+                    var data = archive.ReadBits((int)nb).ToArray();
+                    archive.Seek(start, SeekOrigin.Begin);
+                    DecodeGrants(data, (int)nb);
+                }
+                catch { }
+            }
+            return ok;
+        }
+
+        /// <summary>A FastArray delta of the ability list: header, then for each changed ability its id and raw properties. One that points at a treasure handler class = one treasure given.</summary>
+        void DecodeGrants(byte[] data, int bits)
+        {
+            int pos = 1;
+            int Bit() => pos < bits ? (data[pos >> 3] >> (pos & 7)) & 1 : throw new IndexOutOfRangeException();
+            uint Read(int n) { uint v = 0; for (int k = 0; k < n; k++) { v |= (uint)Bit() << k; pos++; } return v; }
+            uint Packed() { uint v = 0; for (int sh = 0; sh < 35; sh += 7) { var b = Read(8); v |= (b >> 1) << sh; if ((b & 1) == 0) return v; } throw new InvalidDataException(); }
+            try
+            {
+                _ = Read(32); _ = Read(32);
+                var deletes = Read(32); var changed = Read(32);
+                if (deletes > 512 || changed > 512) return;
+                pos += (int)deletes * 32;
+                for (int i = 0; i < changed; i++)
+                {
+                    int element = (int)Read(32);
+                    while (true)
+                    {
+                        var handle = Packed(); if (handle == 0) break;
+                        int nb = (int)Packed();
+                        if (nb < 0 || pos + nb > bits) return;
+                        if (nb is 8 or 16 or 24 or 32 or 40)
+                        {
+                            int st = pos; uint guid = 0;
+                            for (int sh = 0; pos < st + nb; sh += 7) { var b = Read(8); guid |= (b >> 1) << sh; if ((b & 1) == 0) break; }
+                            pos = st + nb;
+                            if (guid > 0 && PathOfGuid(guid).Contains("TreasureHandler", StringComparison.Ordinal))
+                            {
+                                uint actor = 0;
+                                if (curChannel != 0 && chanToActor.TryGetValue(curChannel, out var a)) actor = a;
+                                if (!grants.Any(g => g.Actor == actor && g.Element == element && now - g.At < 60)) grants.Add((now, actor, element));
+                            }
+                        }
+                        else pos += nb;
+                    }
+                }
+            }
+            catch (Exception e) when (e is IndexOutOfRangeException or InvalidDataException) { }
+        }
+        uint curChannel;
+        public override bool ReceivedReplicatorBunch(DataBunch bunch, FBitArchive archive, uint? repObject, bool bHasRepLayout)
+        {
+            curChannel = (uint)bunch.ChIndex;
+            return base.ReceivedReplicatorBunch(bunch, archive, repObject, bHasRepLayout);
+        }
 
         public ChestReader() : base(null!, ParseMode.Full) { }
 
@@ -175,10 +252,16 @@ public static class ChestAnalyzer
                         if (b && !t.Searched) { t.Searched = true; t.SearchedAt = now; t.PawnAtOpen = t.LastPawn; if (t.LastPawn is uint lp && pawnPos.TryGetValue(lp, out var sp)) t.PawnSpot = sp; }
                         break;
                     }
+                    case "bDestroyed":
+                    {
+                        bool b = ar.ReadBit(); if (bits > 1) ar.SkipBits(bits - 1);
+                        if (b && !t.Destroyed) { t.Destroyed = true; t.DestroyedAt = now; t.Destroyer = t.LastPawn; if (t.LastPawn is uint dp && pawnPos.TryGetValue(dp, out var dsp)) t.PawnSpot ??= dsp; }
+                        break;
+                    }
                     case "SearchingPawn":
                     {
                         uint p = new NetBitReader(ar.ReadBits(bits), bits).SerializePropertyObject();
-                        if (p != 0) { t.LastPawn = p; if (t.Searched) { t.PawnAtOpen ??= p; if (t.PawnSpot == null && pawnPos.TryGetValue(p, out var sp2)) t.PawnSpot = sp2; } }
+                        if (p != 0) { t.LastPawn = p; if (t.Destroyed) { t.Destroyer ??= p; if (t.PawnSpot == null && pawnPos.TryGetValue(p, out var dsp2)) t.PawnSpot = dsp2; } if (t.Searched) { t.PawnAtOpen ??= p; if (t.PawnSpot == null && pawnPos.TryGetValue(p, out var sp2)) t.PawnSpot = sp2; } }
                         break;
                     }
                     default: ar.SkipBits(bits); break;
@@ -207,20 +290,37 @@ public static class ChestAnalyzer
             {
                 var type = Classify(t.Class); if (type == "") continue;
                 bool opened = t.Searched && t.PawnAtOpen is uint p && mine.Contains(p);
-                bool broke = !opened && myKills.TryGetValue(t.Actor, out var kt) && (!t.Searched || t.SearchedAt > kt);
+                // smashed by you (car, explosion...): the loot spills out and the server names you as the one who destroyed it: counted like an opened chest
+                bool smashed = !opened && t.Destroyed && t.Destroyer is uint dd && mine.Contains(dd);
+                bool broke = !opened && !smashed && myKills.TryGetValue(t.Actor, out var kt) && (!t.Searched || t.SearchedAt > kt);
+                if (smashed) opened = true;
                 if (opened) { rec.Opened++; rec.OpenedByType[type] = rec.OpenedByType.GetValueOrDefault(type) + 1; }
                 else if (broke) rec.Broken++;
                 if (opened || broke)
                 {
                     var spot = chanSpot.TryGetValue(t.Actor, out var cs) ? cs : t.PawnSpot;
-                    if (spot is { } sp) rec.Spots.Add(new ChestSpot { X = (int)sp.X, Y = (int)sp.Y, Type = type, Broken = !opened, AtSeconds = (int)Math.Max(0, t.SearchedAt - (firstTime > 0 ? firstTime : 0)), Exact = chanSpot.ContainsKey(t.Actor) });
+                    if (spot is { } sp) rec.Spots.Add(new ChestSpot { X = (int)sp.X, Y = (int)sp.Y, Type = type, Broken = !opened, AtSeconds = (int)Math.Max(0, (t.Searched ? t.SearchedAt : t.DestroyedAt) - (firstTime > 0 ? firstTime : 0)), Exact = chanSpot.ContainsKey(t.Actor) });
                 }
             }
 
             double t0 = firstTime > 0 ? firstTime : 0;
-            // gizmos only when YOU equip them: other players' gizmo actors are everywhere in a match and say nothing useful
-            foreach (var g in gizmos.Values.Where(g => g.Holder is uint h && mine.Contains(h)).GroupBy(g => g.Name).Select(x => x.First()))
-                rec.Finds.Add(new TreasureFind { Kind = "gizmo", Name = g.Name, Mine = true, AtSeconds = Math.Max(0, g.At - t0) });
+            // Every treasure you receive adds a treasure-handler ability to you, at the exact moment: that is the count of gizmos.
+            // Their name is only known when you equip one later (before the next treasure), otherwise they stay "Treasure gizmo".
+            var myEquips = gizmos.Values.Where(g => g.Holder is uint h && mine.Contains(h)).OrderBy(g => g.At).ToList();
+            var myGrants = grants.Where(g => g.Actor == recorder).OrderBy(g => g.At).ToList();
+            if (myGrants.Count > 0)
+            {
+                for (int i = 0; i < myGrants.Count; i++)
+                {
+                    double at = myGrants[i].At, next = i + 1 < myGrants.Count ? myGrants[i + 1].At : double.MaxValue;
+                    if (prizes.Values.Any(pz => pz.Opener is uint o && mine.Contains(o) && Math.Abs(pz.At - at) <= 5)) continue;   // a golden chest prize: listed below
+                    var names = myEquips.Where(g => g.At >= at - 1 && g.At < next).Select(g => g.Name).Distinct().ToList();
+                    rec.Finds.Add(new TreasureFind { Kind = "gizmo", Name = names.Count == 1 ? names[0] : "Treasure gizmo", Mine = true, AtSeconds = Math.Max(0, at - t0) });
+                }
+            }
+            else   // no grant could be read: fall back on the gizmos you held in hand
+                foreach (var g in myEquips.GroupBy(g => g.Name).Select(x => x.First()))
+                    rec.Finds.Add(new TreasureFind { Kind = "gizmo", Name = g.Name, Mine = true, AtSeconds = Math.Max(0, g.At - t0) });
             foreach (var p in prizes.Values)
             {
                 var (drop, week, name) = TreasureIds.Resolve(p.Id);
