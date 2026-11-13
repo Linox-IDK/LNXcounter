@@ -26,6 +26,18 @@
                         </Border.Style>
                         <TextBlock Text="{Binding PlayerName}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource GoldLightBrush}"/>
                     </Border>
+                    <Ellipse Width="9" Height="9" Margin="9,0,0,0" VerticalAlignment="Center" Fill="#FF3DDC6E" ToolTip="{loc:Tr 'Fortnite is running'}">
+                        <Ellipse.Style><Style TargetType="Ellipse"><Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers><DataTrigger Binding="{Binding FortniteRunning}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Ellipse.Style>
+                        <Ellipse.Effect><DropShadowEffect Color="#FF3DDC6E" BlurRadius="9" ShadowDepth="0" Opacity="0.9"/></Ellipse.Effect>
+                        <Ellipse.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                                <BeginStoryboard><Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0.25" Duration="0:0:0.9"/>
+                                </Storyboard></BeginStoryboard>
+                            </EventTrigger>
+                        </Ellipse.Triggers>
+                    </Ellipse>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <RadioButton x:Name="OverviewTab" Style="{StaticResource TabRadio}" Content="{loc:Tr 'OVERVIEW'}" GroupName="tabs" IsChecked="True" Checked="Tab_Checked"/>
@@ -129,7 +141,7 @@
                                                 <TextBlock VerticalAlignment="Center" Foreground="{StaticResource TextBrush}" ToolTip="{Binding FindsDetail}" Background="Transparent">
                                                     <Run Text="{Binding DateText, Mode=OneWay}"/><Run Text="{Binding FindsText, Mode=OneWay}" Foreground="{StaticResource GoldBrush}"/>
                                                 </TextBlock>
-                                                <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" Foreground="{StaticResource GoldBrush}">
+                                                <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" Foreground="{StaticResource GoldBrush}">
                                                     <Run Text="{Binding Opened, Mode=OneWay}"/><Run Text="{loc:Tr ' opened'}" FontWeight="Normal" Foreground="{StaticResource MutedBrush}" FontSize="11"/>
                                                 </TextBlock>
                                                 <Button Grid.Column="3" Style="{StaticResource EyeButton}" Visibility="{Binding EyeVisibility}" Click="Eye_Click" ToolTip="{loc:Tr 'Show where the chests were'}">

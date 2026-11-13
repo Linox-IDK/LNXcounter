@@ -512,9 +512,18 @@ public class AppModel : Notify
         await ScanAsync();
     }
 
+    bool fortniteRunning;
+    public bool FortniteRunning { get => fortniteRunning; private set => Set(ref fortniteRunning, value); }
+    static bool IsFortniteUp()
+    {
+        try { var ps = System.Diagnostics.Process.GetProcessesByName("FortniteClient-Win64-Shipping"); bool up = ps.Length > 0; foreach (var p in ps) p.Dispose(); return up; }
+        catch { return false; }
+    }
+
     void Tick()
     {
         var now = DateTime.UtcNow;
+        FortniteRunning = IsFortniteUp();
         Drops?.Tick();
         CheckHourAlert(now);
         if (recordsDay != default && Paris.FromUtc(now).Date != recordsDay) RebuildRecords();   // a new day: the goal starts again
