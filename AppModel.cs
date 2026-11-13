@@ -54,6 +54,8 @@ public class AppModel : Notify
     bool folderOk, pirateLive;
 
     public int TotalOpened { get => totalOpened; set => Set(ref totalOpened, value); }
+    int totalTreasures;
+    public int TotalTreasures { get => totalTreasures; set => Set(ref totalTreasures, value); }
     public int TotalBroken { get => totalBroken; set => Set(ref totalBroken, value); }
     public int MatchCount { get => matchCount; set => Set(ref matchCount, value); }
     public int SessionOpened { get => sessionOpened; set { if (Set(ref sessionOpened, value)) Raise(nameof(OverlayStatus)); } }
@@ -445,6 +447,7 @@ public class AppModel : Notify
         ReplayChests = ok.Sum(m => m.Opened);
         TotalOpened = ReplayChests + ManualChests;
         TotalBroken = ok.Sum(m => m.Broken);
+        TotalTreasures = ok.Sum(m => m.Finds.Count(f => f.Mine));
         MatchCount = ok.Count;
         AvgText = ok.Count == 0 ? "0" : (ReplayChests / (double)ok.Count).ToString("0.#", CultureInfo.CurrentCulture);
         Matches.Clear();

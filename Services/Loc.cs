@@ -132,6 +132,7 @@ public static class Loc
         ["Re-read the replays still on your PC with the latest detection? Matches whose replay is gone are kept as they are."] = new[] { "Relire les replays encore sur ton PC avec la dernière détection ? Les matchs dont le replay a disparu sont conservés.", "¿Releer los replays que siguen en tu PC con la última detección? Las partidas sin replay se conservan.", "Vorhandene Replays mit der neuesten Erkennung neu lesen? Matches ohne Replay bleiben erhalten." },
         ["Re-reading match {0}/{1}…"] = new[] { "Relecture du match {0}/{1}…", "Releyendo partida {0}/{1}…", "Lese Match {0}/{1} neu…" },
         ["Re-read {0} matches, {1} changed"] = new[] { "{0} matchs relus, {1} modifiés", "{0} partidas releídas, {1} cambiadas", "{0} Matches neu gelesen, {1} geändert" },
+        ["TREASURES"] = new[] { "TRÉSORS", "TESOROS", "SCHÄTZE" },
         ["Rescan all"] = new[] { "Tout relire", "Releer todo", "Alles neu einlesen" },
         ["Reset"] = new[] { "Réinitialiser", "Restablecer", "Zurücksetzen" },
         ["▶  PREVIEW"] = new[] { "▶  APERÇU", "▶  VISTA PREVIA", "▶  VORSCHAU" },
