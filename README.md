@@ -153,6 +153,13 @@ Compression is turned off on purpose: a compressed single-file exe makes .NET un
 
 Built with WPF on .NET, [FortniteReplayReader](https://github.com/Shiqan/FortniteReplayDecompressor) for reading replays and Microsoft WebView2 for the song preview.
 
+## Contact
+
+Questions, bugs or ideas? You can DM me on Discord:
+
+- **User:** `reubeuparterre`
+- **ID:** `989960762254557234`
+
 ## Credits and disclaimer
 
 - Treasure Hours, drop rates and the weekly rewards come from [fortnite.bot/treasure](https://fortnite.bot/treasure) and from Epic Games' announcements.
