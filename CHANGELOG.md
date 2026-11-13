@@ -3,15 +3,30 @@
 Every update of LNXcounter, newest first. Download any version from the [Releases](../../releases) page.
 
 ## v1.20.0
-**Records, goals and a chest map**
-- Chests smashed by your car (or an explosion) are now counted like opened ones: the replay names who destroyed them.
-- Treasure gizmos are counted from the moment they are given to you, even if you never equip them (the name shows when you do).
-- **Chest map:** every match in *Recent matches* has a small **eye**. Click it to see the **map** with every chest you opened (or broke) in that match, drawn with its own icon (normal, rare, buried, relic, sprite). Hover one to see what it was and when. A chest is drawn where it is in the game; when the replay does not store its place, it is drawn where you stood when you opened it.
+**Records, goals, a chest map and better detection**
+
+**New**
+- **Chest map:** every match in *Recent matches* has a small **eye**. Click it to see the **map** with every chest you opened in that match, drawn with its own icon (normal, rare, buried, relic, sprite). Hover one to see what it was and when. A chest is drawn where it is in the game; when the replay does not store its place, it is drawn where you stood when you opened it.
 - **Records:** a gold **BEST MATCH** line above the matches list, with your **best day** and your **streak** (days in a row with at least one chest opened).
 - **Goal (optional):** *Settings > Goal* lets you set a target **per day** or **per week**. A progress bar shows above your matches and says when you reached it. Off by default.
 - **Treasure Hour count:** under the main counter, in small gold: how many of your chests were opened **during a Treasure Hour**.
+- **Treasures card:** the *Broken* card on Overview (it almost never showed anything) is now **TREASURES**, the total number of treasures you found.
+- **Fortnite is running:** a small green pulse next to your name while Fortnite is open.
+- **Re-read recent:** a new button in *Settings* that re-reads only the replays still on your PC with the latest detection. Matches whose replay is gone are kept exactly as they are, nothing is deleted. *Rescan all* is still there and rebuilds everything from the replays that remain.
 - **Tab slide:** moving between *Overview*, *Drops* and *Settings* now slides and fades the pages instead of switching instantly.
-- Matches counted by an earlier version get their map positions added once, while their replay is still on your PC. Their counts do not change.
+- **Contact:** my Discord is in the README, in case you want to DM me.
+
+**Better detection**
+- **Chests smashed by your car** (or an explosion, or anything that destroys them) are now counted like opened ones. The replay flags the chest as destroyed and names who destroyed it; before, only chests you opened by hand were counted, so a match full of car chests looked almost empty.
+- **Treasure gizmos are counted when you receive them**, even if you never equip them. Each treasure adds an entry to your player data at an exact moment, and that is now what is counted. The gizmo's name is shown when you equip it later, otherwise it shows as *Treasure gizmo*. Before, a gizmo you did not hold in your hand was missed.
+- Only new matches use the new detection. Matches counted by an earlier version keep their numbers until you press **Re-read recent**.
+- Matches counted by an earlier version also get their map positions added once, while their replay is still on your PC. Their counts do not change.
+
+**Cleaner list**
+- The *N broken* text is gone from every match row; the chest count now sits next to the eye.
+
+**Your stats are safer**
+- The save is **written to disk** instead of staying in Windows' cache, and it is saved again when Windows **shuts down or logs off**, so a shutdown can no longer lose your latest matches.
 
 ## v1.10.0
 **Treasure Hunters rewards read from your replays**

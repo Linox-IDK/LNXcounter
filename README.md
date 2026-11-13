@@ -14,7 +14,7 @@ No login, no account, no data sent anywhere. Everything happens on your PC.
 ## Features
 
 ### 📦 Chest counter
-- Total chests **opened** and **broken**, number of matches, and the average per match
+- Total chests **opened** (chests you smash with a vehicle count too), treasures found, number of matches, and the average per match
 - Breakdown by chest type (normal, rare, buried, relic, sprite…)
 - List of your recent matches with the number of chests opened in each
 - A new match is picked up automatically **about 8–20 seconds after it ends**, no need to restart or click anything
