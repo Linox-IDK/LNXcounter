@@ -39,7 +39,7 @@ public partial class App : Application
         Efficiency.Enable();   // Windows "Efficiency mode" from the very first moment
 
         // one copy only: starting the exe again just brings the running one to the front
-        mutex = new Mutex(true, "LNXcounter.SingleInstance.v1", out bool first);
+        mutex = new Mutex(true, "LNXcounter.SingleInstance.v1" + (Environment.GetEnvironmentVariable("LNX_DATA") is { Length: > 0 } ? ".test" : ""), out bool first);   // a test run (LNX_DATA) can sit next to the real app
         if (!first)
         {
             try { EventWaitHandle.OpenExisting("LNXcounter.ShowMain").Set(); } catch { }
