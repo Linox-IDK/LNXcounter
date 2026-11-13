@@ -514,6 +514,21 @@ public class AppModel : Notify
 
     bool fortniteRunning;
     public bool FortniteRunning { get => fortniteRunning; private set => Set(ref fortniteRunning, value); }
+    bool inMatch;
+    /// <summary>Fortnite is open and a replay is being written right now, i.e. a match is being played (not the lobby).</summary>
+    public bool InMatch { get => inMatch; private set => Set(ref inMatch, value); }
+    DateTime nextMatchCheck;
+    bool IsMatchBeingRecorded()
+    {
+        try
+        {
+            if (!FolderOk) return false;
+            var newest = new DirectoryInfo(ReplayFolder).EnumerateFiles("*.replay").Select(f => f.LastWriteTimeUtc).DefaultIfEmpty(DateTime.MinValue).Max();
+            return (DateTime.UtcNow - newest).TotalSeconds < 12;
+        }
+        catch { return false; }
+    }
+
     static bool IsFortniteUp()
     {
         try { var ps = System.Diagnostics.Process.GetProcessesByName("FortniteClient-Win64-Shipping"); bool up = ps.Length > 0; foreach (var p in ps) p.Dispose(); return up; }
@@ -524,6 +539,8 @@ public class AppModel : Notify
     {
         var now = DateTime.UtcNow;
         FortniteRunning = IsFortniteUp();
+        if (!FortniteRunning) InMatch = false;
+        else if (now >= nextMatchCheck) { nextMatchCheck = now.AddSeconds(2); InMatch = IsMatchBeingRecorded(); }
         Drops?.Tick();
         CheckHourAlert(now);
         if (recordsDay != default && Paris.FromUtc(now).Date != recordsDay) RebuildRecords();   // a new day: the goal starts again

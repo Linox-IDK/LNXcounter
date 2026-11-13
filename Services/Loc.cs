@@ -134,6 +134,7 @@ public static class Loc
         ["Re-read {0} matches, {1} changed"] = new[] { "{0} matchs relus, {1} modifiés", "{0} partidas releídas, {1} cambiadas", "{0} Matches neu gelesen, {1} geändert" },
         ["TREASURES"] = new[] { "TRÉSORS", "TESOROS", "SCHÄTZE" },
         ["Fortnite is running"] = new[] { "Fortnite est lancé", "Fortnite está abierto", "Fortnite läuft" },
+        ["Ignore clicks during a match"] = new[] { "Ignorer les clics pendant une partie", "Ignorar clics durante una partida", "Klicks während eines Matches ignorieren" },
         ["Rescan all"] = new[] { "Tout relire", "Releer todo", "Alles neu einlesen" },
         ["Reset"] = new[] { "Réinitialiser", "Restablecer", "Zurücksetzen" },
         ["▶  PREVIEW"] = new[] { "▶  APERÇU", "▶  VISTA PREVIA", "▶  VORSCHAU" },

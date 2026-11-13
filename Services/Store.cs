@@ -65,6 +65,8 @@ public class Settings
     public bool HourAlert { get; set; } = true;
     /// <summary>Warnings 30 minutes (silent) and 10 minutes (with sound) before a Treasure Hour.</summary>
     public bool HourWarn { get; set; } = true;
+    /// <summary>While a match is being played the overlay ignores the mouse (clicks go to the game); in the lobby or with the game closed it is clickable.</summary>
+    public bool OverlayIgnoreClicksInMatch { get; set; } = true;
     /// <summary>Look for a new LNXcounter version on GitHub when the app starts (and every few hours).</summary>
     public bool AutoUpdateCheck { get; set; } = true;
     /// <summary>Chests added by hand (played on another device, or before the app was installed). Counted as normal chests.</summary>

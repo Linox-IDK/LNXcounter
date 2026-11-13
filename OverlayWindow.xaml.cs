@@ -1,5 +1,7 @@
 using System.Windows;
+using System.Runtime.InteropServices;
 using System.Windows.Input;
+using System.Windows.Interop;
 
 namespace LNXcounter;
 
@@ -19,6 +21,24 @@ public partial class OverlayWindow : Window
         ApplyCollapsed(s.OverlayCollapsed);
         LocationChanged += (_, _) => { s.OverlayLeft = Left; s.OverlayTop = Top; };
         Closing += (_, _) => App.Model.Save();
+        SourceInitialized += (_, _) =>
+        {
+            ApplyClickThrough();
+            App.Model.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(AppModel.InMatch)) Dispatcher.BeginInvoke(ApplyClickThrough); };
+        };
+    }
+
+    const int GWL_EXSTYLE = -20, WS_EX_TRANSPARENT = 0x20;
+    [DllImport("user32.dll")] static extern int GetWindowLong(IntPtr h, int i);
+    [DllImport("user32.dll")] static extern int SetWindowLong(IntPtr h, int i, int v);
+
+    /// <summary>During a match the overlay lets every click through to the game, so you never hit it by accident.</summary>
+    public void ApplyClickThrough()
+    {
+        var h = new WindowInteropHelper(this).Handle; if (h == IntPtr.Zero) return;
+        int ex = GetWindowLong(h, GWL_EXSTYLE);
+        bool through = App.Model.Settings.OverlayIgnoreClicksInMatch && App.Model.InMatch;
+        SetWindowLong(h, GWL_EXSTYLE, through ? ex | WS_EX_TRANSPARENT : ex & ~WS_EX_TRANSPARENT);
     }
 
     void EnsureOnScreen()

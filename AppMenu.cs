@@ -27,6 +27,7 @@ public static class AppMenu
 
         var overlay = new MenuItem { Header = Loc.T("Overlay") };
         overlay.Items.Add(Check("Show overlay", s.OverlayVisible, v => App.SetOverlayVisible(v)));
+        overlay.Items.Add(Check("Ignore clicks during a match", s.OverlayIgnoreClicksInMatch, v => { s.OverlayIgnoreClicksInMatch = v; m.Save(); App.Overlay.ApplyClickThrough(); }));
         overlay.Items.Add(Check("Collapse details", s.OverlayCollapsed, v => App.Overlay.SetCollapsed(v)));
         var corner = new MenuItem { Header = Loc.T("Move to corner") };
         corner.Items.Add(Item("Top left", () => App.Overlay.MoveToCorner("tl")));
