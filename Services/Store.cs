@@ -108,7 +108,13 @@ public static class Store
         {
             Directory.CreateDirectory(Dir);
             var tmp = FilePath + ".tmp";
-            File.WriteAllText(tmp, JsonSerializer.Serialize(s, Opt));
+            // written and flushed to the disk itself (not just to the system cache), so a power cut or a PC shutdown right after cannot lose or empty the save
+            using (var fs = new FileStream(tmp, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                var bytes = new System.Text.UTF8Encoding(false).GetBytes(JsonSerializer.Serialize(s, Opt));
+                fs.Write(bytes, 0, bytes.Length);
+                fs.Flush(true);
+            }
             if (File.Exists(FilePath)) File.Copy(FilePath, FilePath + ".bak", true);
             File.Move(tmp, FilePath, true);
         }

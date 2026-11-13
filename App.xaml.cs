@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
@@ -50,6 +50,7 @@ public partial class App : Application
         showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, "LNXcounter.ShowMain");
         new Thread(() => { while (showEvent.WaitOne()) Dispatcher.BeginInvoke(ShowMain); }) { IsBackground = true }.Start();
 
+        SessionEnding += (_, _) => { try { Model?.Save(); } catch { } };   // Windows is shutting down or logging off: save first
         Model = new AppModel();
         Model.Start();
         MainWindow = new MainWindow { DataContext = Model };
