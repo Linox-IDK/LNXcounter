@@ -471,6 +471,36 @@ public class AppModel : Notify
         Rebuild(); Save();
     }
 
+    /// <summary>Re-reads only the replays that are still on disk; matches whose replay is gone are kept as they are.</summary>
+    public async Task RefreshExistingAsync()
+    {
+        if (!FolderOk || scanning) return;
+        scanning = true;
+        try
+        {
+            var now = DateTime.UtcNow;
+            var files = new DirectoryInfo(ReplayFolder).GetFiles("*.replay")
+                .Where(f => f.Length > 1_000_000 && IsFinished(f, now) && state.Matches.Any(m => m.File == f.Name)).OrderBy(f => f.LastWriteTimeUtc).ToList();
+            int i = 0, changed = 0;
+            foreach (var f in files)
+            {
+                Status = Loc.F("Re-reading match {0}/{1}…", ++i, files.Count);
+                long size = f.Length;
+                var rec = await Task.Run(() => ChestAnalyzer.Analyze(f.FullName));
+                if (rec.Error != null) continue;   // keep what we had
+                rec.Size = size;
+                var old = state.Matches.First(m => m.File == rec.File);
+                if (old.Opened != rec.Opened || old.Finds.Count != rec.Finds.Count) changed++;
+                state.Matches[state.Matches.IndexOf(old)] = rec;
+                Rebuild(); Save();
+            }
+            MemoryTrim.Schedule(3000);
+            Status = Loc.F("Re-read {0} matches, {1} changed", files.Count, changed);
+        }
+        catch (Exception e) { Status = Loc.T("Scan error: ") + e.Message; }
+        finally { scanning = false; }
+    }
+
     public async Task RescanAllAsync()
     {
         state.Matches.Clear(); known.Clear(); failed = 0; firstScanDone = false;

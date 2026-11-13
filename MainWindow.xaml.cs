@@ -213,6 +213,12 @@ public partial class MainWindow : Window
         if (dlg.ShowDialog(this) == true) M.SetFolder(dlg.FolderName);
     }
 
+    async void Refresh_Click(object sender, RoutedEventArgs e)
+    {
+        if (MessageBox.Show(this, Loc.T("Re-read the replays still on your PC with the latest detection? Matches whose replay is gone are kept as they are."), "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            await M.RefreshExistingAsync();
+    }
+
     async void Rescan_Click(object sender, RoutedEventArgs e)
     {
         if (MessageBox.Show(this, Loc.T("Re-read every replay in the folder and rebuild your totals from scratch?"), "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)

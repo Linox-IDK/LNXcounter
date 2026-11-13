@@ -728,6 +728,7 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button x:Name="OverlayBtn" Style="{StaticResource GoldButton}" Content="{loc:Tr 'Overlay'}" Click="Overlay_Click" Margin="0,0,8,0"/>
                     <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Folder…'}" Click="Folder_Click" Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Re-read recent'}" Click="Refresh_Click" Margin="0,0,8,0" ToolTip="{loc:Tr 'Re-reads the replays still on your PC and keeps the older matches as they are.'}"/>
                     <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Rescan all'}" Click="Rescan_Click" Margin="0,0,8,0"/>
                     <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Reset'}" Click="Reset_Click"/>
                 </StackPanel>
