@@ -2,6 +2,10 @@
 
 Every update of LNXcounter, newest first. Download any version from the [Releases](../../releases) page.
 
+## v1.20.2
+**Treasure Hour extended**
+- Epic extended the current Treasure Hour (Sat Nov 14) by **2 hours**: it now runs until **midnight Paris time** (6 PM EST). The countdown, the alert and the Treasure Hour chest count follow the new end time.
+
 ## v1.20.1
 **Overlay no longer gets in your way**
 - **The overlay ignores clicks during a match.** While Fortnite is open and a match is being played, clicks go straight through the overlay to the game, so you can no longer hit it by accident. In the lobby, or with the game closed, it is clickable and draggable as usual. Switch it off from the right-click menu of the overlay or tray icon (*Overlay > Ignore clicks during a match*).

@@ -35,7 +35,8 @@ public static class TreasureHours
         };
         foreach (var day in new[] { 14, 21, 28 })
         {
-            l.Add(new(U(2026, 11, day, 19), U(2026, 11, day, 21), true));
+            // Epic extended the Sat 14 Nov hour by 2 hours (until 6 PM EST, midnight in Paris)
+            l.Add(new(U(2026, 11, day, 19), day == 14 ? U(2026, 11, day, 23) : U(2026, 11, day, 21), true));
             l.Add(new(U(2026, 11, day + 1, 2), U(2026, 11, day + 1, 4), true));
         }
         return l;
