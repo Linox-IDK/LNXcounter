@@ -15,6 +15,8 @@ public static class MemoryTrim
     [DllImport("psapi.dll")] static extern bool EmptyWorkingSet(IntPtr process);
 
     static DispatcherTimer? timer;
+    /// <summary>True while replays are being read: trimming then would only make the reader fault its memory back in over and over.</summary>
+    public static volatile bool Busy;
 
     /// <summary>Trims in <paramref name="delayMs"/> milliseconds. Calling it again before then just pushes it back, so bursts cause one trim.</summary>
     public static void Schedule(int delayMs = 3000)
@@ -39,6 +41,7 @@ public static class MemoryTrim
 
     public static void Now()
     {
+        if (Busy) return;
         try
         {
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;

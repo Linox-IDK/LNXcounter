@@ -397,12 +397,36 @@ public class AppModel : Notify
                 else if (isNew) inProgress = true;
             }
 
-            int i = 0;
-            foreach (var f in todo.OrderBy(f => f.LastWriteTimeUtc))
+            // The replays are read several at a time (each on its own thread, one core each); the results are then taken in order.
+            // Nothing new is started during a match, so the game keeps the CPU: those replays are simply read once back in the lobby.
+            var order = todo.OrderBy(f => f.LastWriteTimeUtc).ToList();
+            int par = Math.Clamp(Environment.ProcessorCount / 2, 1, 4), done = 0;
+            string Label() => Loc.F(order.Count > 0 && order.All(f => mapOnly.Contains(f.Name)) ? "Adding map data {0}/{1}…" : "Reading match {0}/{1}…", Math.Min(done + 1, order.Count), order.Count);
+            MemoryTrim.Busy = order.Count > 0;
+            var gate = new System.Threading.SemaphoreSlim(par);
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var jobs = order.Select(f => Task.Run(async () =>
             {
-                Status = Loc.F(mapOnly.Contains(f.Name) ? "Adding map data {0}/{1}…" : "Reading match {0}/{1}…", ++i, todo.Count);
-                long size = f.Length;
-                var rec = await Task.Run(() => ChestAnalyzer.Analyze(f.FullName));
+                await gate.WaitAsync();
+                try
+                {
+                    if (InMatch) return ((MatchRecord?)null, 0L);
+                    long size = f.Length;
+                    var rec = ChestAnalyzer.Analyze(f.FullName);
+                    return (rec, size);
+                }
+                finally { gate.Release(); }
+            })).ToList();
+            // a full read takes a few seconds (longer while the game runs): show that it is alive
+            var ticker = order.Count == 0 ? Task.CompletedTask : Task.Run(async () => { while (sw.IsRunning) { await Task.Delay(1000); if (sw.IsRunning && !InMatch) Status = $"{Label()} {(int)sw.Elapsed.TotalSeconds}s"; } });
+            if (order.Count > 0) Status = Label();
+            DateTime lastSave = DateTime.MinValue; bool dirty = false, waited = false;
+            for (int k = 0; k < order.Count; k++)
+            {
+                var f = order[k];
+                var (rec, size) = await jobs[k];
+                done++;
+                if (rec == null) { waited = true; continue; }   // skipped because a match started
                 rec.Size = size;
 
                 // a failed read of a replay that was still being written: try again in a few seconds instead of keeping the error
@@ -418,27 +442,33 @@ public class AppModel : Notify
                 {
                     if (rec.Error == null) old.Spots = rec.Spots;
                     old.Analysis = ChestAnalyzer.Version;
-                    Rebuild(); Save();
-                    continue;
+                    dirty = true;
                 }
-                int delta = rec.Opened - (old?.Opened ?? 0);
-                if (old != null) state.Matches.Remove(old);
-                known.Add(rec.File);
-                state.Matches.Add(rec);
-                foreach (var tf in rec.Finds.Where(x => x.Mine && x.DropId != ""))
-                    Drops?.AutoFound(tf.DropId == "token" ? "token" : $"w{tf.Week}:{tf.DropId}");   // a golden chest reward of yours ticks itself
-                if (rec.Error != null) failed++;
-                else if (firstScanDone) { SessionOpened += delta; LastMatchOpened = rec.Opened; }
-                Rebuild();
-                Save();
+                else
+                {
+                    int delta = rec.Opened - (old?.Opened ?? 0);
+                    if (old != null) state.Matches.Remove(old);
+                    known.Add(rec.File);
+                    state.Matches.Add(rec);
+                    foreach (var tf in rec.Finds.Where(x => x.Mine && x.DropId != ""))
+                        Drops?.AutoFound(tf.DropId == "token" ? "token" : $"w{tf.Week}:{tf.DropId}");   // a golden chest reward of yours ticks itself
+                    if (rec.Error != null) failed++;
+                    else if (firstScanDone) { SessionOpened += delta; LastMatchOpened = rec.Opened; }
+                    dirty = true;
+                }
+                // refresh the screen and save as results come in, but not more than about once a second
+                if (dirty && (k == order.Count - 1 || (DateTime.UtcNow - lastSave).TotalSeconds >= 1)) { Rebuild(); Save(); lastSave = DateTime.UtcNow; dirty = false; }
             }
+            sw.Stop(); await ticker;
+            if (dirty) { Rebuild(); Save(); }
+            if (waited && InMatch) { Status = Loc.T("Waiting for the lobby to read your matches…"); firstScanDone = true; return; }
             if (todo.Count > 0) MemoryTrim.Schedule(3000);   // reading a replay allocates a lot: give it back
             firstScanDone = true;
             Status = failed > 0 ? Loc.F("Watching for new matches  ·  {0} replay(s) could not be read (game update?)", failed)
                 : inProgress ? Loc.T("Match in progress, it will be counted as soon as it ends") : Loc.T("Watching for new matches");
         }
         catch (Exception e) { Status = Loc.T("Scan error: ") + e.Message; }
-        finally { scanning = false; }
+        finally { scanning = false; MemoryTrim.Busy = false; }
     }
 
     void Rebuild()

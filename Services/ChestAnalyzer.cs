@@ -127,6 +127,20 @@ public static class ChestAnalyzer
 
         public ChestReader() : base(null!, ParseMode.Full) { }
 
+        readonly System.Diagnostics.Stopwatch clock = System.Diagnostics.Stopwatch.StartNew();
+        DataBunch? lastBunch; int lastPos = -1, same;
+        /// <summary>Some replays make the library read the same spot forever (a content block that never advances). Stop that replay instead of hanging.</summary>
+        public override uint? ReadContentBlockPayload(DataBunch bunch, out bool bObjectDeleted, out bool bOutHasRepLayout, out uint? payload)
+        {
+            var r = base.ReadContentBlockPayload(bunch, out bObjectDeleted, out bOutHasRepLayout, out payload);
+            int pos = (int)bunch.Archive.Position;
+            same = ReferenceEquals(lastBunch, bunch) && pos == lastPos ? same + 1 : 0;
+            lastBunch = bunch; lastPos = pos;
+            if (same >= 200) throw new InvalidDataException("Replay could not be read (unsupported or damaged)");
+            if ((same & 1023) == 0 || (lastPos & 255) == 0) { if (clock.Elapsed.TotalSeconds > 120) throw new TimeoutException("Replay took too long to read"); }
+            return r;
+        }
+
         protected override void OnChannelOpened(uint ch, NetworkGUID? actor)
         {
             base.OnChannelOpened(ch, actor);

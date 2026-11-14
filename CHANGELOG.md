@@ -2,6 +2,16 @@
 
 Every update of LNXcounter, newest first. Download any version from the [Releases](../../releases) page.
 
+## v1.25.0
+**Much faster and more reliable replay reading**
+- **Several replays are read at the same time.** A backlog of matches (after a restart, or *Re-read recent* / *Rescan all*) is now read about twice as fast.
+- **The app no longer fights the game for your CPU.** Nothing new is read while a match is being played: it waits for the lobby (the status says *Waiting for the lobby to read your matches...*), then reads everything that is queued.
+- **No more stalls while reading.** The memory cleaner used to run in the middle of a read, forcing the reader to reload its memory again and again; it now waits until the reading is finished.
+- **A live counter** next to the status (*Reading match 3/12... 8s*) shows that it is working, and the screen and the save file are refreshed as results arrive instead of after every single replay.
+- **A damaged or unsupported replay can no longer freeze the reader.** If one makes the replay library loop on the same spot, or takes more than two minutes, it is skipped and reported as unreadable instead of hanging the whole scan.
+- Fixed the status briefly flashing *Reading match 0/0...* every two seconds when there was nothing to read.
+- Counts are exactly the same as before: all 100 replays on disk give identical results read one by one or in parallel.
+
 ## v1.20.2
 **Treasure Hour extended**
 - Epic extended the current Treasure Hour (Sat Nov 14) by **2 hours**: it now runs until **midnight Paris time** (6 PM EST). The countdown, the alert and the Treasure Hour chest count follow the new end time.
