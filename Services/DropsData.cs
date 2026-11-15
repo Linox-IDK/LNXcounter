@@ -74,7 +74,7 @@ public static class DropsData
     }
 
     static Dictionary<string, WeekItem> Week3Items() => NamedItems("SOLID GOLD MIKU", "MIKU'S TAKARABAKO", "CORVETTE ZR1", "PPPP", "MAY FORTUNE FIND YOU", "8Cm-7oCq9HA", "PPPP · TAK feat. Hatsune Miku & Kasane Teto");
-    static Dictionary<string, WeekItem> Week4Items() => NamedItems("SOLID GOLD KASANE TETO", "ROGUE WAVE AND TIDEWALKER", "LAMBORGHINI URUS SE", "SEA SHANTY", "OSCAR'S WRAPS");
+    static Dictionary<string, WeekItem> Week4Items() => NamedItems("SOLID GOLD KASANE TETO", "SOLID GOLD ROGUE WAVE AND TIDEWALKER", "LAMBORGHINI URUS SE", "SEA SHANTY", "OSCAR'S WRAPS");
     static Dictionary<string, WeekItem> Week5Items() => NamedItems("SOLID GOLD CAPTAIN X", "ROASTED MEAT", "G-WAGON", "I FOLLOW RIVERS", "JONES AND THE STRAW HATS", "9dzub7uXWl4", "I Follow Rivers · Lykke Li");
 
     // Week boundaries are estimates (assumed 14:00 UTC). Week names come from fortnite.bot/treasure.
