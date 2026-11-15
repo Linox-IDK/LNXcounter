@@ -329,6 +329,11 @@ public static class Loc
         ["Uninstall failed: "] = new[] { "Échec de la désinstallation : ", "Error al desinstalar: ", "Deinstallation fehlgeschlagen: " },
         ["Only the rewards of the week that is live can be ticked."] = new[] { "Seules les récompenses de la semaine en cours peuvent être cochées.", "Solo se pueden marcar las recompensas de la semana en curso.", "Nur die Belohnungen der laufenden Woche können abgehakt werden." },
         ["With the {0} chests you opened this week there is a {1}% chance you would have found one by now."] = new[] { "Avec les {0} coffres ouverts cette semaine, tu avais {1}% de chances d'en avoir trouvé un d'ici là.", "Con los {0} cofres abiertos esta semana, había un {1}% de probabilidad de haber encontrado uno ya.", "Mit den {0} Truhen dieser Woche hattest du eine Chance von {1}%, schon eine gefunden zu haben." },
+        ["TIME FORMAT"] = new[] { "FORMAT DE L'HEURE", "FORMATO DE HORA", "ZEITFORMAT" },
+        ["How times are shown (Treasure Hours, matches): 8:00 PM or 20:00. Times are always Paris time."] = new[] { "Comment les heures s'affichent (Heures au trésor, matchs) : 8:00 PM ou 20:00. Les heures sont toujours à l'heure de Paris.", "Cómo se muestran las horas (Horas del tesoro, partidas): 8:00 PM o 20:00. Las horas son siempre de París.", "Wie Uhrzeiten angezeigt werden (Schatzstunden, Matches): 8:00 PM oder 20:00. Die Zeiten sind immer Pariser Zeit." },
+        ["Like Windows"] = new[] { "Comme Windows", "Como Windows", "Wie Windows" },
+        ["12-hour (8:00 PM)"] = new[] { "12 h (8:00 PM)", "12 h (8:00 PM)", "12 Std. (8:00 PM)" },
+        ["24-hour (20:00)"] = new[] { "24 h (20:00)", "24 h (20:00)", "24 Std. (20:00)" },
         ["Treasure found"] = new[] { "Trésor trouvé", "Tesoro encontrado", "Schatz gefunden" },
     };
 }

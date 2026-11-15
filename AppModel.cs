@@ -65,6 +65,12 @@ public class AppModel : Notify
     public int TodayOpened { get => todayOpened; private set { if (Set(ref todayOpened, value)) Raise(nameof(OverlayNumber)); } }
     /// <summary>The number the minimal overlay shows: all-time total, today, or this session (Settings).</summary>
     public int OverlayNumber => state.Settings.OverlayNumberKind switch { 1 => TodayOpened, 2 => SessionOpened, _ => TotalOpened };
+    public void SetTimeFormat(int kind)
+    {
+        state.Settings.TimeFormat = Paris.Mode = Math.Clamp(kind, 0, 2);
+        foreach (var r in hourRows) r.Reformat();
+        Rebuild(); Save();   // the matches list shows times too
+    }
     public void SetOverlayNumber(int kind) { state.Settings.OverlayNumberKind = Math.Clamp(kind, 0, 2); Raise(nameof(OverlayNumber)); Save(); }
     int totalTreasures;
     public int TotalTreasures { get => totalTreasures; set => Set(ref totalTreasures, value); }
@@ -342,6 +348,7 @@ public class AppModel : Notify
     public void Start()
     {
         foreach (var m in state.Matches) known.Add(m.File);
+        Paris.Mode = state.Settings.TimeFormat;
         Drops = new DropsVM(state, Save, () => TotalOpened, ChestsBetween, now => treasure.FirstOrDefault(w => w.StartUtc <= now && now < w.EndUtc));
         foreach (var w in treasure) hourRows.Add(new HourRow(w));
         Rebuild();

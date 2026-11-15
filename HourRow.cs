@@ -9,7 +9,8 @@ namespace LNXcounter;
 public class HourRow : Notify
 {
     public TreasureWindow W { get; }
-    public string When { get; }
+    string when = "";
+    public string When { get => when; private set => Set(ref when, value); }
     public string Outfit { get; }
     public string Token { get; }
     public string Vehicle { get; }
@@ -20,9 +21,12 @@ public class HourRow : Notify
     {
         W = w;
         StartParis = Paris.FromUtc(w.StartUtc); EndParis = Paris.FromUtc(w.EndUtc);
-        When = $"{Paris.Day(StartParis)} · {Paris.Range(StartParis, EndParis)}";
+        Reformat();
         Outfit = Mul(w.Outfit); Token = Mul(w.Token); Vehicle = Mul(w.Vehicle);
     }
+
+    /// <summary>Writes the time again (the 12 h / 24 h choice changed).</summary>
+    public void Reformat() => When = $"{Paris.Day(StartParis)} · {Paris.Range(StartParis, EndParis)}";
 
     static string Mul(double m) => m.ToString("0.##", CultureInfo.InvariantCulture) + "×";
 

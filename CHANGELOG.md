@@ -2,6 +2,10 @@
 
 Every update of LNXcounter, newest first. Download any version from the [Releases](../../releases) page.
 
+## v1.25.1
+- **12-hour or 24-hour clock.** *Settings > General > Time format*: **Like Windows** (default), **12-hour (8:00 PM)** or **24-hour (20:00)**. It changes every time in the app (Treasure Hours, the next-hour card, the match list) at once, no restart. Times are still Paris time.
+- **Weekly odds use that week's chests.** In the pop-up of a weekly reward, the *chance you would have found one by now* is now worked out from the chests you opened **during that week** only (chests added by hand have no date and are not in it). The token still uses all your chests, since it can drop in any week.
+
 ## v1.25.0
 **Much faster and more reliable replay reading**
 - **Several replays are read at the same time.** A backlog of matches (after a restart, or *Re-read recent* / *Rescan all*) is now read about twice as fast.
@@ -26,7 +30,6 @@ Every update of LNXcounter, newest first. Download any version from the [Release
 - **Logs for bug reports.** *Settings > Data > Logs*: **Copy the log** (ready to paste in a bug report), **Save as a file**, or open the logs folder. The log records when the app starts and closes, each match it reads, update checks and every error (also the ones that would crash the app). It is small (two files of 512 KB at most), contains nothing personal (your Windows user name is hidden) and is never sent anywhere by itself.
 - **Uninstall.** *Settings > Data > Uninstall* removes LNXcounter completely after one confirmation: the program and the old copies an update leaves next to it, your stats and settings, the logs, the song player data and the *Start with Windows* entry, and the folder of the program when nothing else is in it. Your Fortnite replays and the files you saved yourself (exports, backups) are never touched.
 - **Drops weeks 3, 4 and 5 show their reward names.** Solid Gold Miku / Kasane Teto / Captain X, the back bling, the car, the jam track and the loading screen of each week appear on hover and in the pop-up, with their odds and the *found* tick. Week 3 (Miku & Teto) is complete with its pictures (the Corvette decal is redrawn sharper); weeks 4 and 5 have no pictures yet, so their tiles keep the "?" until they are available. The jam tracks of week 3 (PPPP) and week 5 (I Follow Rivers) can already be played in the pop-up.
-- **Weekly odds use that week's chests.** In the pop-up of a weekly reward, the *chance you would have found one by now* is now worked out from the chests you opened **during that week** only (chests added by hand have no date and are not in it). The token still uses all your chests, since it can drop in any week.
 - **Only the live week can be ticked.** The *found* tick (on the tile and in the pop-up) is greyed out for a week that is over or has not started yet, so a reward can no longer be ticked in the wrong week. Ticks already made stay.
 - **Settings are easier to read.** Instead of one long list, the settings are split in five sections on the left: **General** (updates, startup, low-resource mode), **Overlay** (style, minimal, full, hotkey), **Notifications** (match pop-up, Treasure Hour alert), **Chests and goal** and **Data** (delete replays, export, backup). Each has a title and a short line saying what it is for, and the overlay settings are split by the style they change. The red update dot also shows next to *General*.
 - **Match pop-up.** A silent pop-up in the bottom right corner after each new match is counted, for example *+12 chests* with your session and total, and a star when a treasure was found. Never after *Rescan all* or *Re-read recent*. Can be switched off in *Settings > Match pop-up*.

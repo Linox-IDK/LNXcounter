@@ -25,7 +25,7 @@ public class MatchRecord
             .Select(f => Loc.F("{0}: {1} ({2} into the match)", Loc.T(f.Mine ? "★ You" : "☆ Nearby player"), f.Name, $"{(int)(f.AtSeconds / 60)}:{(int)(f.AtSeconds % 60):00}")));
     /// <summary>Replay file size when it was read. If the file later grows, it is read again.</summary>
     public long Size { get; set; }
-    [JsonIgnore] public string DateText => Paris.FromLocal(Started).ToString("ddd d MMM · HH:mm");
+    [JsonIgnore] public string DateText => Paris.FromLocal(Started) is var p ? p.ToString("ddd d MMM") + " · " + Paris.Clock(p) : "";
 }
 
 public class ChestSpot
@@ -95,6 +95,8 @@ public class Settings
     /// <summary>Optional goal: 0 = none, 1 = chests per day, 2 = chests per week (Monday to Sunday).</summary>
     public int GoalKind { get; set; }
     public int GoalTarget { get; set; } = 50;
+    /// <summary>Clock format: 0 follows Windows, 1 = 12-hour, 2 = 24-hour.</summary>
+    public int TimeFormat { get; set; }
 }
 
 public class StateFile

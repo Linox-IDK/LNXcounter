@@ -334,6 +334,19 @@
 
                             <Border Style="{StaticResource Card}" Margin="0,0,0,14" Padding="22,18">
                                 <StackPanel>
+                                    <TextBlock Text="{loc:Tr 'TIME FORMAT'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
+                                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,10" LineHeight="19"
+                                               Text="{loc:Tr 'How times are shown (Treasure Hours, matches): 8:00 PM or 20:00. Times are always Paris time.'}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton x:Name="TfAuto" Style="{StaticResource TabRadio}" Content="{loc:Tr 'Like Windows'}" GroupName="tfmt" Checked="Tf_Click" IsChecked="True"/>
+                                        <RadioButton x:Name="Tf12" Style="{StaticResource TabRadio}" Content="{loc:Tr '12-hour (8:00 PM)'}" GroupName="tfmt" Checked="Tf_Click"/>
+                                        <RadioButton x:Name="Tf24" Style="{StaticResource TabRadio}" Content="{loc:Tr '24-hour (20:00)'}" GroupName="tfmt" Checked="Tf_Click"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,14" Padding="22,18">
+                                <StackPanel>
                                     <TextBlock Text="{loc:Tr 'START WITH WINDOWS'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
                                     <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
                                                Text="{loc:Tr 'Opens LNXcounter quietly in the tray when you log in to Windows, so every match is counted. You can also switch this from the right-click menu of the tray icon or of the overlay.'}"/>

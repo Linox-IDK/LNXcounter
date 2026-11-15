@@ -7,7 +7,10 @@ public static class Paris
 {
     public static readonly TimeZoneInfo Zone = Find();
     static readonly CultureInfo En = CultureInfo.CurrentCulture;   // Windows format: 8:00 PM or 20:00, Sat or sam.
-    static readonly bool Use12h = En.DateTimeFormat.ShortTimePattern.Contains('t');
+    static readonly bool Auto12h = En.DateTimeFormat.ShortTimePattern.Contains('t');
+    /// <summary>0 = follow Windows, 1 = 12-hour (8:00 PM), 2 = 24-hour (20:00). Set from the settings.</summary>
+    public static int Mode { get; set; }
+    static bool Use12h => Mode == 1 || (Mode == 0 && Auto12h);
 
     static TimeZoneInfo Find()
     {
