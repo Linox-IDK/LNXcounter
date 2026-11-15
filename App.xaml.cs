@@ -76,7 +76,7 @@ public partial class App : Application
         DispatcherUnhandledException += (_, ev) => Log.Error("Unhandled error", ev.Exception);
         AppDomain.CurrentDomain.UnhandledException += (_, ev) => Log.Error("Fatal error" + (ev.IsTerminating ? " (the app closes)" : ""), ev.ExceptionObject as Exception);
         TaskScheduler.UnobservedTaskException += (_, ev) => Log.Warn("Background task error: " + ev.Exception.GetBaseException().Message);
-        Log.Info($"LNXcounter {Version} started" + (e.Args.Contains("--startup") ? " (with Windows)" : "") + (Low ? ", low-resource mode" : ""));
+        Log.Info($"LNXtracker {Version} started" + (e.Args.Contains("--startup") ? " (with Windows)" : "") + (Low ? ", low-resource mode" : ""));
         Model = new AppModel();
         Model.Start();
         if (!Model.Settings.LowChecked)
@@ -113,9 +113,9 @@ public partial class App : Application
 
     void CreateTray()
     {
-        tray = new TrayIcon(Environment.ProcessPath!, "LNXcounter");
+        tray = new TrayIcon(Environment.ProcessPath!, "LNXtracker");
         tray.Clicked += right => Dispatcher.BeginInvoke(() => { if (right) ShowTrayMenu(); else ShowMain(); });
-        void UpdateTip() => tray.Text = $"LNXcounter - {Model.TotalOpened} chests";
+        void UpdateTip() => tray.Text = $"LNXtracker - {Model.TotalOpened} chests";
         UpdateTip();
         Model.PropertyChanged += (_, ev) => { if (ev.PropertyName == nameof(AppModel.TotalOpened)) UpdateTip(); };
     }
@@ -135,7 +135,7 @@ public partial class App : Application
         var app = (App)Current;
         if (app.trayTipShown || app.tray == null) return;
         app.trayTipShown = true;
-        app.tray.ShowBalloon("LNXcounter is still running", "Left-click the tray icon to reopen it, right-click for options.");
+        app.tray.ShowBalloon("LNXtracker is still running", "Left-click the tray icon to reopen it, right-click for options.");
     }
 
     void ShowTrayMenu()
@@ -185,7 +185,7 @@ public partial class App : Application
     public static void Quit(bool save = true)
     {
         Quitting = true;
-        Log.Info("LNXcounter closed");
+        Log.Info("LNXtracker closed");
         var app = (App)Current;
         if (save) Model.Save();
         app.tray?.Dispose();

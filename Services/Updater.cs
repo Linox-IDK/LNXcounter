@@ -103,7 +103,7 @@ public static class Updater
         AttachConsole(-1);
         var o = new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true };
         o.WriteLine();
-        o.WriteLine($"LNXcounter {Current} - looking for updates...");
+        o.WriteLine($"LNXtracker {Current} - looking for updates...");
         var (info, err) = Task.Run(CheckAsync).GetAwaiter().GetResult();   // off the UI thread, or the await would wait for it forever
         if (err != null) { o.WriteLine(err); return 1; }
         if (info == null) { o.WriteLine("You already have the newest version."); return 0; }
@@ -112,7 +112,7 @@ public static class Updater
         var res = Task.Run(() => InstallAsync(info, new Progress<int>(p => { if (p >= shown + 10) { shown = p; o.Write($" {p}%"); } }))).GetAwaiter().GetResult();
         o.WriteLine();
         if (res != null) { o.WriteLine(res); return 1; }
-        o.WriteLine($"Updated to {info.Tag}. Start LNXcounter again (if it is running, quit it from the tray first).");
+        o.WriteLine($"Updated to {info.Tag}. Start LNXtracker again (if it is running, quit it from the tray first).");
         return 0;
     }
 

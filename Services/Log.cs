@@ -68,7 +68,7 @@ public static class Log
     public static string Header()
     {
         var sb = new StringBuilder();
-        sb.AppendLine("LNXcounter log");
+        sb.AppendLine("LNXtracker log");
         sb.AppendLine($"Version:      {App.Version}");
         sb.AppendLine($"Windows:      {RuntimeInformation.OSDescription} ({RuntimeInformation.OSArchitecture})");
         sb.AppendLine($".NET:         {RuntimeInformation.FrameworkDescription}");

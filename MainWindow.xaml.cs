@@ -212,8 +212,8 @@ public partial class MainWindow : Window
 
     void Clean_Click(object sender, RoutedEventArgs e)
     {
-        if (CleanBox.IsChecked == true && MessageBox.Show(this, Loc.T("Delete your Fortnite replays for good once LNXcounter has counted them? Only replays that are more than 1 hour old are deleted, they do not go to the Recycle Bin, and they cannot be read again. Your totals are kept."),
-                "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+        if (CleanBox.IsChecked == true && MessageBox.Show(this, Loc.T("Delete your Fortnite replays for good once LNXtracker has counted them? Only replays that are more than 1 hour old are deleted, they do not go to the Recycle Bin, and they cannot be read again. Your totals are kept."),
+                "LNXtracker", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
         {
             CleanBox.IsChecked = false; return;
         }
@@ -254,7 +254,7 @@ public partial class MainWindow : Window
 
     void Backup_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new SaveFileDialog { Title = Loc.T("Save a backup of your stats"), Filter = "LNXcounter backup (*.json)|*.json", DefaultExt = ".json", AddExtension = true, FileName = $"LNXcounter-backup-{DateTime.Now:yyyy-MM-dd}.json" };
+        var dlg = new SaveFileDialog { Title = Loc.T("Save a backup of your stats"), Filter = "LNXtracker backup (*.json)|*.json", DefaultExt = ".json", AddExtension = true, FileName = $"LNXtracker-backup-{DateTime.Now:yyyy-MM-dd}.json" };
         if (dlg.ShowDialog(this) != true) return;
         try { M.BackupTo(dlg.FileName); M.BackupMessage = Loc.F("Backup saved: {0}.", System.IO.Path.GetFileName(dlg.FileName)); }
         catch (Exception ex) { M.BackupMessage = Loc.T("Could not save the backup: ") + ex.Message; }
@@ -262,9 +262,9 @@ public partial class MainWindow : Window
 
     void Restore_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new OpenFileDialog { Title = Loc.T("Choose a LNXcounter backup"), Filter = "LNXcounter backup (*.json)|*.json|All files (*.*)|*.*" };
+        var dlg = new OpenFileDialog { Title = Loc.T("Choose a LNXtracker backup"), Filter = "LNXtracker backup (*.json)|*.json|All files (*.*)|*.*" };
         if (dlg.ShowDialog(this) != true) return;
-        if (MessageBox.Show(this, Loc.T("Replace your current stats with this backup? The current stats are kept as state.json.bak. The app restarts afterwards."), "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+        if (MessageBox.Show(this, Loc.T("Replace your current stats with this backup? The current stats are kept as state.json.bak. The app restarts afterwards."), "LNXtracker", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
         var err = M.RestoreFrom(dlg.FileName);
         if (err != null) { M.BackupMessage = err; return; }
         App.Restart(save: false);
@@ -279,7 +279,7 @@ public partial class MainWindow : Window
 
     void LogSave_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new SaveFileDialog { Title = Loc.T("Save the log"), Filter = "Text file (*.txt)|*.txt", DefaultExt = ".txt", AddExtension = true, FileName = $"LNXcounter-log-{DateTime.Now:yyyy-MM-dd}.txt" };
+        var dlg = new SaveFileDialog { Title = Loc.T("Save the log"), Filter = "Text file (*.txt)|*.txt", DefaultExt = ".txt", AddExtension = true, FileName = $"LNXtracker-log-{DateTime.Now:yyyy-MM-dd}.txt" };
         if (dlg.ShowDialog(this) != true) return;
         try { System.IO.File.WriteAllText(dlg.FileName, LNXcounter.Services.Log.Report(), new System.Text.UTF8Encoding(true)); LogMsg.Text = Loc.F("Saved {0}.", System.IO.Path.GetFileName(dlg.FileName)); }
         catch (Exception ex) { LogMsg.Text = Loc.T("Could not save the file: ") + ex.Message; }
@@ -298,8 +298,8 @@ public partial class MainWindow : Window
     // ----- uninstall -----
     void Uninstall_Click(object sender, RoutedEventArgs e)
     {
-        if (MessageBox.Show(this, Loc.T("Uninstall LNXcounter completely? Your stats, settings, logs and the program itself are deleted for good, with nothing left behind. Your Fortnite replays and the files you saved yourself are not touched. This cannot be undone."),
-                "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        if (MessageBox.Show(this, Loc.T("Uninstall LNXtracker completely? Your stats, settings, logs and the program itself are deleted for good, with nothing left behind. Your Fortnite replays and the files you saved yourself are not touched. This cannot be undone."),
+                "LNXtracker", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
         var err = LNXcounter.Services.Uninstaller.Start();
         if (err != null) { LogMsg.Text = Loc.T("Uninstall failed: ") + err; return; }
         App.Quit(save: false);   // the hidden script deletes everything as soon as the app is closed
@@ -323,7 +323,7 @@ public partial class MainWindow : Window
         {
             Title = Loc.T(pdf ? "Save your chests as PDF" : "Save your chests as CSV"),
             Filter = pdf ? "PDF file (*.pdf)|*.pdf" : "CSV file (*.csv)|*.csv", DefaultExt = pdf ? ".pdf" : ".csv", AddExtension = true,
-            FileName = $"LNXcounter-{period.ToString().ToLowerInvariant()}-{DateTime.Now:yyyy-MM-dd}" + (pdf ? ".pdf" : ".csv"),
+            FileName = $"LNXtracker-{period.ToString().ToLowerInvariant()}-{DateTime.Now:yyyy-MM-dd}" + (pdf ? ".pdf" : ".csv"),
         };
         if (dlg.ShowDialog(this) != true) return;
         try
@@ -339,7 +339,7 @@ public partial class MainWindow : Window
         var dlg = new SaveFileDialog
         {
             Title = Loc.T("Save your stats card as PNG"), Filter = "PNG image (*.png)|*.png", DefaultExt = ".png", AddExtension = true,
-            FileName = $"LNXcounter-card-{DateTime.Now:yyyy-MM-dd}.png",
+            FileName = $"LNXtracker-card-{DateTime.Now:yyyy-MM-dd}.png",
             InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
         };
         if (dlg.ShowDialog(this) != true) return;
@@ -420,13 +420,13 @@ public partial class MainWindow : Window
 
     async void Refresh_Click(object sender, RoutedEventArgs e)
     {
-        if (MessageBox.Show(this, Loc.T("Re-read the replays still on your PC with the latest detection? Matches whose replay is gone are kept as they are."), "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        if (MessageBox.Show(this, Loc.T("Re-read the replays still on your PC with the latest detection? Matches whose replay is gone are kept as they are."), "LNXtracker", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             await M.RefreshExistingAsync();
     }
 
     async void Rescan_Click(object sender, RoutedEventArgs e)
     {
-        if (MessageBox.Show(this, Loc.T("Re-read every replay in the folder and rebuild your totals from scratch?"), "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        if (MessageBox.Show(this, Loc.T("Re-read every replay in the folder and rebuild your totals from scratch?"), "LNXtracker", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             await M.RescanAllAsync();
     }
 
@@ -465,7 +465,7 @@ public partial class MainWindow : Window
 
     void Reset_Click(object sender, RoutedEventArgs e)
     {
-        if (MessageBox.Show(this, Loc.T("Set all counters to zero, including chests you added by hand? Existing replays will not be counted again, only new matches."), "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+        if (MessageBox.Show(this, Loc.T("Set all counters to zero, including chests you added by hand? Existing replays will not be counted again, only new matches."), "LNXtracker", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             M.ResetAll();
     }
 }

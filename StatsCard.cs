@@ -30,7 +30,7 @@ public static class StatsCard
         // header: app name and your Fortnite name
         var head = new Grid();
         head.ColumnDefinitions.Add(new ColumnDefinition()); head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        head.Children.Add(T("LNXcounter", 22, gold, pirate));
+        head.Children.Add(T("LNXtracker", 22, gold, pirate));
         if (!string.IsNullOrWhiteSpace(m.PlayerName))
         {
             var pill = new Border { BorderBrush = goldDim, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), Padding = new Thickness(9, 2, 9, 2), VerticalAlignment = VerticalAlignment.Center, Child = T(m.PlayerName!, 12, B("#FFB8A24A")) };

@@ -146,7 +146,7 @@ public static class DropsData
         "Buried chests look like a mound of sand. Keep an eye out for them while you loot.",
         "Check the map regularly. The storm circle decides where the last fights will happen.",
         "Practice in Creative to sharpen your aim, your building and your edits.",
-        "LNXcounter reads your replay files after each match, it never touches the game itself.",
+        "LNXtracker reads your replay files after each match, it never touches the game itself.",
         "Cover your back when you open a chest. The sound can attract company.",
         "Higher ground gives you a clear view and a better angle on your enemies.",
         "Swap your loadout to match the fight. Close quarters and long range need different weapons.",

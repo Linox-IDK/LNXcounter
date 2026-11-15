@@ -15,12 +15,12 @@ public static class AppMenu
         var s = m.Settings;
         var menu = new ContextMenu { Placement = PlacementMode.MousePoint, StaysOpen = false };
 
-        menu.Items.Add(Info($"LNXcounter · v{App.Version}", bold: true));
+        menu.Items.Add(Info($"LNXtracker · v{App.Version}", bold: true));
         menu.Items.Add(Info(Loc.F("Total: {0} chests opened", m.TotalOpened)));
         menu.Items.Add(Info(Trim(m.Status, 52)));
         menu.Items.Add(new Separator());
 
-        menu.Items.Add(Item("Open LNXcounter", App.ShowMain, bold: true));
+        menu.Items.Add(Item("Open LNXtracker", App.ShowMain, bold: true));
         var next = string.IsNullOrEmpty(m.PirateBadge) ? m.PirateShort : $"{m.PirateShort}  ({m.PirateBadge.ToLowerInvariant()})";
         menu.Items.Add(Info(Loc.F("Treasure Hours: {0}", next)));
         menu.Items.Add(new Separator());
@@ -45,7 +45,7 @@ public static class AppMenu
         menu.Items.Add(Item("Scan for new matches now", () => _ = m.ScanAsync()));
         menu.Items.Add(Item("Rebuild from all replays…", async () =>
         {
-            if (MessageBox.Show(Loc.T("Re-read every replay in the folder and rebuild your totals from scratch?"), "LNXcounter",
+            if (MessageBox.Show(Loc.T("Re-read every replay in the folder and rebuild your totals from scratch?"), "LNXtracker",
                     MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 await m.RescanAllAsync();
         }));

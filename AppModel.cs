@@ -244,9 +244,9 @@ public class AppModel : Notify
     {
         StateFile? s;
         try { s = System.Text.Json.JsonSerializer.Deserialize<StateFile>(File.ReadAllText(path)); }
-        catch (Exception ex) { Log.Warn("Restore: not a backup file: " + ex.Message); return Loc.T("That file is not a LNXcounter backup."); }
+        catch (Exception ex) { Log.Warn("Restore: not a backup file: " + ex.Message); return Loc.T("That file is not a LNXtracker backup."); }
         if (s == null || s.Matches == null || s.Settings == null || (s.Matches.Count == 0 && s.Settings.ManualChests == 0 && s.Found.Count == 0))
-            return Loc.T("That file is not a LNXcounter backup (or it is empty).");
+            return Loc.T("That file is not a LNXtracker backup (or it is empty).");
         // the folder and the overlay position belong to this PC, not to the backup
         var mine = state.Settings;
         s.Settings.ReplayFolder = mine.ReplayFolder; s.Settings.OverlayLeft = mine.OverlayLeft; s.Settings.OverlayTop = mine.OverlayTop;
@@ -293,7 +293,7 @@ public class AppModel : Notify
         else
         {
             update = null; UpdateAvailable = false;
-            UpdateHeadline = $"LNXcounter v{Updater.Current.ToString(3)}";
+            UpdateHeadline = $"LNXtracker v{Updater.Current.ToString(3)}";
             UpdateNote = manual ? Loc.T("You have the newest version.") : UpdateNote;
         }
     }
@@ -314,7 +314,7 @@ public class AppModel : Notify
     readonly DispatcherTimer updateTimer = new() { Interval = TimeSpan.FromHours(6) };
     void StartUpdateChecks()
     {
-        UpdateHeadline = $"LNXcounter v{Updater.Current.ToString(3)}";
+        UpdateHeadline = $"LNXtracker v{Updater.Current.ToString(3)}";
         updateTimer.Tick += async (_, _) => { if (state.Settings.AutoUpdateCheck) await CheckUpdateAsync(false); };
         updateTimer.Start();
         var first = new DispatcherTimer { Interval = TimeSpan.FromSeconds(15) };
@@ -341,7 +341,7 @@ public class AppModel : Notify
     {
         if (total < ReplayChests)
         {
-            SettingsMessage = Loc.F("LNXcounter already counted {0} chests from your replays, so your total can't be lower than that.", ReplayChests.ToString("N0"));
+            SettingsMessage = Loc.F("LNXtracker already counted {0} chests from your replays, so your total can't be lower than that.", ReplayChests.ToString("N0"));
             return;
         }
         state.Settings.ManualChests = Math.Min(total - ReplayChests, MaxManual);

@@ -38,7 +38,7 @@ public static class PdfExport
             p.Rect(0, 0, W, 7, gold);
             if (first)
             {
-                p.Text(40, 66, 30, true, gold, "LNXcounter");
+                p.Text(40, 66, 30, true, gold, "LNXtracker");
                 p.Text(40, 88, 12, false, muted, "Chest report, " + what);
                 p.TextRight(W - 40, 66, 11, false, muted, "Made " + Paris.FromUtc(DateTime.UtcNow).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) + " (Paris time)");
                 string[] t = { "CHESTS OPENED", "MATCHES", "AVERAGE PER MATCH", "TREASURES FOUND" };
@@ -90,7 +90,7 @@ public static class PdfExport
 
         for (int n = 0; n < pages.Count; n++)
         {
-            pages[n].Text(40, H - 18, 8.5, false, "0.45 0.42 0.32", "LNXcounter  -  counted offline from your Fortnite replays");
+            pages[n].Text(40, H - 18, 8.5, false, "0.45 0.42 0.32", "LNXtracker  -  counted offline from your Fortnite replays");
             pages[n].TextRight(W - 40, H - 18, 8.5, false, "0.45 0.42 0.32", $"Page {n + 1} / {pages.Count}");
         }
         return Assemble(pages);

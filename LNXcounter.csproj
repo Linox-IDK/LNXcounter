@@ -9,6 +9,8 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>LNXcounter</AssemblyName>
     <RootNamespace>LNXcounter</RootNamespace>
+    <Product>LNXtracker</Product>
+    <AssemblyTitle>LNXtracker</AssemblyTitle>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <Version>1.26.0</Version>
     <NoWarn>$(NoWarn);CS8618;NU1701</NoWarn>

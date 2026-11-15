@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="clr-namespace:LNXcounter.Services"
         xmlns:local="clr-namespace:LNXcounter"
-        Title="LNXcounter" Width="1190" Height="740" WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        Title="LNXtracker" Width="1190" Height="740" WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="CanMinimize" PreviewKeyDown="Window_PreviewKeyDown" WindowStartupLocation="CenterScreen" Icon="/Assets/logo.png">
     <Border Background="{StaticResource BgBrush}" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1.5" CornerRadius="12">
         <Grid>
@@ -17,7 +17,7 @@
             <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="TitleBar_Down" Margin="16,10,10,0">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/Assets/logo.png" Width="30" Height="30" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <TextBlock FontFamily="{StaticResource PirateFont}" Text="LNXcounter" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="20" Foreground="{StaticResource GoldGradient}"/>
+                    <TextBlock FontFamily="{StaticResource PirateFont}" Text="LNXtracker" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="20" Foreground="{StaticResource GoldGradient}"/>
                     <Border Margin="12,0,0,0" Padding="9,2" CornerRadius="9" VerticalAlignment="Center" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1.5" ToolTip="{loc:Tr 'Your Fortnite name'}">
                         <Border.Style>
                             <Style TargetType="Border">
@@ -369,8 +369,8 @@
                                 <StackPanel>
                                     <TextBlock Text="{loc:Tr 'START WITH WINDOWS'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
                                     <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
-                                               Text="{loc:Tr 'Opens LNXcounter quietly in the tray when you log in to Windows, so every match is counted. You can also switch this from the right-click menu of the tray icon or of the overlay.'}"/>
-                                    <CheckBox x:Name="StartupBox" Style="{StaticResource SettingCheck}" Content="{loc:Tr 'Start LNXcounter with Windows'}" Click="Startup_Click"/>
+                                               Text="{loc:Tr 'Opens LNXtracker quietly in the tray when you log in to Windows, so every match is counted. You can also switch this from the right-click menu of the tray icon or of the overlay.'}"/>
+                                    <CheckBox x:Name="StartupBox" Style="{StaticResource SettingCheck}" Content="{loc:Tr 'Start LNXtracker with Windows'}" Click="Startup_Click"/>
                                 </StackPanel>
                             </Border>
 
@@ -422,7 +422,7 @@
                                                         <Grid Height="26">
                                                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                                             <Image Source="/Assets/logo.png" Width="22" Height="22" RenderOptions.BitmapScalingMode="HighQuality"/>
-                                                            <TextBlock Grid.Column="1" Text="LNXcounter" Margin="8,0,0,0" VerticalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="{StaticResource GoldGradient}"/>
+                                                            <TextBlock Grid.Column="1" Text="LNXtracker" Margin="8,0,0,0" VerticalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="{StaticResource GoldGradient}"/>
                                                             <TextBlock Grid.Column="2" Text="{Binding TotalOpened}" VerticalAlignment="Center" FontWeight="Bold" FontSize="17" Foreground="{StaticResource GoldLightBrush}"/>
                                                         </Grid>
                                                         <Border Height="1" Background="{StaticResource LineBrush}" Margin="0,6,0,8"/>
@@ -564,7 +564,7 @@
                                 <StackPanel>
                                     <TextBlock Text="{loc:Tr 'ADD CHESTS TO YOUR COUNT'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
                                     <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,0" LineHeight="19"
-                                               Text="{loc:Tr 'LNXcounter can only count the matches it finds as replay files on this PC. If you also play on another device, or played before you installed the app, add those chests here. They are counted as normal chests and are used for your drop odds too.'}"/>
+                                               Text="{loc:Tr 'LNXtracker can only count the matches it finds as replay files on this PC. If you also play on another device, or played before you installed the app, add those chests here. They are counted as normal chests and are used for your drop odds too.'}"/>
                                     <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
                                         <TextBox x:Name="AddBox" Style="{StaticResource GoldBox}" Width="190" MaxLength="9" PreviewTextInput="Number_PreviewTextInput" KeyDown="AddBox_KeyDown"/>
                                         <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Add'}" Margin="12,0,0,0" MinWidth="84" Click="AddChests_Click"/>
@@ -577,7 +577,7 @@
                                 <StackPanel>
                                     <TextBlock Text="{loc:Tr 'OR SET YOUR EXACT TOTAL'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
                                     <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,0" LineHeight="19"
-                                               Text="{loc:Tr 'Already know how many chests you opened this season? Type your total and LNXcounter adds whatever its replays did not count to reach it.'}"/>
+                                               Text="{loc:Tr 'Already know how many chests you opened this season? Type your total and LNXtracker adds whatever its replays did not count to reach it.'}"/>
                                     <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
                                         <TextBox x:Name="TotalBox" Style="{StaticResource GoldBox}" Width="190" MaxLength="9" PreviewTextInput="Number_PreviewTextInput" KeyDown="TotalBox_KeyDown"/>
                                         <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Set total'}" Margin="12,0,0,0" MinWidth="84" Click="SetTotal_Click"/>
@@ -601,7 +601,7 @@
                                 <StackPanel>
                                     <TextBlock Text="{loc:Tr 'DELETE COUNTED REPLAYS'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
                                     <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
-                                               Text="{loc:Tr 'Fortnite keeps every replay (15 to 20 MB each) until you delete it. When this is on, LNXcounter deletes a replay for good once it has counted it, but never one that is less than 1 hour old. Your totals are kept. A deleted replay cannot be read again, and it does not go to the Recycle Bin.'}"/>
+                                               Text="{loc:Tr 'Fortnite keeps every replay (15 to 20 MB each) until you delete it. When this is on, LNXtracker deletes a replay for good once it has counted it, but never one that is less than 1 hour old. Your totals are kept. A deleted replay cannot be read again, and it does not go to the Recycle Bin.'}"/>
                                     <CheckBox x:Name="CleanBox" Style="{StaticResource SettingCheck}" Content="{loc:Tr 'Delete replays once they are counted'}" Click="Clean_Click"/>
                                     <TextBlock Style="{StaticResource MsgText}" Text="{Binding CleanMessage}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,10,0,0"/>
                                 </StackPanel>
@@ -654,7 +654,7 @@
                                 <StackPanel>
                                     <TextBlock Text="{loc:Tr 'LOGS'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
                                     <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
-                                               Text="{loc:Tr 'LNXcounter keeps a small log of what it does: when it starts, each match it reads, update checks and every error. If something goes wrong, copy it and paste it in your bug report. Nothing personal is in it (your Windows user name is hidden) and nothing is ever sent anywhere by itself.'}"/>
+                                               Text="{loc:Tr 'LNXtracker keeps a small log of what it does: when it starts, each match it reads, update checks and every error. If something goes wrong, copy it and paste it in your bug report. Nothing personal is in it (your Windows user name is hidden) and nothing is ever sent anywhere by itself.'}"/>
                                     <StackPanel Orientation="Horizontal">
                                         <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Copy the log'}" MinWidth="110" Click="LogCopy_Click"/>
                                         <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Save as a file'}" MinWidth="110" Margin="8,0,0,0" Click="LogSave_Click"/>
@@ -668,8 +668,8 @@
                                 <StackPanel>
                                     <TextBlock Text="{loc:Tr 'UNINSTALL'}" Style="{StaticResource Label}" Foreground="#FFFF6B6B"/>
                                     <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
-                                               Text="{loc:Tr 'Removes LNXcounter completely and leaves nothing behind: the program and its old copies, your stats and settings, the logs, the song player data and the Start with Windows entry. Your Fortnite replays and the files you saved yourself (exports, backups) are not touched. Make a backup first if you may come back. This cannot be undone.'}"/>
-                                    <Button Style="{StaticResource DangerButton}" Content="{loc:Tr 'Uninstall LNXcounter'}" HorizontalAlignment="Left" Click="Uninstall_Click"/>
+                                               Text="{loc:Tr 'Removes LNXtracker completely and leaves nothing behind: the program and its old copies, your stats and settings, the logs, the song player data and the Start with Windows entry. Your Fortnite replays and the files you saved yourself (exports, backups) are not touched. Make a backup first if you may come back. This cannot be undone.'}"/>
+                                    <Button Style="{StaticResource DangerButton}" Content="{loc:Tr 'Uninstall LNXtracker'}" HorizontalAlignment="Left" Click="Uninstall_Click"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>

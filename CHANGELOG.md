@@ -1,13 +1,17 @@
 # Changelog
 
-Every update of LNXcounter, newest first. Download any version from the [Releases](../../releases) page.
+Every update of LNXtracker (called LNXcounter until v1.25.1), newest first. Download any version from the [Releases](../../releases) page.
 
 ## v1.26.0
+**New name: LNXcounter is now LNXtracker**
+- **The app is now called LNXtracker** (window, tray, overlay, pop-ups, PDF and PNG exports, backups, texts in every language). Nothing else changes for you: your stats, settings, backups and the *Start with Windows* entry carry on as they were, and the file you download is still named `LNXcounter.exe`, so every install keeps updating by itself.
+
 **Heat map, graphs and milestones**
 - **Chest heat map.** The chest map (the eye on a match) has two switches at the top of the map: **Chest spots / Chest heat**, and **This match / All matches**. *Heat* paints where you open the most chests, blue to green to yellow to red; with *All matches* it shows every match still stored, so you can see your best farming spots.
 - **Chest graph.** A small graph icon above the Treasure Hour countdown opens bar graphs of the chests you opened: **daily** (last 30 days), **weekly** (last 12 weeks, Monday to Sunday) or **monthly** (last 12 months). Hover a bar for the exact count.
 - **Milestones.** Five chips on the Overview, **500, 1K, 5K, 10K and 20K chests**: gold once reached, with the chests left on hover. A pop-up announces the next one when a new match takes you over it (milestones you had already passed are not announced).
 - **Stats card (PNG).** A picture of your numbers to share, 1080 px wide in the black and gold style: chests, team chests, treasures, matches, best day, the milestone chips and a bar graph of your last 7 days. Click **Card** at the bottom of the window to save it in one click, or use *Settings > Data > Stats card* to save it or copy it to the clipboard.
+- **Auto-tick removed.** The Drops page no longer ticks rewards by itself from your replays (it ticked some wrongly, and the ids of the newer weeks could not be matched reliably). Tick what you found yourself, as before. The golden-chest rewards still show with a star in *Recent matches*.
 - **Pirate lettering.** Titles, numbers, tabs, buttons and labels use the *Pirata One* pirate font (included in the app, SIL Open Font License); paragraphs and tooltips keep the normal font so they stay easy to read.
 - **Animation smoothness.** *Settings > General > Animation smoothness*: **24** (default, light on the CPU), **60** or **120 FPS** for the pulses and the floating token. The app restarts to apply it.
 
