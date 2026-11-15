@@ -120,6 +120,18 @@
                             <StackPanel Grid.Row="1" Margin="0,0,0,10">
                                 <TextBlock Text="{Binding BestMatchText}" FontSize="19" FontWeight="Black" Foreground="{StaticResource GoldGradient}"/>
                                 <TextBlock Text="{Binding RecordsLine}" FontSize="12.5" Foreground="{StaticResource GoldLightBrush}" Margin="0,1,0,0"/>
+                                <ItemsControl ItemsSource="{Binding Milestones}" Margin="0,8,0,0" ToolTip="{loc:Tr 'Chest milestones'}">
+                                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{Binding Bg}" CornerRadius="9" Padding="9,2" Margin="0,0,6,0" ToolTip="{Binding Tip}">
+                                                <TextBlock FontSize="11.5" FontWeight="Bold" Foreground="{Binding Fg}">
+                                                    <Run Text="{Binding Label, Mode=OneWay}"/>
+                                                </TextBlock>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                                 <StackPanel Margin="0,8,0,0">
                                     <StackPanel.Style>
                                         <Style TargetType="StackPanel">
@@ -208,6 +220,10 @@
                                     <TextBlock Text="{Binding HeadClock}" FontFamily="Segoe UI Black" FontSize="36" Foreground="White" Margin="0,-3,0,0"/>
                                     <TextBlock Text="{Binding HeadWhen}" FontSize="12" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,1,0,0"/>
                                 </StackPanel>
+                                <Button Grid.Column="1" Style="{StaticResource EyeButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-12,-12,0" Click="Graph_Click" ToolTip="{loc:Tr 'Chests per day, week and month'}">
+                                    <Path Width="20" Height="20" Stretch="Uniform" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Data="M3 3h2v16h16v2H3V3zm4 9h3v6H7v-6zm5-5h3v11h-3V7zm5 3h3v8h-3v-8z"/>
+                                </Button>
                             </Grid>
 
                             <StackPanel Grid.Row="1" Margin="20,0,20,10">
@@ -355,6 +371,19 @@
                                     <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
                                                Text="{loc:Tr 'Opens LNXcounter quietly in the tray when you log in to Windows, so every match is counted. You can also switch this from the right-click menu of the tray icon or of the overlay.'}"/>
                                     <CheckBox x:Name="StartupBox" Style="{StaticResource SettingCheck}" Content="{loc:Tr 'Start LNXcounter with Windows'}" Click="Startup_Click"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,14" Padding="22,18">
+                                <StackPanel>
+                                    <TextBlock Text="{loc:Tr 'ANIMATION SMOOTHNESS'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
+                                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,10" LineHeight="19"
+                                               Text="{loc:Tr 'Frames per second of the pulses and the floating token. 24 is light on the CPU and looks the same for most people; 60 and 120 are smoother but use more. The app restarts to apply it. (Low-resource mode always uses the lowest.)'}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton x:Name="Fps24" Style="{StaticResource TabRadio}" Content="24 FPS" GroupName="fps" Click="Fps_Click" IsChecked="True"/>
+                                        <RadioButton x:Name="Fps60" Style="{StaticResource TabRadio}" Content="60 FPS" GroupName="fps" Click="Fps_Click"/>
+                                        <RadioButton x:Name="Fps120" Style="{StaticResource TabRadio}" Content="120 FPS" GroupName="fps" Click="Fps_Click"/>
+                                    </StackPanel>
                                 </StackPanel>
                             </Border>
 

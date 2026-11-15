@@ -21,6 +21,7 @@ public partial class MainWindow : Window
             else if (a.StartsWith("--addchests=") && int.TryParse(a[12..], out var ac)) App.Model.AddManual(ac);
             else if (a.StartsWith("--toast")) { int tm = a.Length > 8 && int.TryParse(a[8..], out var tv) ? tv : 0; System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(() => App.Model.TestHourAlert(tm)); }
             else if (a.StartsWith("--goal=")) { var gp = a[7..].Split(','); if (gp.Length == 2 && int.TryParse(gp[0], out var gk) && int.TryParse(gp[1], out var gt)) App.Model.SetGoal(gk, gt); }
+            else if (a == "--graph") { var gt = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(6) }; gt.Tick += (_, _) => { gt.Stop(); try { new GraphWindow(App.Model) { Owner = this }.Show(); } catch (Exception ex) { Log.Error("graph test", ex); } }; gt.Start(); }
             else if (a == "--map") { var mt = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(10) }; mt.Tick += (_, _) => { mt.Stop(); if (App.Model.Matches.FirstOrDefault(x => x.Spots.Count > 0) is { } mm) new MapWindow(mm) { Owner = this }.Show(); }; mt.Start(); }
             else if (a == "--updatenow") { var ut = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(22) }; ut.Tick += async (_, _) => { ut.Stop(); await App.Model.InstallUpdateAsync(); }; ut.Start(); }
             else if (a == "--scrollend") Loaded += (_, _) => Dispatcher.BeginInvoke(() => SettingsScroll.ScrollToEnd(), System.Windows.Threading.DispatcherPriority.ContextIdle);
@@ -116,6 +117,7 @@ public partial class MainWindow : Window
         SizeSlider.Value = Math.Clamp(M.Settings.OverlayScale, 0.6, 1.6);
         SizeText.Text = $"{Math.Round(SizeSlider.Value * 100)}%";
         syncing = false;
+        Fps24.IsChecked = M.Settings.AnimFps is not (60 or 120); Fps60.IsChecked = M.Settings.AnimFps == 60; Fps120.IsChecked = M.Settings.AnimFps == 120;
         TfAuto.IsChecked = M.Settings.TimeFormat == 0; Tf12.IsChecked = M.Settings.TimeFormat == 1; Tf24.IsChecked = M.Settings.TimeFormat == 2;
         OvNumAll.IsChecked = M.Settings.OverlayNumberKind == 0; OvNumToday.IsChecked = M.Settings.OverlayNumberKind == 1; OvNumSession.IsChecked = M.Settings.OverlayNumberKind == 2;
         SizeRow.IsEnabled = !M.Settings.MinimalOverlay; SizeRow.Opacity = M.Settings.MinimalOverlay ? 0.4 : 1;
@@ -217,6 +219,14 @@ public partial class MainWindow : Window
         M.Settings.DeleteReadReplays = CleanBox.IsChecked == true;
         M.Save();
         M.CleanSoon();
+    }
+
+    void Fps_Click(object sender, RoutedEventArgs e)
+    {
+        int f = Fps120.IsChecked == true ? 120 : Fps60.IsChecked == true ? 60 : 24;
+        if (f == M.Settings.AnimFps) return;
+        M.Settings.AnimFps = f; M.Save();
+        App.Restart();   // the frame rate is decided when the app starts
     }
 
     void Low_Click(object sender, RoutedEventArgs e)
@@ -416,6 +426,8 @@ public partial class MainWindow : Window
     void SetTotal_Click(object sender, RoutedEventArgs e) { if (TryNumber(TotalBox, out var n)) { M.SetTotal(n); TotalBox.Clear(); } }
     void AddBox_KeyDown(object sender, KeyEventArgs e) { if (e.Key == Key.Enter) AddChests_Click(sender, e); }
     void TotalBox_KeyDown(object sender, KeyEventArgs e) { if (e.Key == Key.Enter) SetTotal_Click(sender, e); }
+
+    void Graph_Click(object sender, RoutedEventArgs e) => new GraphWindow(M) { Owner = this }.Show();
 
     void Eye_Click(object sender, RoutedEventArgs e)
     {

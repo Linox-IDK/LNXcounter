@@ -65,6 +65,34 @@ public class AppModel : Notify
     public int TodayOpened { get => todayOpened; private set { if (Set(ref todayOpened, value)) Raise(nameof(OverlayNumber)); } }
     /// <summary>The number the minimal overlay shows: all-time total, today, or this session (Settings).</summary>
     public int OverlayNumber => state.Settings.OverlayNumberKind switch { 1 => TodayOpened, 2 => SessionOpened, _ => TotalOpened };
+    // ----- graph and heat map data -----
+    /// <summary>Chests opened per day (Paris days) from the replays read so far; chests added by hand have no date.</summary>
+    public Dictionary<DateTime, int> ChestsPerDay() =>
+        state.Matches.Where(m => m.Error == null && m.Opened > 0).GroupBy(m => ParisDay(m.Started)).ToDictionary(g => g.Key, g => g.Sum(m => m.Opened));
+
+    /// <summary>Every chest you opened, in every match still stored (for the "all matches" map).</summary>
+    public List<ChestSpot> AllSpots() =>
+        state.Matches.Where(m => m.Error == null).SelectMany(m => m.Spots).Where(s => !s.Broken).ToList();
+
+    // ----- milestones -----
+    public static readonly int[] MilestoneSteps = { 500, 1000, 5000, 10000, 20000 };
+    public ObservableCollection<MilestoneChip> Milestones { get; } = new();
+    void RebuildMilestones()
+    {
+        int total = TotalOpened;
+        if (Milestones.Count == 0) foreach (var n in MilestoneSteps) Milestones.Add(new MilestoneChip(n));
+        int next = MilestoneSteps.FirstOrDefault(n => total < n);
+        foreach (var c in Milestones) c.Update(total, c.Goal == next);
+    }
+    /// <summary>The highest milestone reached that was not announced yet (0 = none). Marks it as announced.</summary>
+    int TakeNewMilestone()
+    {
+        int top = MilestoneSteps.Where(n => TotalOpened >= n).DefaultIfEmpty(0).Max();
+        if (top <= state.Settings.MilestoneSeen) return 0;
+        state.Settings.MilestoneSeen = top; Save();
+        return top;
+    }
+
     public void SetTimeFormat(int kind)
     {
         state.Settings.TimeFormat = Paris.Mode = Math.Clamp(kind, 0, 2);
@@ -356,6 +384,7 @@ public class AppModel : Notify
         Drops = new DropsVM(state, Save, () => TotalOpened, ChestsBetween, now => treasure.FirstOrDefault(w => w.StartUtc <= now && now < w.EndUtc));
         foreach (var w in treasure) hourRows.Add(new HourRow(w));
         Rebuild();
+        TakeNewMilestone();   // milestones reached before this version are not announced
         UpdateFolder();
         Tick();
         clockTimer.Tick += (_, _) => Tick();
@@ -500,7 +529,10 @@ public class AppModel : Notify
             sw.Stop(); await ticker;
             if (order.Count > 0) Log.Info($"Scan finished: {done} replay(s) in {sw.Elapsed.TotalSeconds:0.0}s, {par} at a time{(waited ? ", some waited for the lobby" : "")}");
             if (dirty) { Rebuild(); Save(); }
-            if (toastMatches > 0 && state.Settings.MatchToast) MatchToast.Show(toastChests, toastMatches, toastTreasure, SessionOpened, TotalOpened);
+            int milestone = TakeNewMilestone(); if (toastMatches == 0) milestone = 0;   // only a new match announces it; a rescan or a hand-added total is silent
+            if (milestone > 0) Log.Info($"Milestone reached: {milestone} chests");
+            if (toastMatches > 0 && state.Settings.MatchToast) MatchToast.Show(toastChests, toastMatches, toastTreasure, SessionOpened, TotalOpened, milestone);
+            else if (milestone > 0) MatchToast.Show(0, 0, false, SessionOpened, TotalOpened, milestone);   // the milestone is announced even with the match pop-up off
             if (waited && InMatch) { Status = Loc.T("Waiting for the lobby to read your matches…"); firstScanDone = true; return; }
             if (todo.Count > 0) MemoryTrim.Schedule(3000);   // reading a replay allocates a lot: give it back
             CleanReplays(all);
@@ -574,6 +606,7 @@ public class AppModel : Notify
             Types.Add(new TypeRow(TypeNames.GetValueOrDefault(kv.Key, kv.Key), kv.Value, $"/Assets/{TypeIcons.GetValueOrDefault(kv.Key, "plus")}.png"));
         Raise(nameof(ReplayChests)); Raise(nameof(ManualChests)); Raise(nameof(CountNote)); Raise(nameof(ManualInfo));
         Drops?.Refresh();
+        RebuildMilestones();
         RebuildRecords();
     }
 

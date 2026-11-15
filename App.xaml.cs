@@ -10,7 +10,7 @@ namespace LNXcounter;
 
 public partial class App : Application
 {
-    public const string Version = "1.25.2";
+    public const string Version = "1.26.0";
     public static AppModel Model { get; private set; } = null!;
     public static OverlayWindow Overlay { get; private set; } = null!;
     public static bool Quitting { get; private set; }
@@ -29,6 +29,8 @@ public partial class App : Application
         catch { return false; }
     }
 
+    /// <summary>Frames per second of the animations (Settings > General), read when the app starts.</summary>
+    static int Fps = 24;
     Mutex? mutex;
     EventWaitHandle? showEvent;
     TrayIcon? tray;
@@ -40,10 +42,10 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         // the first time (and only the first time) a weak PC is detected, low-resource mode and the small overlay are switched on; the choice is saved below
-        try { var set = Store.Load().Settings; autoWeak = !set.LowChecked && IsWeakPc(); Low = set.LowResource || autoWeak; } catch { }
+        try { var set = Store.Load().Settings; autoWeak = !set.LowChecked && IsWeakPc(); Low = set.LowResource || autoWeak; Fps = set.AnimFps is 60 or 120 ? set.AnimFps : 24; } catch { }
         // every animation (the pulses, the floating token) is capped at 24 frames per second instead of 60: far less CPU, no visible difference.
         // Low-resource mode: 6, which is as good as standing still
-        System.Windows.Media.Animation.Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(System.Windows.Media.Animation.Timeline), new FrameworkPropertyMetadata(Low ? 6 : 24));
+        System.Windows.Media.Animation.Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(System.Windows.Media.Animation.Timeline), new FrameworkPropertyMetadata(Low ? 6 : Fps));
         base.OnStartup(e);
         Loc.Install();   // texts follow the language of Windows
 

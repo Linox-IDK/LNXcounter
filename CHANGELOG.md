@@ -2,7 +2,14 @@
 
 Every update of LNXcounter, newest first. Download any version from the [Releases](../../releases) page.
 
-## v1.25.2
+## v1.26.0
+**Heat map, graphs and milestones**
+- **Chest heat map.** The chest map (the eye on a match) has two switches at the top of the map: **Chest spots / Chest heat**, and **This match / All matches**. *Heat* paints where you open the most chests, blue to green to yellow to red; with *All matches* it shows every match still stored, so you can see your best farming spots.
+- **Chest graph.** A small graph icon above the Treasure Hour countdown opens bar graphs of the chests you opened: **daily** (last 30 days), **weekly** (last 12 weeks, Monday to Sunday) or **monthly** (last 12 months). Hover a bar for the exact count.
+- **Milestones.** Five chips on the Overview, **500, 1K, 5K, 10K and 20K chests**: gold once reached, with the chests left on hover. A pop-up announces the next one when a new match takes you over it (milestones you had already passed are not announced).
+- **Animation smoothness.** *Settings > General > Animation smoothness*: **24** (default, light on the CPU), **60** or **120 FPS** for the pulses and the floating token. The app restarts to apply it.
+
+**Team chests** (also in this version)
 - **Team chests.** A 4th card on Overview, next to Treasures, Matches and Avg / match: the chests opened by **you and your teammates together**. Hover it to see your part and your teammates' part. Only your human squad mates count (not bots, not other teams), and it is never shown on the overlays. Teammates' chests are known for the matches read from now on and for the replays still on your PC (they are read again once); older matches whose replay is gone count only your own chests.
 
 ## v1.25.1

@@ -12,20 +12,21 @@ public partial class MatchToast : Window
     static MatchToast? current;
     bool leaving;
 
-    public static void Show(int opened, int matches, bool treasure, int session, int total)
+    public static void Show(int opened, int matches, bool treasure, int session, int total, int milestone = 0)
     {
         current?.Leave();
-        current = new MatchToast(opened, matches, treasure, session, total);
+        current = new MatchToast(opened, matches, treasure, session, total, milestone);
         current.Show();
     }
 
-    MatchToast(int opened, int matches, bool treasure, int session, int total)
+    MatchToast(int opened, int matches, bool treasure, int session, int total, int milestone)
     {
         InitializeComponent();
-        Big.Text = opened == 0 ? Loc.T("No chest this match") : opened == 1 ? Loc.T("+1 chest") : Loc.F("+{0} chests", opened);
+        Big.Text = matches == 0 && milestone > 0 ? Loc.T("MILESTONE") : opened == 0 ? Loc.T("No chest this match") : opened == 1 ? Loc.T("+1 chest") : Loc.F("+{0} chests", opened);
         if (matches > 1) Chip.Text = Loc.F("{0} MATCHES COUNTED", matches);
         Line.Text = Loc.F("This session: {0}  ·  Total: {1}", session, total);
-        if (treasure) { Extra.Text = "★ " + Loc.T("Treasure found"); Extra.Visibility = Visibility.Visible; }
+        if (milestone > 0) { Extra.Text = "★ " + Loc.F("Milestone: {0} chests!", milestone.ToString("N0")); Extra.Visibility = Visibility.Visible; }
+        else if (treasure) { Extra.Text = "★ " + Loc.T("Treasure found"); Extra.Visibility = Visibility.Visible; }
         Loaded += (_, _) => Enter();
         Closed += (_, _) => { if (ReferenceEquals(current, this)) current = null; };
     }

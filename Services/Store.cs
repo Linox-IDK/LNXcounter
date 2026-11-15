@@ -99,6 +99,10 @@ public class Settings
     public int GoalTarget { get; set; } = 50;
     /// <summary>Clock format: 0 follows Windows, 1 = 12-hour, 2 = 24-hour.</summary>
     public int TimeFormat { get; set; }
+    /// <summary>Animation smoothness: 24 (default, light on the CPU), 60 or 120 frames per second. Applied when the app starts.</summary>
+    public int AnimFps { get; set; } = 24;
+    /// <summary>The highest chest milestone (500, 1000, 5000...) already announced.</summary>
+    public int MilestoneSeen { get; set; }
 }
 
 public class StateFile
