@@ -287,6 +287,10 @@
                             <Setter TargetName="b" Property="BorderBrush" Value="#FF22B04F"/>
                             <Setter TargetName="c" Property="Visibility" Value="Visible"/>
                         </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.4"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -340,6 +344,10 @@
                             <Setter TargetName="box" Property="BorderBrush" Value="#FF22B04F"/>
                             <Setter TargetName="c" Property="Visibility" Value="Visible"/>
                             <Setter TargetName="t" Property="Text" Value="FOUND"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.45"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

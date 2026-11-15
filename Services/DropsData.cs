@@ -73,7 +73,20 @@ public static class DropsData
         AddGizmos(d); return d;
     }
 
-    static Dictionary<string, WeekItem> Week3Items() => NamedItems("SOLID GOLD MIKU", "MIKU'S TAKARABAKO", "CORVETTE ZR1", "PPPP", "MAY FORTUNE FIND YOU", "8Cm-7oCq9HA", "PPPP · TAK feat. Hatsune Miku & Kasane Teto");
+    // Week 3 is fully known (names and pictures from fortnite.bot/treasure)
+    static Dictionary<string, WeekItem> Week3Items()
+    {
+        var d = new Dictionary<string, WeekItem>
+        {
+            ["token"]   = new("token", "CONSUMABLE", "PIRATE SHOP TOKEN"),
+            ["outfit"]  = new("outfit_w3", "OUTFIT", "SOLID GOLD MIKU"),
+            ["pickaxe"] = new("w3_backbling", "BACK BLING", "MIKU'S TAKARABAKO"),
+            ["vehicle"] = new("w3_car", "CAR DECAL", "GOLD CHEVROLET CORVETTE ZR1 DECAL"),
+            ["jam"]     = new("w3_jam", "JAM TRACK", "PPPP", false, "8Cm-7oCq9HA", "PPPP · TAK feat. Hatsune Miku & Kasane Teto"),
+            ["loading"] = new("w3_loading", "LOADING SCREEN", "MAY FORTUNE FIND YOU"),
+        };
+        AddGizmos(d); return d;
+    }
     static Dictionary<string, WeekItem> Week4Items() => NamedItems("SOLID GOLD KASANE TETO", "SOLID GOLD ROGUE WAVE AND TIDEWALKER", "LAMBORGHINI URUS SE", "SEA SHANTY", "OSCAR'S WRAPS");
     static Dictionary<string, WeekItem> Week5Items() => NamedItems("SOLID GOLD CAPTAIN X", "ROASTED MEAT", "G-WAGON", "I FOLLOW RIVERS", "JONES AND THE STRAW HATS", "9dzub7uXWl4", "I Follow Rivers · Lykke Li");
 

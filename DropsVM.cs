@@ -74,6 +74,12 @@ public class TileVM : Notify
     /// <summary>True for tiles of a week that has ended: they are shown darker.</summary>
     public bool Dim { get => dim; set => Set(ref dim, value); }
 
+    bool locked;
+    /// <summary>True for the tiles of a week that is not live (over, or not started): the "found" tick cannot be changed there.</summary>
+    public bool Locked { get => locked; set { if (Set(ref locked, value)) { Raise(nameof(CanTick)); Raise(nameof(LockNoteVisibility)); } } }
+    public bool CanTick => !locked;
+    public Visibility LockNoteVisibility => locked && CheckVisibility == Visibility.Visible ? Visibility.Visible : Visibility.Collapsed;
+
     bool found;
     public bool Found { get => found; set { if (Set(ref found, value)) owner.OnFoundChanged(key, value); } }
     public void SetFoundSilently(bool v) { found = v; Raise(nameof(Found)); }
@@ -362,7 +368,7 @@ public class DropsVM : Notify
         }
         bool ended = now >= week.EndUtc;
         bool inactive = ended || now < week.StartUtc;                       // over, or not started yet
-        foreach (var t in Tiles) t.Dim = inactive;
+        foreach (var t in Tiles) { t.Dim = inactive; t.Locked = inactive; }   // only the live week's rewards can be ticked
         HeroIcon = $"/Assets/{week.HeroIcon}{(inactive ? "_bw" : "")}.png";   // black and white and shadowed unless the week is live
         TitleBrush = inactive ? InactiveTitle : Brushes.White;
         LabelOpacity = inactive ? 0.6 : 1.0;
