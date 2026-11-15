@@ -3,7 +3,7 @@ namespace LNXcounter.Services;
 /// <summary>
 /// The game only sends ids for Treasure Hunters prizes (no names). This maps the known ids to a drop on the Drops page.
 /// The ids for the Pirate Shop Access and for weeks 1 and 2 are the ones published by the community
-/// (see the README credits); weeks 3 to 5 are added once they are known.
+/// (see the README credits); week 3 is added as the ids show up in replays (so far only the jam track), weeks 4 and 5 once they are known.
 /// </summary>
 public static class TreasureIds
 {
@@ -20,6 +20,7 @@ public static class TreasureIds
         ["DelilahPrize:dpid_item16"] = (2, "jam"),
         ["DelilahPrize:dpid_item17"] = (2, "loading"),
         ["DelilahPrize:dpid_item18"] = (2, "vehicle"),
+        ["DelilahPrize:dpid_item20"] = (3, "jam"),       // PPPP: opened in a replay on the first day of week 3
     };
 
     const string PirateShopId = "9f73f94d-2e61-4523-97d7-d61235d3365e";

@@ -353,6 +353,7 @@ public static class ChestAnalyzer
             foreach (var p in prizes.Values)
             {
                 var (drop, week, name) = TreasureIds.Resolve(p.Id);
+                if (drop == "" && p.Opener is uint op && mine.Contains(op)) Log.Info("Treasure prize with an id the app does not know yet: " + p.Id);
                 rec.Finds.Add(new TreasureFind { Kind = "prize", Name = name, DropId = drop, Week = week, Mine = p.Opener is uint o && mine.Contains(o), AtSeconds = Math.Max(0, p.At - t0) });
             }
         }

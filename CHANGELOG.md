@@ -10,6 +10,7 @@ Every update of LNXcounter, newest first. Download any version from the [Release
 - **Animation smoothness.** *Settings > General > Animation smoothness*: **24** (default, light on the CPU), **60** or **120 FPS** for the pulses and the floating token. The app restarts to apply it.
 
 **Team chests** (also in this version)
+- **Auto-tick for week 3 rewards.** The app ticks a reward by itself when your replay shows you opening it. The token and weeks 1 and 2 already worked; week 3's **jam track (PPPP)** now does too. The other week 3 rewards tick themselves as soon as their ids are known (the log lists any id the app does not know yet).
 - **Team chests.** A 4th card on Overview, next to Treasures, Matches and Avg / match: the chests opened by **you and your teammates together**. Hover it to see your part and your teammates' part. Only your human squad mates count (not bots, not other teams), and it is never shown on the overlays. Teammates' chests are known for the matches read from now on and for the replays still on your PC (they are read again once); older matches whose replay is gone count only your own chests.
 
 ## v1.25.1
