@@ -393,7 +393,7 @@
                                                 <Border Width="62" Height="62" CornerRadius="3" Background="#FF86A64E" BorderBrush="#FF31401F" BorderThickness="1.5"/>
                                                 <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                                                     <Image Source="/Assets/chest.png" Width="30" Height="30" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="Fant"/>
-                                                    <TextBlock Text="{Binding TotalOpened}" Margin="5,0,0,0" VerticalAlignment="Center" FontFamily="Segoe UI Black" FontSize="22" Foreground="White">
+                                                    <TextBlock Text="{Binding OverlayNumber}" Margin="5,0,0,0" VerticalAlignment="Center" FontFamily="Segoe UI Black" FontSize="22" Foreground="White">
                                                         <TextBlock.Effect><DropShadowEffect ShadowDepth="0" BlurRadius="4" Color="Black" Opacity="1"/></TextBlock.Effect>
                                                     </TextBlock>
                                                 </StackPanel>
@@ -417,6 +417,13 @@
                             <StackPanel x:Name="SizeRow" Orientation="Horizontal" Margin="0,6,0,0">
                                 <Slider x:Name="SizeSlider" Style="{StaticResource FlatSlider}" Width="240" Minimum="0.6" Maximum="1.6" TickFrequency="0.05" IsSnapToTickEnabled="True" ValueChanged="Size_Changed"/>
                                 <TextBlock x:Name="SizeText" Margin="14,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" FontSize="13"/>
+                            </StackPanel>
+
+                            <TextBlock Text="{loc:Tr 'Number shown by the minimal overlay'}" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,16,0,0"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <RadioButton x:Name="OvNumAll" Style="{StaticResource TabRadio}" Content="{loc:Tr 'All-time'}" GroupName="ovnum" Click="OvNum_Click" IsChecked="True"/>
+                                <RadioButton x:Name="OvNumToday" Style="{StaticResource TabRadio}" Content="{loc:Tr 'Today'}" GroupName="ovnum" Click="OvNum_Click"/>
+                                <RadioButton x:Name="OvNumSession" Style="{StaticResource TabRadio}" Content="{loc:Tr 'This session'}" GroupName="ovnum" Click="OvNum_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>

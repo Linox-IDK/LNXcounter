@@ -107,8 +107,11 @@ public partial class MainWindow : Window
         SizeSlider.Value = Math.Clamp(M.Settings.OverlayScale, 0.6, 1.6);
         SizeText.Text = $"{Math.Round(SizeSlider.Value * 100)}%";
         syncing = false;
+        OvNumAll.IsChecked = M.Settings.OverlayNumberKind == 0; OvNumToday.IsChecked = M.Settings.OverlayNumberKind == 1; OvNumSession.IsChecked = M.Settings.OverlayNumberKind == 2;
         SizeRow.IsEnabled = !M.Settings.MinimalOverlay; SizeRow.Opacity = M.Settings.MinimalOverlay ? 0.4 : 1;
     }
+
+    void OvNum_Click(object sender, RoutedEventArgs e) => M.SetOverlayNumber(OvNumSession.IsChecked == true ? 2 : OvNumToday.IsChecked == true ? 1 : 0);
 
     void Size_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {

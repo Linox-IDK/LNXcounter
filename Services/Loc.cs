@@ -294,6 +294,10 @@ public static class Loc
         ["+1 chest"] = new[] { "+1 coffre", "+1 cofre", "+1 Truhe" },
         ["+{0} chests"] = new[] { "+{0} coffres", "+{0} cofres", "+{0} Truhen" },
         ["This session: {0}  ·  Total: {1}"] = new[] { "Cette session : {0}  ·  Total : {1}", "Esta sesión: {0}  ·  Total: {1}", "Diese Sitzung: {0}  ·  Gesamt: {1}" },
+        ["Number shown by the minimal overlay"] = new[] { "Nombre affiché par l'overlay minimal", "Número que muestra el overlay mínimo", "Zahl im minimalen Overlay" },
+        ["All-time"] = new[] { "Depuis le début", "Total histórico", "Gesamt" },
+        ["Today"] = new[] { "Aujourd'hui", "Hoy", "Heute" },
+        ["This session"] = new[] { "Cette session", "Esta sesión", "Diese Sitzung" },
         ["Treasure found"] = new[] { "Trésor trouvé", "Tesoro encontrado", "Schatz gefunden" },
     };
 }

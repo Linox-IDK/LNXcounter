@@ -80,6 +80,8 @@ public class Settings
     public double OverlayNudgeY { get; set; }
     /// <summary>Size of the full (framed) overlay, 0.6 to 1.6. The small style scales with the game instead.</summary>
     public double OverlayScale { get; set; } = 1.0;
+    /// <summary>What the minimal overlay counts: 0 all-time total, 1 today, 2 this session.</summary>
+    public int OverlayNumberKind { get; set; }
     /// <summary>A silent pop-up after each new match is read.</summary>
     public bool MatchToast { get; set; } = true;
     /// <summary>Global hotkey that shows / hides the overlay: modifiers (Alt 1, Ctrl 2, Shift 4, Win 8) and a virtual-key code. Default Ctrl+Alt+O.</summary>

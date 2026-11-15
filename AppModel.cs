@@ -53,12 +53,18 @@ public class AppModel : Notify
     string status = Loc.T("Starting…"), folderText = "", pirateShort = "", pirateCountdown = "", pirateBadge = "", avgText = "0";
     bool folderOk, pirateLive;
 
-    public int TotalOpened { get => totalOpened; set => Set(ref totalOpened, value); }
+    public int TotalOpened { get => totalOpened; set { if (Set(ref totalOpened, value)) Raise(nameof(OverlayNumber)); } }
+    int todayOpened;
+    /// <summary>Chests of the matches played today (same day as the goal).</summary>
+    public int TodayOpened { get => todayOpened; private set { if (Set(ref todayOpened, value)) Raise(nameof(OverlayNumber)); } }
+    /// <summary>The number the minimal overlay shows: all-time total, today, or this session (Settings).</summary>
+    public int OverlayNumber => state.Settings.OverlayNumberKind switch { 1 => TodayOpened, 2 => SessionOpened, _ => TotalOpened };
+    public void SetOverlayNumber(int kind) { state.Settings.OverlayNumberKind = Math.Clamp(kind, 0, 2); Raise(nameof(OverlayNumber)); Save(); }
     int totalTreasures;
     public int TotalTreasures { get => totalTreasures; set => Set(ref totalTreasures, value); }
     public int TotalBroken { get => totalBroken; set => Set(ref totalBroken, value); }
     public int MatchCount { get => matchCount; set => Set(ref matchCount, value); }
-    public int SessionOpened { get => sessionOpened; set { if (Set(ref sessionOpened, value)) Raise(nameof(OverlayStatus)); } }
+    public int SessionOpened { get => sessionOpened; set { if (Set(ref sessionOpened, value)) { Raise(nameof(OverlayStatus)); Raise(nameof(OverlayNumber)); } } }
     public int LastMatchOpened { get => lastMatchOpened; set { if (Set(ref lastMatchOpened, value)) Raise(nameof(OverlayStatus)); } }
     // ----- chests added by hand (Settings tab) -----
     public int ReplayChests { get; private set; }
@@ -102,6 +108,7 @@ public class AppModel : Notify
         BestMatchText = best == null ? "" : Loc.F(best.Opened == 1 ? "★ BEST MATCH · {0} chest · {1}" : "★ BEST MATCH · {0} chests · {1}", best.Opened, Paris.Day(Paris.FromLocal(best.Started)));
 
         var perDay = ok.GroupBy(m => ParisDay(m.Started)).ToDictionary(g => g.Key, g => g.Sum(m => m.Opened));
+        TodayOpened = perDay.TryGetValue(today, out var todayCount) ? todayCount : 0;
         int bestDay = perDay.Count == 0 ? 0 : perDay.Values.Max();
         var days = perDay.Keys.OrderBy(d => d).ToList();
         int bestStreak = 0, run = 0; DateTime? prev = null;
