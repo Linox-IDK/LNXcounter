@@ -28,6 +28,9 @@ public partial class OverlayWindow : Window
     [DllImport("user32.dll")] static extern int GetWindowLong(IntPtr h, int i);
     [DllImport("user32.dll")] static extern int SetWindowLong(IntPtr h, int i, int v);
     [DllImport("user32.dll")] static extern bool GetClientRect(IntPtr h, out RECT r);
+    [DllImport("user32.dll")] static extern bool SetWindowPos(IntPtr h, IntPtr after, int x, int y, int cx, int cy, uint flags);
+    static readonly IntPtr HWND_TOPMOST = new(-1);
+    const uint SWP_NOSIZE = 1, SWP_NOMOVE = 2, SWP_NOACTIVATE = 0x10;
     [DllImport("user32.dll")] static extern bool ClientToScreen(IntPtr h, ref POINT p);
     [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
@@ -61,18 +64,18 @@ public partial class OverlayWindow : Window
         bool mini = s.MinimalOverlay;
         FullBox.Visibility = mini ? Visibility.Collapsed : Visibility.Visible;
         MiniBox.Visibility = mini ? Visibility.Visible : Visibility.Collapsed;
+        // one light timer for both styles: it keeps the overlay above the game (see KeepOnTop) and, for the small style, follows the game window
+        follow ??= new DispatcherTimer();
+        follow.Interval = TimeSpan.FromSeconds(App.Low ? 2 : 1);
+        follow.Tick -= FollowTick; follow.Tick += FollowTick;
+        follow.Start();
         if (mini)
         {
             SizeToContent = SizeToContent.WidthAndHeight;
-            follow ??= new DispatcherTimer();
-            follow.Interval = TimeSpan.FromSeconds(App.Low ? 2 : 1);
-            follow.Tick -= FollowTick; follow.Tick += FollowTick;
-            follow.Start();
             Place();
         }
         else
         {
-            follow?.Stop();
             Opacity = 1;
             Width = 280; SizeToContent = SizeToContent.Height;
             if (double.IsNaN(s.OverlayLeft) || double.IsNaN(s.OverlayTop))
@@ -86,7 +89,20 @@ public partial class OverlayWindow : Window
         ApplyClickThrough();
     }
 
-    void FollowTick(object? sender, EventArgs e) => Place();
+    void FollowTick(object? sender, EventArgs e)
+    {
+        if (!IsVisible) return;
+        if (App.Model.Settings.MinimalOverlay) Place();
+        KeepOnTop();
+    }
+
+    /// <summary>A game in Fullscreen (or one that was just clicked) can take the top of the stack from a Topmost window; asking for it again, without
+    /// activating anything, puts the overlay back in front. It is the same in Windowed, Windowed Fullscreen and Fullscreen.</summary>
+    void KeepOnTop()
+    {
+        var h = new WindowInteropHelper(this).Handle; if (h == IntPtr.Zero) return;
+        SetWindowPos(h, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+    }
 
     // Where the minimap of Fortnite is, measured on a real 1080p recording of the HUD: it is a square about 202 wide whose right edge is 28 from the
     // right of the screen, 27 from the top, so it ends at y = 229. Everything of the HUD grows with the height of the screen (1440p = 1.333, 2160p = 2).
@@ -96,7 +112,8 @@ public partial class OverlayWindow : Window
     {
         double dpi = VisualTreeHelper.GetDpi(this).DpiScaleX;
         double left, top, w, h; bool inGame = false;
-        var hwnd = AppModel.FortniteHwnd;
+        var hwnd = AppModel.FindWindowOf(AppModel.FortnitePid);   // looked up again: the game may have made a new window when its display mode changed
+        if (hwnd == IntPtr.Zero) hwnd = AppModel.FortniteHwnd;
         var pt = new POINT();
         if (hwnd != IntPtr.Zero && GetClientRect(hwnd, out var r) && ClientToScreen(hwnd, ref pt) && r.Right > 300 && r.Bottom > 300)
         { left = pt.X; top = pt.Y; w = r.Right; h = r.Bottom; inGame = true; }

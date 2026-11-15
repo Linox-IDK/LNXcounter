@@ -611,6 +611,32 @@ public class AppModel : Notify
     // LNX_GAME_PROCESS is only meant for testing (like LNX_DATA): another process name to treat as the game
     static readonly string GameProcess = Environment.GetEnvironmentVariable("LNX_GAME_PROCESS") is { Length: > 0 } g ? g : "FortniteClient-Win64-Shipping";
 
+    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool EnumWindows(EnumProc cb, IntPtr l);
+    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
+    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr h);
+    [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool GetClientRect(IntPtr h, out RC r);
+    delegate bool EnumProc(IntPtr h, IntPtr l);
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)] struct RC { public int Left, Top, Right, Bottom; }
+
+    /// <summary>The game window of a process: its biggest visible window. Works the same in Windowed, Windowed Fullscreen and Fullscreen
+    /// (the game can recreate its window when the mode is changed, so this is looked up again instead of kept).</summary>
+    public static IntPtr FindWindowOf(int pid)
+    {
+        if (pid == 0) return IntPtr.Zero;
+        IntPtr best = IntPtr.Zero; long area = 0;
+        EnumWindows((h, _) =>
+        {
+            GetWindowThreadProcessId(h, out uint p);
+            if (p == (uint)pid && IsWindowVisible(h) && GetClientRect(h, out var r))
+            {
+                long a = (long)r.Right * r.Bottom;
+                if (a > area) { area = a; best = h; }
+            }
+            return true;
+        }, IntPtr.Zero);
+        return best;
+    }
+
     static bool IsFortniteUp()
     {
         try
@@ -618,7 +644,7 @@ public class AppModel : Notify
             var ps = System.Diagnostics.Process.GetProcessesByName(GameProcess);
             bool up = ps.Length > 0;
             IntPtr h = IntPtr.Zero; int pid = 0;
-            if (up) try { h = ps[0].MainWindowHandle; pid = ps[0].Id; } catch { }
+            if (up) try { pid = ps[0].Id; h = FindWindowOf(pid); if (h == IntPtr.Zero) h = ps[0].MainWindowHandle; } catch { }
             foreach (var p in ps) p.Dispose();
             FortniteHwnd = h; FortnitePid = pid;
             return up;
