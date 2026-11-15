@@ -1,7 +1,7 @@
 namespace LNXcounter.Services;
 
 /// <summary>What a drop slot holds in a given week: icon file (in Assets, without .png), hover category and title. Unknown = not revealed yet.</summary>
-public record WeekItem(string Icon, string Category, string Title, bool Unknown = false, string? Video = null, string? Song = null);
+public record WeekItem(string Icon, string Category, string Title, bool Unknown = false, string? Video = null, string? Song = null, bool NoImage = false);
 
 /// <summary>One mini-season week on the Drops page. HeroIcon is the character shown in the header (a _bw copy exists for ended weeks).</summary>
 public record WeekDef(int Number, string Title, string Range, DateTime StartUtc, DateTime EndUtc, string AccentHex, bool Available,
@@ -56,29 +56,35 @@ public static class DropsData
         AddGizmos(d); return d;
     }
 
-    // Weeks 3 to 5: only the token and the gizmos are known, the rest is still encrypted (shown as "?")
-    static Dictionary<string, WeekItem> HiddenItems()
+    // Weeks 3 to 5: names only (leaked, not confirmed by Epic yet), no pictures yet, so the tiles show the "?" placeholder.
+    static WeekItem Named(string category, string title) => new("unknown", category, title, NoImage: true);
+
+    static Dictionary<string, WeekItem> NamedItems(string outfit, string backBling, string car, string jam, string loading)
     {
         var d = new Dictionary<string, WeekItem>
         {
             ["token"]   = new("token", "CONSUMABLE", "PIRATE SHOP TOKEN"),
-            ["outfit"]  = new("unknown", "OUTFIT", "UNKNOWN", true),
-            ["pickaxe"] = new("unknown", "PICKAXE OR BACK BLING", "UNKNOWN", true),
-            ["vehicle"] = new("unknown", "CAR DECAL", "UNKNOWN", true),
-            ["jam"]     = new("unknown", "JAM TRACK", "UNKNOWN", true),
-            ["loading"] = new("unknown", "LOADING SCREEN", "UNKNOWN", true),
+            ["outfit"]  = Named("OUTFIT", outfit),
+            ["pickaxe"] = Named("BACK BLING", backBling),
+            ["vehicle"] = Named("CAR", car),
+            ["jam"]     = Named("JAM TRACK", jam),
+            ["loading"] = Named("LOADING SCREEN", loading),
         };
         AddGizmos(d); return d;
     }
+
+    static Dictionary<string, WeekItem> Week3Items() => NamedItems("SOLID GOLD MIKU", "MIKU'S TAKARABAKO", "CORVETTE ZR1", "PPPP", "MAY FORTUNE FIND YOU");
+    static Dictionary<string, WeekItem> Week4Items() => NamedItems("SOLID GOLD KASANE TETO", "ROGUE WAVE AND TIDEWALKER", "LAMBORGHINI URUS SE", "SEA SHANTY", "OSCAR'S WRAPS");
+    static Dictionary<string, WeekItem> Week5Items() => NamedItems("SOLID GOLD CAPTAIN X", "ROASTED MEAT", "G-WAGON", "I FOLLOW RIVERS", "JONES AND THE STRAW HATS");
 
     // Week boundaries are estimates (assumed 14:00 UTC). Week names come from fortnite.bot/treasure.
     public static readonly List<WeekDef> Weeks = new()
     {
         new(1, "A$AP ARRIVES",        "NOV 1 – 8",      U(11, 1),  U(11, 8),  "#8E73E0", true, "hero_w1", Week1Items()),
         new(2, "LIL UZI ARRIVES",     "NOV 8 – 15",     U(11, 8),  U(11, 15), "#F06AD0", true, "hero_w2", Week2Items()),
-        new(3, "MIKU & TETO ARRIVE",  "NOV 15 – 22",    U(11, 15), U(11, 22), "#2EC4B6", true, "hero_w3", HiddenItems()),
-        new(4, "OSCAR ARRIVES",       "NOV 22 – 29",    U(11, 22), U(11, 29), "#5B93D6", true, "hero_w4", HiddenItems()),
-        new(5, "THE FINAL HUNT",      "NOV 29 – DEC 5", U(11, 29), U(12, 5),  "#D4AF37", true, "hero_w5", HiddenItems()),
+        new(3, "MIKU & TETO ARRIVE",  "NOV 15 – 22",    U(11, 15), U(11, 22), "#2EC4B6", true, "hero_w3", Week3Items()),
+        new(4, "OSCAR ARRIVES",       "NOV 22 – 29",    U(11, 22), U(11, 29), "#5B93D6", true, "hero_w4", Week4Items()),
+        new(5, "THE FINAL HUNT",      "NOV 29 – DEC 5", U(11, 29), U(12, 5),  "#D4AF37", true, "hero_w5", Week5Items()),
     };
 
     // Rates (per chest) as published for the Treasure Hunters mini season. Same table every week; the items themselves change.

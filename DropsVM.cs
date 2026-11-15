@@ -293,15 +293,16 @@ public class DropsVM : Notify
             var bg = Flow(d.Kind);
             var item = def.Items![d.Id];
             bool outfit = d.Look == "outfit", fill = d.Look == "fill";
+            bool placeholder = item.Unknown || item.NoImage;      // no picture yet: the "?" is shown small and centred
             var tile = new TileVM(this, key)
             {
                 Category = item.Category, Title = item.Title, Icon = $"/Assets/{item.Icon}.png",
-                IconSize = item.Unknown ? 64 : outfit || fill ? double.NaN : d.IconWidth,
-                IconStretch = fill && !item.Unknown ? Stretch.UniformToFill : Stretch.Uniform,
-                IconAlign = outfit && !item.Unknown ? VerticalAlignment.Bottom : VerticalAlignment.Center,
+                IconSize = placeholder ? 64 : outfit || fill ? double.NaN : d.IconWidth,
+                IconStretch = fill && !placeholder ? Stretch.UniformToFill : Stretch.Uniform,
+                IconAlign = outfit && !placeholder ? VerticalAlignment.Bottom : VerticalAlignment.Center,
                 Row = d.Row, Col = d.Col, RowSpan = d.RowSpan, ColSpan = d.ColSpan, Background = bg,
                 CheckVisibility = d.Trackable && !item.Unknown ? Visibility.Visible : Visibility.Collapsed, Floats = d.Floats, OneIn = d.OneIn,
-                Kind = d.Kind, Tier = d.Tier, Unknown = item.Unknown, Video = item.Video, Song = item.Song, IsLoading = d.Id == "loading", IsGizmo = d.Id.StartsWith("gizmo"), IsToken = d.Id == "token",
+                Kind = d.Kind, Tier = d.Tier, Unknown = item.Unknown, Video = item.Video, Song = item.Song, IsLoading = d.Id == "loading" && !item.NoImage, IsGizmo = d.Id.StartsWith("gizmo"), IsToken = d.Id == "token",
             };
             tile.SetFoundSilently(IsFound(key));
             Tiles.Add(tile);
