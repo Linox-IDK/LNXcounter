@@ -35,13 +35,17 @@
         </StackPanel>
     </Border>
 
-    <!-- minimal style: only the chest count and the chest icon on its right -->
-    <Border x:Name="MiniBox" Visibility="Collapsed" Background="#F2101010" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1" CornerRadius="9"
-            MouseLeftButtonDown="Drag_Down" MouseRightButtonUp="Right_Up" Padding="14,5,14,5" HorizontalAlignment="Left">
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Text="{Binding TotalOpened}" VerticalAlignment="Center" FontWeight="Bold" FontSize="20" Foreground="{StaticResource GoldLightBrush}"/>
-            <Image Source="/Assets/chest.png" Width="24" Height="24" Margin="8,0,0,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+    <!-- small style: no frame, the chest icon and the count, like a part of the game's own HUD. Sizes are in "1080p pixels"; the window scales them to the game
+         and puts them under the minimap. Nothing here takes a click or can be dragged. -->
+    <Grid x:Name="MiniBox" Visibility="Collapsed" IsHitTestVisible="False" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <StackPanel x:Name="MiniContent" Orientation="Horizontal" Margin="6">
+            <Image Source="/Assets/chest.png" Width="64" Height="64" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="Fant">
+                <Image.Effect><DropShadowEffect ShadowDepth="0" BlurRadius="5" Color="Black" Opacity="0.9"/></Image.Effect>
+            </Image>
+            <TextBlock Text="{Binding TotalOpened}" Margin="10,0,0,0" VerticalAlignment="Center" FontFamily="Segoe UI Black" FontSize="46" Foreground="White">
+                <TextBlock.Effect><DropShadowEffect ShadowDepth="0" BlurRadius="5" Color="Black" Opacity="1"/></TextBlock.Effect>
+            </TextBlock>
         </StackPanel>
-    </Border>
+    </Grid>
     </Grid>
 </Window>

@@ -75,6 +75,9 @@ public class Settings
     public bool LowChecked { get; set; }
     /// <summary>The overlay is only the chest count and the chest icon.</summary>
     public bool MinimalOverlay { get; set; }
+    /// <summary>Fine-tuning of the small overlay under the minimap, in pixels of a 1080p screen (Settings has the arrows).</summary>
+    public double OverlayNudgeX { get; set; }
+    public double OverlayNudgeY { get; set; }
     /// <summary>Delete a replay for good once it was counted (never one that is less than an hour old). Off unless the user turns it on.</summary>
     public bool DeleteReadReplays { get; set; }
     /// <summary>Chests added by hand (played on another device, or before the app was installed). Counted as normal chests.</summary>

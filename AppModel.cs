@@ -604,10 +604,26 @@ public class AppModel : Notify
         catch { return false; }
     }
 
+    /// <summary>The window and the process id of the running game (0 when it is not running); the small overlay follows that window.</summary>
+    public static IntPtr FortniteHwnd;
+    public static int FortnitePid;
+
+    // LNX_GAME_PROCESS is only meant for testing (like LNX_DATA): another process name to treat as the game
+    static readonly string GameProcess = Environment.GetEnvironmentVariable("LNX_GAME_PROCESS") is { Length: > 0 } g ? g : "FortniteClient-Win64-Shipping";
+
     static bool IsFortniteUp()
     {
-        try { var ps = System.Diagnostics.Process.GetProcessesByName("FortniteClient-Win64-Shipping"); bool up = ps.Length > 0; foreach (var p in ps) p.Dispose(); return up; }
-        catch { return false; }
+        try
+        {
+            var ps = System.Diagnostics.Process.GetProcessesByName(GameProcess);
+            bool up = ps.Length > 0;
+            IntPtr h = IntPtr.Zero; int pid = 0;
+            if (up) try { h = ps[0].MainWindowHandle; pid = ps[0].Id; } catch { }
+            foreach (var p in ps) p.Dispose();
+            FortniteHwnd = h; FortnitePid = pid;
+            return up;
+        }
+        catch { FortniteHwnd = IntPtr.Zero; FortnitePid = 0; return false; }
     }
 
     DateTime nextFortniteCheck;
@@ -618,7 +634,7 @@ public class AppModel : Notify
     {
         var now = DateTime.UtcNow;
         // hidden in the tray with no overlay nobody sees the seconds, so the clock runs once every 5 s (the alerts have minutes of leeway)
-        bool live = System.Windows.Application.Current?.MainWindow is { IsVisible: true, WindowState: not System.Windows.WindowState.Minimized } || App.Overlay?.IsVisible == true;
+        bool live = System.Windows.Application.Current?.MainWindow is { IsVisible: true, WindowState: not System.Windows.WindowState.Minimized } || (App.Overlay?.IsVisible == true && !state.Settings.MinimalOverlay);   // the small overlay shows no seconds
         var every = TimeSpan.FromSeconds(live ? (App.Low ? 2 : 1) : (App.Low ? 10 : 5));
         if (clockTimer.Interval != every) { clockTimer.Interval = every; scanTimer.Interval = TimeSpan.FromSeconds(live ? (App.Low ? 4 : 2) : (App.Low ? 10 : 5)); }   // a replay is only read once it is 8 s old, so 5 s is fast enough for the tray
         if (now >= nextFortniteCheck) { nextFortniteCheck = now.AddSeconds(3); FortniteRunning = IsFortniteUp(); }   // listing every process is not free: every 3 s is enough

@@ -96,6 +96,21 @@ public partial class MainWindow : Window
         ShowOverlayChoice();
     }
 
+    void Nudge_Click(object sender, RoutedEventArgs e)
+    {
+        var tag = (sender as FrameworkElement)?.Tag as string ?? "";
+        if (tag == "reset") { M.Settings.OverlayNudgeX = 0; M.Settings.OverlayNudgeY = 0; }
+        else
+        {
+            var p = tag.Split(',');
+            if (p.Length == 2 && double.TryParse(p[0], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var dx)
+                && double.TryParse(p[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var dy))
+            { M.Settings.OverlayNudgeX += dx; M.Settings.OverlayNudgeY += dy; }
+        }
+        M.Save();
+        App.Overlay.ApplyStyle();
+    }
+
     /// <summary>A gold frame around the overlay style in use.</summary>
     void ShowOverlayChoice()
     {
