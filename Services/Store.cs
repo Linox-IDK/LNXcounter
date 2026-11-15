@@ -69,6 +69,8 @@ public class Settings
     public bool OverlayIgnoreClicksInMatch { get; set; } = true;
     /// <summary>Look for a new LNXcounter version on GitHub when the app starts (and every few hours).</summary>
     public bool AutoUpdateCheck { get; set; } = true;
+    /// <summary>For weak PCs: no animations, no song player, one replay read at a time, background checks less often.</summary>
+    public bool LowResource { get; set; }
     /// <summary>Chests added by hand (played on another device, or before the app was installed). Counted as normal chests.</summary>
     public int ManualChests { get; set; }
     /// <summary>Optional goal: 0 = none, 1 = chests per day, 2 = chests per week (Monday to Sunday).</summary>

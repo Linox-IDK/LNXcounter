@@ -17,6 +17,7 @@ Every update of LNXcounter, newest first. Download any version from the [Release
 - **About 3 times less CPU with the window open** (Overview tab: about 31% of one core down to about 9%): the pulsing dots and the floating token now run at 24 images per second instead of 60.
 - **Almost nothing when hidden in the tray:** the clock and the replay check slow down to once every 5 seconds while the window and the overlay are closed (they are instant again as soon as you open them), and Fortnite is looked for every 3 seconds instead of every second.
 - **Less memory while reading in the tray:** 2 replays are read at a time while the window is hidden (up to 4 when it is open).
+- **New *Low-resource mode* in Settings, for weak or old PCs.** It switches off the animations (the pulses, the floating token, the sliding tabs, the flowing colours on the Drops page), removes the song player of the Drops tab (the biggest memory user), reads one replay at a time, and runs the background checks less often. The app restarts to apply it.
 
 ## v1.20.2
 **Treasure Hour extended**

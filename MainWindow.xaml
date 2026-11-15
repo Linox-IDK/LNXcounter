@@ -347,6 +347,15 @@
 
                     <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="22,18">
                         <StackPanel>
+                            <TextBlock Text="{loc:Tr 'LOW-RESOURCE MODE'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
+                                       Text="{loc:Tr 'For weak or old PCs: no animations (pulses, floating token, sliding tabs), no song player in the Drops tab, one replay read at a time, and the background checks run less often. The app restarts to apply it.'}"/>
+                            <CheckBox x:Name="LowBox" Style="{StaticResource SettingCheck}" Content="{loc:Tr 'Use less CPU and memory (restarts the app)'}" Click="Low_Click"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="22,18">
+                        <StackPanel>
                             <TextBlock Text="{loc:Tr 'TREASURE HOUR ALERT'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
                             <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
                                        Text="{loc:Tr 'A pop-up slides in at the top right of your screen even while you are in the game: when a Treasure Hour starts (with a short chime), and as a warning 30 minutes before (silent) and 10 minutes before (with the chime).'}"/>

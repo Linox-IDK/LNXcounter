@@ -51,7 +51,7 @@ public partial class MainWindow : Window
     {
         var panels = Panels;
         foreach (var p in panels) if (p.RenderTransform is not TranslateTransform) p.RenderTransform = new TranslateTransform();
-        if (!IsLoaded || to == curPanel)
+        if (!IsLoaded || to == curPanel || App.Low)   // low-resource mode: tabs switch at once, no sliding
         {
             for (int i = 0; i < panels.Length; i++) panels[i].Visibility = i == to ? Visibility.Visible : Visibility.Collapsed;
             curPanel = to; return;
@@ -83,7 +83,14 @@ public partial class MainWindow : Window
     {
         if (OverviewPanel == null || DropsPanel == null || SettingsPanel == null) return; // fires once during InitializeComponent
         SwitchPanel(OverviewTab.IsChecked == true ? 0 : DropsTab.IsChecked == true ? 1 : 2);
-        if (SettingsTab.IsChecked == true) { StartupBox.IsChecked = LNXcounter.Services.Startup.IsEnabled; AlertBox.IsChecked = M.Settings.HourAlert; WarnBox.IsChecked = M.Settings.HourWarn; AutoUpdateBox.IsChecked = M.Settings.AutoUpdateCheck; GoalOff.IsChecked = M.GoalKind == 0; GoalDay.IsChecked = M.GoalKind == 1; GoalWeek.IsChecked = M.GoalKind == 2; GoalBox.Text = M.GoalTarget.ToString(); }   // it can also be switched from the tray menu
+        if (SettingsTab.IsChecked == true) { StartupBox.IsChecked = LNXcounter.Services.Startup.IsEnabled; AlertBox.IsChecked = M.Settings.HourAlert; WarnBox.IsChecked = M.Settings.HourWarn; AutoUpdateBox.IsChecked = M.Settings.AutoUpdateCheck; LowBox.IsChecked = M.Settings.LowResource; GoalOff.IsChecked = M.GoalKind == 0; GoalDay.IsChecked = M.GoalKind == 1; GoalWeek.IsChecked = M.GoalKind == 2; GoalBox.Text = M.GoalTarget.ToString(); }   // it can also be switched from the tray menu
+    }
+
+    void Low_Click(object sender, RoutedEventArgs e)
+    {
+        M.Settings.LowResource = LowBox.IsChecked == true;
+        M.Save();
+        App.Restart();   // the frame rate and the song player are decided when the app starts
     }
 
     // ----- Settings: start with Windows, CSV export -----

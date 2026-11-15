@@ -51,7 +51,7 @@ public class TileVM : Notify
     public JamPlayer Audio => owner.Audio;
     public string? Video { get; init; }
     public string? Song { get; init; }
-    public Visibility AudioVisibility => Video != null ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility AudioVisibility => Video != null && !App.Low ? Visibility.Visible : Visibility.Collapsed;
     public Visibility UnknownVisibility => Unknown ? Visibility.Visible : Visibility.Collapsed;
     public Visibility KnownVisibility => Unknown ? Visibility.Collapsed : Visibility.Visible;
     public Visibility LoadingVisibility => IsLoading && !Unknown ? Visibility.Visible : Visibility.Collapsed;
@@ -420,6 +420,7 @@ public class DropsVM : Notify
         g.GradientStops.Add(new GradientStop(ca, 0));
         g.GradientStops.Add(new GradientStop(cb, 0.5));
         g.GradientStops.Add(new GradientStop(ca, 1));
+        if (App.Low) return g;   // low-resource mode: the gradient stands still
         foreach (var prop in new[] { TranslateTransform.XProperty, TranslateTransform.YProperty })
         {
             var anim = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(7)) { RepeatBehavior = RepeatBehavior.Forever };

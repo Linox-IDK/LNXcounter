@@ -14,6 +14,8 @@ public partial class App : Application
     public static AppModel Model { get; private set; } = null!;
     public static OverlayWindow Overlay { get; private set; } = null!;
     public static bool Quitting { get; private set; }
+    /// <summary>Low-resource mode (Settings): read once when the app starts.</summary>
+    public static bool Low { get; private set; }
 
     Mutex? mutex;
     EventWaitHandle? showEvent;
@@ -25,8 +27,10 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        // every animation (the pulses, the floating token) is capped at 24 frames per second instead of 60: far less CPU, no visible difference
-        System.Windows.Media.Animation.Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(System.Windows.Media.Animation.Timeline), new FrameworkPropertyMetadata(24));
+        try { Low = Store.Load().Settings.LowResource; } catch { }
+        // every animation (the pulses, the floating token) is capped at 24 frames per second instead of 60: far less CPU, no visible difference.
+        // Low-resource mode: 6, which is as good as standing still
+        System.Windows.Media.Animation.Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(System.Windows.Media.Animation.Timeline), new FrameworkPropertyMetadata(Low ? 6 : 24));
         base.OnStartup(e);
         Loc.Install();   // texts follow the language of Windows
 
@@ -74,7 +78,7 @@ public partial class App : Application
         MemoryTrim.Schedule(5000);
         MainWindow.IsVisibleChanged += (_, _) => { MemoryTrim.Schedule(MainWindow.IsVisible ? 6000 : 2000); Model.Wake(); };
         MainWindow.StateChanged += (_, _) => { MemoryTrim.Schedule(MainWindow.WindowState == WindowState.Minimized ? 2000 : 6000); Model.Wake(); };
-        var t = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        var t = new DispatcherTimer { Interval = TimeSpan.FromSeconds(Low ? 15 : 30) };
         t.Tick += (_, _) => { if (!MainWindow.IsVisible || MainWindow.WindowState == WindowState.Minimized) MemoryTrim.Now(); };
         t.Start();
     }
