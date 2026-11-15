@@ -29,6 +29,7 @@ public static class AppMenu
         overlay.Items.Add(Check("Show overlay", s.OverlayVisible, v => App.SetOverlayVisible(v)));
         overlay.Items.Add(Check("Ignore clicks during a match", s.OverlayIgnoreClicksInMatch, v => { s.OverlayIgnoreClicksInMatch = v; m.Save(); App.Overlay.ApplyClickThrough(); }));
         overlay.Items.Add(Check("Collapse details", s.OverlayCollapsed, v => App.Overlay.SetCollapsed(v)));
+        overlay.Items.Add(Check("Minimal overlay (count and chest only)", s.MinimalOverlay, v => { s.MinimalOverlay = v; m.Save(); App.Overlay.ApplyStyle(); }));
         var corner = new MenuItem { Header = Loc.T("Move to corner") };
         corner.Items.Add(Item("Top left", () => App.Overlay.MoveToCorner("tl")));
         corner.Items.Add(Item("Top right", () => App.Overlay.MoveToCorner("tr")));
@@ -40,6 +41,7 @@ public static class AppMenu
         menu.Items.Add(Check("Start with Windows", Startup.IsEnabled, v => Startup.Set(v)));
         menu.Items.Add(new Separator());
 
+        menu.Items.Add(Item(m.Paused ? "Resume reading new matches" : "Pause reading new matches", m.TogglePause));
         menu.Items.Add(Item("Scan for new matches now", () => _ = m.ScanAsync()));
         menu.Items.Add(Item("Rebuild from all replays…", async () =>
         {

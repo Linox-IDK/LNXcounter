@@ -83,7 +83,37 @@ public partial class MainWindow : Window
     {
         if (OverviewPanel == null || DropsPanel == null || SettingsPanel == null) return; // fires once during InitializeComponent
         SwitchPanel(OverviewTab.IsChecked == true ? 0 : DropsTab.IsChecked == true ? 1 : 2);
-        if (SettingsTab.IsChecked == true) { StartupBox.IsChecked = LNXcounter.Services.Startup.IsEnabled; AlertBox.IsChecked = M.Settings.HourAlert; WarnBox.IsChecked = M.Settings.HourWarn; AutoUpdateBox.IsChecked = M.Settings.AutoUpdateCheck; LowBox.IsChecked = M.Settings.LowResource; GoalOff.IsChecked = M.GoalKind == 0; GoalDay.IsChecked = M.GoalKind == 1; GoalWeek.IsChecked = M.GoalKind == 2; GoalBox.Text = M.GoalTarget.ToString(); }   // it can also be switched from the tray menu
+        if (SettingsTab.IsChecked == true) { StartupBox.IsChecked = LNXcounter.Services.Startup.IsEnabled; AlertBox.IsChecked = M.Settings.HourAlert; WarnBox.IsChecked = M.Settings.HourWarn; AutoUpdateBox.IsChecked = M.Settings.AutoUpdateCheck; LowBox.IsChecked = M.Settings.LowResource; CleanBox.IsChecked = M.Settings.DeleteReadReplays; ShowOverlayChoice(); GoalOff.IsChecked = M.GoalKind == 0; GoalDay.IsChecked = M.GoalKind == 1; GoalWeek.IsChecked = M.GoalKind == 2; GoalBox.Text = M.GoalTarget.ToString(); }   // it can also be switched from the tray menu
+    }
+
+    void Pause_Click(object sender, RoutedEventArgs e) => M.TogglePause();
+
+    void OvStyle_Click(object sender, MouseButtonEventArgs e)
+    {
+        M.Settings.MinimalOverlay = (sender as FrameworkElement)?.Tag as string == "mini";
+        M.Save();
+        App.Overlay.ApplyStyle();
+        ShowOverlayChoice();
+    }
+
+    /// <summary>A gold frame around the overlay style in use.</summary>
+    void ShowOverlayChoice()
+    {
+        bool mini = M.Settings.MinimalOverlay;
+        OvFullTile.BorderBrush = mini ? System.Windows.Media.Brushes.Transparent : (System.Windows.Media.Brush)FindResource("GoldBrush");
+        OvMiniTile.BorderBrush = mini ? (System.Windows.Media.Brush)FindResource("GoldBrush") : System.Windows.Media.Brushes.Transparent;
+    }
+
+    void Clean_Click(object sender, RoutedEventArgs e)
+    {
+        if (CleanBox.IsChecked == true && MessageBox.Show(this, Loc.T("Delete your Fortnite replays for good once LNXcounter has counted them? Only replays that are more than 1 hour old are deleted, they do not go to the Recycle Bin, and they cannot be read again. Your totals are kept."),
+                "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+        {
+            CleanBox.IsChecked = false; return;
+        }
+        M.Settings.DeleteReadReplays = CleanBox.IsChecked == true;
+        M.Save();
+        M.CleanSoon();
     }
 
     void Low_Click(object sender, RoutedEventArgs e)

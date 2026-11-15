@@ -4,7 +4,8 @@
         xmlns:loc="clr-namespace:LNXcounter.Services"
         Title="LNXcounter overlay" Width="280" SizeToContent="Height" WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ShowInTaskbar="False" Topmost="True" ResizeMode="NoResize" ShowActivated="False" Icon="/Assets/logo.png">
-    <Border Background="#F2101010" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1" CornerRadius="9"
+    <Grid>
+    <Border x:Name="FullBox" Background="#F2101010" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1" CornerRadius="9"
             MouseLeftButtonDown="Drag_Down" MouseRightButtonUp="Right_Up" Padding="12,8,12,8">
         <StackPanel>
             <!-- header: icon, name, count, chevron -->
@@ -33,4 +34,14 @@
             </StackPanel>
         </StackPanel>
     </Border>
+
+    <!-- minimal style: only the chest count and the chest icon on its right -->
+    <Border x:Name="MiniBox" Visibility="Collapsed" Background="#F2101010" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1" CornerRadius="9"
+            MouseLeftButtonDown="Drag_Down" MouseRightButtonUp="Right_Up" Padding="14,5,14,5" HorizontalAlignment="Left">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="{Binding TotalOpened}" VerticalAlignment="Center" FontWeight="Bold" FontSize="20" Foreground="{StaticResource GoldLightBrush}"/>
+            <Image Source="/Assets/chest.png" Width="24" Height="24" Margin="8,0,0,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+        </StackPanel>
+    </Border>
+    </Grid>
 </Window>

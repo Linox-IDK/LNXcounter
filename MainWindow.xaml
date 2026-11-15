@@ -356,6 +356,59 @@
 
                     <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="22,18">
                         <StackPanel>
+                            <TextBlock Text="{loc:Tr 'OVERLAY STYLE'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
+                                       Text="{loc:Tr 'The small window that stays on top of your game. Click a style to use it. This is how each one looks with your real numbers.'}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Border x:Name="OvFullTile" Tag="full" Cursor="Hand" Background="Transparent" BorderThickness="2" CornerRadius="12" Padding="10" Margin="0,0,14,0" MouseLeftButtonUp="OvStyle_Click">
+                                    <StackPanel>
+                                        <Border Background="#F2101010" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1" CornerRadius="9" Padding="12,8" Width="250">
+                                            <StackPanel>
+                                                <Grid Height="26">
+                                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                                    <Image Source="/Assets/logo.png" Width="22" Height="22" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                    <TextBlock Grid.Column="1" Text="LNXcounter" Margin="8,0,0,0" VerticalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="{StaticResource GoldGradient}"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding TotalOpened}" VerticalAlignment="Center" FontWeight="Bold" FontSize="17" Foreground="{StaticResource GoldLightBrush}"/>
+                                                </Grid>
+                                                <Border Height="1" Background="{StaticResource LineBrush}" Margin="0,6,0,8"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{loc:Tr 'Treasure Hours'}" FontWeight="SemiBold" Foreground="{StaticResource GoldBrush}" FontSize="12.5"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding PirateShort}" HorizontalAlignment="Right" FontSize="12.5" Foreground="{StaticResource TextBrush}"/>
+                                                </Grid>
+                                                <TextBlock Text="{Binding OverlayStatus}" Margin="0,8,0,0" FontSize="12" Foreground="{StaticResource TextBrush}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Text="{loc:Tr 'Full'}" HorizontalAlignment="Center" Margin="0,8,0,0" FontWeight="SemiBold" FontSize="12.5" Foreground="{StaticResource TextBrush}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border x:Name="OvMiniTile" Tag="mini" Cursor="Hand" Background="Transparent" BorderThickness="2" CornerRadius="12" Padding="10" MouseLeftButtonUp="OvStyle_Click">
+                                    <StackPanel>
+                                        <Border Background="#F2101010" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1" CornerRadius="9" Padding="14,6" HorizontalAlignment="Center" Margin="0,18,0,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding TotalOpened}" VerticalAlignment="Center" FontWeight="Bold" FontSize="20" Foreground="{StaticResource GoldLightBrush}"/>
+                                                <Image Source="/Assets/chest.png" Width="24" Height="24" Margin="8,0,0,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Text="{loc:Tr 'Minimal'}" HorizontalAlignment="Center" Margin="0,26,0,0" FontWeight="SemiBold" FontSize="12.5" Foreground="{StaticResource TextBrush}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="22,18">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Tr 'DELETE COUNTED REPLAYS'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
+                                       Text="{loc:Tr 'Fortnite keeps every replay (15 to 20 MB each) until you delete it. When this is on, LNXcounter deletes a replay for good once it has counted it, but never one that is less than 1 hour old. Your totals are kept. A deleted replay cannot be read again, and it does not go to the Recycle Bin.'}"/>
+                            <CheckBox x:Name="CleanBox" Style="{StaticResource SettingCheck}" Content="{loc:Tr 'Delete replays once they are counted'}" Click="Clean_Click"/>
+                            <TextBlock Text="{Binding CleanMessage}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="22,18">
+                        <StackPanel>
                             <TextBlock Text="{loc:Tr 'TREASURE HOUR ALERT'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
                             <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
                                        Text="{loc:Tr 'A pop-up slides in at the top right of your screen even while you are in the game: when a Treasure Hour starts (with a short chime), and as a warning 30 minutes before (silent) and 10 minutes before (with the chime).'}"/>
@@ -739,9 +792,15 @@
             <!-- Footer -->
             <Grid Grid.Row="2" Margin="20,4,20,14">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Status}" Foreground="{StaticResource GoldBrush}" FontSize="12"/>
-                    <TextBlock Text="{Binding FolderText}" Foreground="{StaticResource MutedBrush}" FontSize="10.5" TextTrimming="CharacterEllipsis" MaxWidth="460" HorizontalAlignment="Left"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- pause / resume reading new matches: two bars, or a play triangle while paused -->
+                    <Button Style="{StaticResource CaptionButton}" Width="30" Height="30" Margin="0,0,10,0" Click="Pause_Click" ToolTip="{Binding PauseTip}">
+                        <Path Data="{Binding PauseIcon}" Fill="{StaticResource GoldBrush}" Stretch="Uniform" Width="11" Height="13"/>
+                    </Button>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Status}" Foreground="{StaticResource GoldBrush}" FontSize="12"/>
+                        <TextBlock Text="{Binding FolderText}" Foreground="{StaticResource MutedBrush}" FontSize="10.5" TextTrimming="CharacterEllipsis" MaxWidth="420" HorizontalAlignment="Left"/>
+                    </StackPanel>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button x:Name="OverlayBtn" Style="{StaticResource GoldButton}" Content="{loc:Tr 'Overlay'}" Click="Overlay_Click" Margin="0,0,8,0"/>

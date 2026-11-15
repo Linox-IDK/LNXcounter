@@ -71,6 +71,12 @@ public class Settings
     public bool AutoUpdateCheck { get; set; } = true;
     /// <summary>For weak PCs: no animations, no song player, one replay read at a time, background checks less often.</summary>
     public bool LowResource { get; set; }
+    /// <summary>The weak-PC check was done once (on the first start of a version that has it); after that the choice is the user's.</summary>
+    public bool LowChecked { get; set; }
+    /// <summary>The overlay is only the chest count and the chest icon.</summary>
+    public bool MinimalOverlay { get; set; }
+    /// <summary>Delete a replay for good once it was counted (never one that is less than an hour old). Off unless the user turns it on.</summary>
+    public bool DeleteReadReplays { get; set; }
     /// <summary>Chests added by hand (played on another device, or before the app was installed). Counted as normal chests.</summary>
     public int ManualChests { get; set; }
     /// <summary>Optional goal: 0 = none, 1 = chests per day, 2 = chests per week (Monday to Sunday).</summary>

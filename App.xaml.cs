@@ -16,6 +16,18 @@ public partial class App : Application
     public static bool Quitting { get; private set; }
     /// <summary>Low-resource mode (Settings): read once when the app starts.</summary>
     public static bool Low { get; private set; }
+    static bool autoWeak;
+
+    /// <summary>A weak PC: 4 logical processors or fewer, or less than 7 GB of memory (an 8 GB PC reports about 7.4 to 7.9).</summary>
+    static bool IsWeakPc()
+    {
+        try
+        {
+            double gb = GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / 1073741824.0;
+            return Environment.ProcessorCount <= 4 || (gb > 0 && gb < 7);
+        }
+        catch { return false; }
+    }
 
     Mutex? mutex;
     EventWaitHandle? showEvent;
@@ -27,7 +39,8 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        try { Low = Store.Load().Settings.LowResource; } catch { }
+        // the first time (and only the first time) a weak PC is detected, low-resource mode and the small overlay are switched on; the choice is saved below
+        try { var set = Store.Load().Settings; autoWeak = !set.LowChecked && IsWeakPc(); Low = set.LowResource || autoWeak; } catch { }
         // every animation (the pulses, the floating token) is capped at 24 frames per second instead of 60: far less CPU, no visible difference.
         // Low-resource mode: 6, which is as good as standing still
         System.Windows.Media.Animation.Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(System.Windows.Media.Animation.Timeline), new FrameworkPropertyMetadata(Low ? 6 : 24));
@@ -59,6 +72,12 @@ public partial class App : Application
         SessionEnding += (_, _) => { try { Model?.Save(); } catch { } };   // Windows is shutting down or logging off: save first
         Model = new AppModel();
         Model.Start();
+        if (!Model.Settings.LowChecked)
+        {
+            Model.Settings.LowChecked = true;
+            if (autoWeak) { Model.Settings.LowResource = true; Model.Settings.MinimalOverlay = true; }
+            Model.Save();
+        }
         MainWindow = new MainWindow { DataContext = Model };
         Overlay = new OverlayWindow { DataContext = Model };
 

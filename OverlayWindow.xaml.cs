@@ -17,6 +17,7 @@ public partial class OverlayWindow : Window
             Top = SystemParameters.WorkArea.Top + 24;
         }
         else { Left = s.OverlayLeft; Top = s.OverlayTop; }
+        ApplyStyle();
         EnsureOnScreen();
         ApplyCollapsed(s.OverlayCollapsed);
         LocationChanged += (_, _) => { s.OverlayLeft = Left; s.OverlayTop = Top; };
@@ -46,6 +47,17 @@ public partial class OverlayWindow : Window
         var vl = SystemParameters.VirtualScreenLeft; var vt = SystemParameters.VirtualScreenTop;
         var vr = vl + SystemParameters.VirtualScreenWidth; var vb = vt + SystemParameters.VirtualScreenHeight;
         if (Left < vl - Width + 40 || Left > vr - 40 || Top < vt || Top > vb - 40) { Left = vr - Width - 24; Top = vt + 24; }
+    }
+
+    /// <summary>Full overlay, or only the chest count and the chest icon (Settings, with a preview there).</summary>
+    public void ApplyStyle()
+    {
+        bool mini = App.Model.Settings.MinimalOverlay;
+        FullBox.Visibility = mini ? Visibility.Collapsed : Visibility.Visible;
+        MiniBox.Visibility = mini ? Visibility.Visible : Visibility.Collapsed;
+        if (mini) SizeToContent = SizeToContent.WidthAndHeight;
+        else { Width = 280; SizeToContent = SizeToContent.Height; }
+        if (IsLoaded) { UpdateLayout(); EnsureOnScreen(); }
     }
 
     void ApplyCollapsed(bool collapsed)

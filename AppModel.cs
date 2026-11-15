@@ -369,7 +369,7 @@ public class AppModel : Notify
 
     public async Task ScanAsync()
     {
-        if (scanning) return;
+        if (scanning || Paused) return;
         scanning = true;
         try
         {
@@ -464,12 +464,54 @@ public class AppModel : Notify
             if (dirty) { Rebuild(); Save(); }
             if (waited && InMatch) { Status = Loc.T("Waiting for the lobby to read your matches…"); firstScanDone = true; return; }
             if (todo.Count > 0) MemoryTrim.Schedule(3000);   // reading a replay allocates a lot: give it back
+            CleanReplays(all);
             firstScanDone = true;
             Status = failed > 0 ? Loc.F("Watching for new matches  ·  {0} replay(s) could not be read (game update?)", failed)
                 : inProgress ? Loc.T("Match in progress, it will be counted as soon as it ends") : Loc.T("Watching for new matches");
         }
         catch (Exception e) { Status = Loc.T("Scan error: ") + e.Message; }
-        finally { scanning = false; MemoryTrim.Busy = false; }
+        finally { scanning = false; MemoryTrim.Busy = false; if (Paused) Status = PausedText; }
+    }
+
+    // ----- pause -----
+    bool paused;
+    /// <summary>The pause button: no new match is read until it is resumed (not kept after a restart).</summary>
+    public bool Paused { get => paused; private set { if (Set(ref paused, value)) { Raise(nameof(PauseIcon)); Raise(nameof(PauseTip)); } } }
+    public string PauseIcon => paused ? "M0,0 L11,6.5 L0,13 Z" : "M0,0 H4 V13 H0 Z M7,0 H11 V13 H7 Z";   // a play triangle / two pause bars
+    public string PauseTip => Loc.T(paused ? "Resume reading new matches" : "Pause: stop reading new matches");
+    static string PausedText => Loc.T("Paused  ·  new matches are not read");
+    public void TogglePause()
+    {
+        Paused = !Paused;
+        if (Paused) Status = PausedText;
+        else { Status = Loc.T("Watching for new matches"); _ = ScanAsync(); }
+    }
+
+    // ----- optional: delete the replays that were already counted -----
+    DateTime nextClean;
+    int cleanedFiles; long cleanedBytes;
+    string cleanMessage = "";
+    public string CleanMessage { get => cleanMessage; set => Set(ref cleanMessage, value); }
+    public void CleanSoon() { nextClean = default; cleanedFiles = 0; cleanedBytes = 0; if (!state.Settings.DeleteReadReplays) CleanMessage = ""; else _ = ScanAsync(); }
+
+    /// <summary>Only when the user turned it on in Settings: deletes (for good, no Recycle Bin) every replay that was read completely, is not growing and
+    /// was last written more than an hour ago. Totals stay in the save file. A replay the game still holds open cannot be deleted and is tried again later.</summary>
+    void CleanReplays(List<FileInfo> all)
+    {
+        var now = DateTime.UtcNow;
+        if (!state.Settings.DeleteReadReplays || InMatch || now < nextClean) return;
+        nextClean = now.AddMinutes(2);
+        int n = 0; long bytes = 0;
+        foreach (var f in all)
+        {
+            if (now - f.LastWriteTimeUtc < TimeSpan.FromHours(1)) continue;
+            var rec = state.Matches.FirstOrDefault(m => m.File == f.Name);
+            if (rec == null || rec.Error != null || rec.Analysis < ChestAnalyzer.Version || rec.Size <= 0 || f.Length > rec.Size + 50_000 || retryAt.ContainsKey(f.Name)) continue;
+            try { long len = f.Length; File.Delete(f.FullName); n++; bytes += len; } catch { }
+        }
+        if (n == 0) return;
+        cleanedFiles += n; cleanedBytes += bytes;
+        CleanMessage = Loc.F("Deleted {0} replay(s) that were already counted, {1} MB freed", cleanedFiles, cleanedBytes / 1048576);
     }
 
     void Rebuild()
@@ -537,7 +579,9 @@ public class AppModel : Notify
 
     public async Task RescanAllAsync()
     {
-        state.Matches.Clear(); known.Clear(); failed = 0; firstScanDone = false;
+        // matches whose replay is gone (deleted by the game, or by the cleaner in Settings) cannot be read again, so they are kept as they are
+        state.Matches.RemoveAll(m => File.Exists(Path.Combine(ReplayFolder, m.File))); known.Clear(); foreach (var m in state.Matches) known.Add(m.File);
+        failed = 0; firstScanDone = false; Paused = false;
         SessionOpened = 0; LastMatchOpened = -1;
         Rebuild(); Save();
         await ScanAsync();
