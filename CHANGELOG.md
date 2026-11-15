@@ -2,6 +2,9 @@
 
 Every update of LNXcounter, newest first. Download any version from the [Releases](../../releases) page.
 
+## v1.25.2
+- **Team chests.** A 4th card on Overview, next to Treasures, Matches and Avg / match: the chests opened by **you and your teammates together**. Hover it to see your part and your teammates' part. Only your human squad mates count (not bots, not other teams), and it is never shown on the overlays. Teammates' chests are known for the matches read from now on and for the replays still on your PC (they are read again once); older matches whose replay is gone count only your own chests.
+
 ## v1.25.1
 - **12-hour or 24-hour clock.** *Settings > General > Time format*: **Like Windows** (default), **12-hour (8:00 PM)** or **24-hour (20:00)**. It changes every time in the app (Treasure Hours, the next-hour card, the match list) at once, no restart. Times are still Paris time.
 - **Weekly odds use that week's chests.** In the pop-up of a weekly reward, the *chance you would have found one by now* is now worked out from the chests you opened **during that week** only (chests added by hand have no date and are not in it). The token still uses all your chests, since it can drop in any week.

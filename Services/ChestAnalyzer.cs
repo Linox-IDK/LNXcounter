@@ -13,7 +13,7 @@ namespace LNXcounter.Services;
 public static class ChestAnalyzer
 {
     /// <summary>Raise when the analysis learns something new: matches whose replay is still on disk are then read again.</summary>
-    public const int Version = 3;   // 2 = treasure finds (golden chest prizes, gizmos), 3 = where each chest was opened
+    public const int Version = 4;   // 4 = chests opened by teammates, 2 = treasure finds (golden chest prizes, gizmos), 3 = where each chest was opened
 
     public static MatchRecord Analyze(string path)
     {
@@ -47,6 +47,8 @@ public static class ChestAnalyzer
         readonly Dictionary<uint, Track> tracks = new();
         readonly List<(uint hitter, uint target, bool fatal, double t)> hits = new();
         uint? recorder; double now, firstTime;
+        readonly Dictionary<uint, int> psTeam = new();   // team number of each player state
+        readonly HashSet<uint> psBot = new();
         readonly Dictionary<uint, (double X, double Y)> chanSpot = new(), pawnPos = new();   // chest spawn spot by actor, last seen spot of each pawn by actor
 
         // ---- treasure grants: every treasure the recorder receives adds a "GA_TreasureHandler_*" ability to their ability system ----
@@ -166,6 +168,11 @@ public static class ChestAnalyzer
                 if (pp.PlayerState is uint ps && ps != 0) pawnToPS[a] = ps;
                 var loc = pp.ReplicatedMovement?.Location ?? pp.Location;
                 if (loc != null && (loc.X != 0 || loc.Y != 0)) pawnPos[a] = (loc.X, loc.Y);
+            }
+            else if (g is FortPlayerState fps && chanToActor.TryGetValue(ch, out var psActor))
+            {
+                if (fps.TeamIndex is { } ti) psTeam[psActor] = Convert.ToInt32(ti);
+                if (fps.bIsABot == true) psBot.Add(psActor);
             }
             else if (g is BatchedDamageCues dc && chanToActor.TryGetValue(ch, out var hitter))
             {
@@ -300,6 +307,11 @@ public static class ChestAnalyzer
         public void Fill(MatchRecord rec)
         {
             var mine = pawnToPS.Where(kv => kv.Value == recorder).Select(kv => kv.Key).ToHashSet();
+            // teammates: the other human players that are on the recorder's team
+            var allies = new HashSet<uint>();
+            if (recorder is uint rp && psTeam.TryGetValue(rp, out var myTeam))
+                foreach (var kv in pawnToPS)
+                    if (kv.Value != rp && psTeam.TryGetValue(kv.Value, out var tm) && tm == myTeam && !psBot.Contains(kv.Value)) allies.Add(kv.Key);
             var myKills = new Dictionary<uint, double>();
             foreach (var h in hits) if (h.fatal && mine.Contains(h.hitter) && !myKills.ContainsKey(h.target)) myKills[h.target] = h.t;
             foreach (var t in tracks.Values)
@@ -309,6 +321,7 @@ public static class ChestAnalyzer
                 // smashed by you (car, explosion...): the loot spills out and the server names you as the one who destroyed it: counted like an opened chest
                 bool smashed = !opened && t.Destroyed && t.Destroyer is uint dd && mine.Contains(dd);
                 bool broke = !opened && !smashed && myKills.TryGetValue(t.Actor, out var kt) && (!t.Searched || t.SearchedAt > kt);
+                if (!opened && !smashed && (t.Searched && t.PawnAtOpen is uint ap && allies.Contains(ap) || t.Destroyed && t.Destroyer is uint ad && allies.Contains(ad))) rec.AllyOpened++;
                 if (smashed) opened = true;
                 if (opened) { rec.Opened++; rec.OpenedByType[type] = rec.OpenedByType.GetValueOrDefault(type) + 1; }
                 else if (broke) rec.Broken++;

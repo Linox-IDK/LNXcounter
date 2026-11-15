@@ -334,6 +334,8 @@ public static class Loc
         ["Like Windows"] = new[] { "Comme Windows", "Como Windows", "Wie Windows" },
         ["12-hour (8:00 PM)"] = new[] { "12 h (8:00 PM)", "12 h (8:00 PM)", "12 Std. (8:00 PM)" },
         ["24-hour (20:00)"] = new[] { "24 h (20:00)", "24 h (20:00)", "24 Std. (20:00)" },
+        ["TEAM CHESTS"] = new[] { "COFFRES D'ÉQUIPE", "COFRES DE EQUIPO", "TEAM-TRUHEN" },
+        ["Chests opened by you and your teammates together (yours: {0}, teammates: {1}). Teammates' chests are only known for matches read since this was added; older matches count only yours. Not shown on the overlays."] = new[] { "Coffres ouverts par toi et tes coéquipiers ensemble (les tiens : {0}, coéquipiers : {1}). Ceux des coéquipiers ne sont connus que pour les matchs lus depuis l'ajout de cette fonction ; les anciens matchs ne comptent que les tiens. Non affiché sur les overlays.", "Cofres abiertos por ti y tus compañeros juntos (tuyos: {0}, compañeros: {1}). Los de los compañeros solo se conocen en las partidas leídas desde que se añadió esto; las anteriores solo cuentan los tuyos. No se muestra en los overlays.", "Truhen, die du und dein Team zusammen geöffnet habt (deine: {0}, Teamkollegen: {1}). Die der Teamkollegen sind nur für Matches bekannt, die seit dieser Funktion gelesen wurden; ältere zählen nur deine. Wird nicht in den Overlays angezeigt." },
         ["Treasure found"] = new[] { "Trésor trouvé", "Tesoro encontrado", "Schatz gefunden" },
     };
 }

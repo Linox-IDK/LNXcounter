@@ -93,7 +93,7 @@
 
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/>
+                            <ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Style="{StaticResource Card}">
                             <StackPanel><TextBlock Text="{loc:Tr 'TREASURES'}" Style="{StaticResource Label}"/>
@@ -106,6 +106,10 @@
                         <Border Grid.Column="4" Style="{StaticResource Card}">
                             <StackPanel><TextBlock Text="{loc:Tr 'AVG / MATCH'}" Style="{StaticResource Label}"/>
                                 <TextBlock Text="{Binding AvgText}" FontSize="30" FontWeight="Bold" Foreground="{StaticResource GoldLightBrush}"/></StackPanel>
+                        </Border>
+                        <Border Grid.Column="6" Style="{StaticResource Card}" ToolTip="{Binding TeamNote}">
+                            <StackPanel><TextBlock Text="{loc:Tr 'TEAM CHESTS'}" Style="{StaticResource Label}"/>
+                                <TextBlock Text="{Binding TeamChestsText}" FontSize="30" FontWeight="Bold" Foreground="{StaticResource GoldLightBrush}"/></StackPanel>
                         </Border>
                     </Grid>
 

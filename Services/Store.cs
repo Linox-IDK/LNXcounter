@@ -9,6 +9,8 @@ public class MatchRecord
     public DateTime Started { get; set; }
     public int Opened { get; set; }
     public int Broken { get; set; }
+    /// <summary>Chests opened (or smashed) by the human players of your team in this match. 0 for matches read before the app counted them.</summary>
+    public int AllyOpened { get; set; }
     public Dictionary<string, int> OpenedByType { get; set; } = new();
     public string? Error { get; set; }
     /// <summary>Version of the analysis that produced this record. Replays still on disk are read again when it is older.</summary>

@@ -75,6 +75,10 @@ public class AppModel : Notify
     int totalTreasures;
     public int TotalTreasures { get => totalTreasures; set => Set(ref totalTreasures, value); }
     public int TotalBroken { get => totalBroken; set => Set(ref totalBroken, value); }
+    int teamChests, allyChests;
+    /// <summary>Your chests plus the ones your teammates opened (only matches whose replay was read with team info have the teammates' part).</summary>
+    public string TeamChestsText => teamChests.ToString("N0", CultureInfo.CurrentCulture);
+    public string TeamNote => Loc.F("Chests opened by you and your teammates together (yours: {0}, teammates: {1}). Teammates' chests are only known for matches read since this was added; older matches count only yours. Not shown on the overlays.", TotalOpened.ToString("N0"), allyChests.ToString("N0"));
     public int MatchCount { get => matchCount; set => Set(ref matchCount, value); }
     public int SessionOpened { get => sessionOpened; set { if (Set(ref sessionOpened, value)) { Raise(nameof(OverlayStatus)); Raise(nameof(OverlayNumber)); } } }
     public int LastMatchOpened { get => lastMatchOpened; set { if (Set(ref lastMatchOpened, value)) Raise(nameof(OverlayStatus)); } }
@@ -555,6 +559,8 @@ public class AppModel : Notify
         ReplayChests = ok.Sum(m => m.Opened);
         TotalOpened = ReplayChests + ManualChests;
         TotalBroken = ok.Sum(m => m.Broken);
+        allyChests = ok.Sum(m => m.AllyOpened); teamChests = TotalOpened + allyChests;
+        Raise(nameof(TeamChestsText)); Raise(nameof(TeamNote));
         TotalTreasures = ok.Sum(m => m.Finds.Count(f => f.Mine));
         MatchCount = ok.Count;
         AvgText = ok.Count == 0 ? "0" : (ReplayChests / (double)ok.Count).ToString("0.#", CultureInfo.CurrentCulture);
