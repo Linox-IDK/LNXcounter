@@ -53,6 +53,12 @@ public class AppModel : Notify
     string status = Loc.T("Starting…"), folderText = "", pirateShort = "", pirateCountdown = "", pirateBadge = "", avgText = "0";
     bool folderOk, pirateLive;
 
+    /// <summary>Chests opened in the matches that started between two UTC moments (chests added by hand have no date, so they are not in it).</summary>
+    int ChestsBetween(DateTime fromUtc, DateTime toUtc) => state.Matches
+        .Where(m => m.Error == null)
+        .Where(m => { var t = DateTime.SpecifyKind(m.Started, DateTimeKind.Local).ToUniversalTime(); return t >= fromUtc && t < toUtc; })
+        .Sum(m => m.Opened);
+
     public int TotalOpened { get => totalOpened; set { if (Set(ref totalOpened, value)) Raise(nameof(OverlayNumber)); } }
     int todayOpened;
     /// <summary>Chests of the matches played today (same day as the goal).</summary>
@@ -336,7 +342,7 @@ public class AppModel : Notify
     public void Start()
     {
         foreach (var m in state.Matches) known.Add(m.File);
-        Drops = new DropsVM(state, Save, () => TotalOpened, now => treasure.FirstOrDefault(w => w.StartUtc <= now && now < w.EndUtc));
+        Drops = new DropsVM(state, Save, () => TotalOpened, ChestsBetween, now => treasure.FirstOrDefault(w => w.StartUtc <= now && now < w.EndUtc));
         foreach (var w in treasure) hourRows.Add(new HourRow(w));
         Rebuild();
         UpdateFolder();

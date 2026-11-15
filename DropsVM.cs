@@ -109,6 +109,7 @@ public class DropsVM : Notify
     readonly StateFile state;
     readonly Action save;
     readonly Func<int> chests;
+    readonly Func<DateTime, DateTime, int> chestsIn;   // chests opened in matches that started between two UTC moments
     WeekDef week = DropsData.Weeks[0];
 
     public ObservableCollection<WeekTab> Weeks { get; } = new();
@@ -155,7 +156,9 @@ public class DropsVM : Notify
 
     public void OpenTile(TileVM t)
     {
-        int n = chests();
+        // the token can drop any week, so it counts every chest; the weekly rewards only count the chests opened during their own week
+        bool weekly = !t.IsToken;
+        int n = weekly ? chestsIn(week.StartUtc, week.EndUtc) : chests();
         if (Open != t) Audio.Stop();
         t.ModalBg = Flow(t.Kind);
         if (t.Unknown) t.Info = "Info Encrypted";
@@ -171,7 +174,8 @@ public class DropsVM : Notify
             string extra = t.IsGizmo ? Loc.T(" for any gizmo") : "";
             if (t.Song != null) rate = Loc.T("Song: ") + t.Song + "\n" + rate;
             t.Info = n == 0 ? rate + extra
-                : $"{rate}{extra}\n" + Loc.F("With your {0} chests there is a {1}% chance you would have found one by now.", n.ToString("N0"), chance >= 99.5 ? ">99" : Fmt(chance));
+                : $"{rate}{extra}\n" + (weekly ? Loc.F("With the {0} chests you opened this week there is a {1}% chance you would have found one by now.", n.ToString("N0"), chance >= 99.5 ? ">99" : Fmt(chance))
+                                : Loc.F("With your {0} chests there is a {1}% chance you would have found one by now.", n.ToString("N0"), chance >= 99.5 ? ">99" : Fmt(chance)));
         }
         Open = t;
     }
@@ -259,9 +263,9 @@ public class DropsVM : Notify
         }
     }
 
-    public DropsVM(StateFile state, Action save, Func<int> chests, Func<DateTime, TreasureWindow?> hourAt)
+    public DropsVM(StateFile state, Action save, Func<int> chests, Func<DateTime, DateTime, int> chestsIn, Func<DateTime, TreasureWindow?> hourAt)
     {
-        this.state = state; this.save = save; this.chests = chests; this.hourAt = hourAt;
+        this.state = state; this.save = save; this.chests = chests; this.chestsIn = chestsIn; this.hourAt = hourAt;
         Audio = new JamPlayer(state.Settings.Volume, VolumeChanged);
         foreach (var w in DropsData.Weeks)
             Weeks.Add(new WeekTab { Number = w.Number, Label = Loc.F("WEEK {0}", w.Number), Available = w.Available });
