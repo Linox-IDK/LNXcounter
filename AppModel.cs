@@ -422,6 +422,7 @@ public class AppModel : Notify
             var ticker = order.Count == 0 ? Task.CompletedTask : Task.Run(async () => { while (sw.IsRunning) { await Task.Delay(1000); if (sw.IsRunning && !InMatch) Status = $"{Label()} {(int)sw.Elapsed.TotalSeconds}s"; } });
             if (order.Count > 0) Status = Label();
             DateTime lastSave = DateTime.MinValue; bool dirty = false, waited = false;
+            int toastChests = 0, toastMatches = 0; bool toastTreasure = false;   // new matches read in this pass, for the silent pop-up
             for (int k = 0; k < order.Count; k++)
             {
                 var f = order[k];
@@ -454,7 +455,12 @@ public class AppModel : Notify
                     foreach (var tf in rec.Finds.Where(x => x.Mine && x.DropId != ""))
                         Drops?.AutoFound(tf.DropId == "token" ? "token" : $"w{tf.Week}:{tf.DropId}");   // a golden chest reward of yours ticks itself
                     if (rec.Error != null) failed++;
-                    else if (firstScanDone) { SessionOpened += delta; LastMatchOpened = rec.Opened; }
+                    else if (firstScanDone)
+                    {
+                        SessionOpened += delta; LastMatchOpened = rec.Opened;
+                        // only a match that was never read before: not a replay that was still growing, and nothing after "Rescan all" (firstScanDone is false then)
+                        if (old == null) { toastChests += rec.Opened; toastMatches++; toastTreasure |= rec.Finds.Any(x => x.Mine); }
+                    }
                     dirty = true;
                 }
                 // refresh the screen and save as results come in, but not more than about once a second
@@ -462,6 +468,7 @@ public class AppModel : Notify
             }
             sw.Stop(); await ticker;
             if (dirty) { Rebuild(); Save(); }
+            if (toastMatches > 0 && state.Settings.MatchToast) MatchToast.Show(toastChests, toastMatches, toastTreasure, SessionOpened, TotalOpened);
             if (waited && InMatch) { Status = Loc.T("Waiting for the lobby to read your matches…"); firstScanDone = true; return; }
             if (todo.Count > 0) MemoryTrim.Schedule(3000);   // reading a replay allocates a lot: give it back
             CleanReplays(all);

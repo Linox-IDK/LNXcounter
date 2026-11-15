@@ -86,6 +86,8 @@ public partial class App : Application
         if (Model.Settings.OverlayVisible) Overlay.Show();
 
         CreateTray();
+        Hotkey.Pressed += () => Dispatcher.BeginInvoke(() => SetOverlayVisible(!Model.Settings.OverlayVisible));
+        Hotkey.Apply(Model.Settings.HotkeyOn, Model.Settings.HotkeyMods, Model.Settings.HotkeyKey);
         KeepMemoryLow();
 
         if (e.Args.Contains("--selftest-menu")) { var t = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) }; t.Tick += (_, _) => { t.Stop(); ShowTrayMenu(); }; t.Start(); }
@@ -179,6 +181,7 @@ public partial class App : Application
         var app = (App)Current;
         if (save) Model.Save();
         app.tray?.Dispose();
+        Hotkey.Dispose();
         Overlay.Close();
         Current.MainWindow?.Close();
         Current.Shutdown();

@@ -83,7 +83,7 @@ public partial class MainWindow : Window
     {
         if (OverviewPanel == null || DropsPanel == null || SettingsPanel == null) return; // fires once during InitializeComponent
         SwitchPanel(OverviewTab.IsChecked == true ? 0 : DropsTab.IsChecked == true ? 1 : 2);
-        if (SettingsTab.IsChecked == true) { StartupBox.IsChecked = LNXcounter.Services.Startup.IsEnabled; AlertBox.IsChecked = M.Settings.HourAlert; WarnBox.IsChecked = M.Settings.HourWarn; AutoUpdateBox.IsChecked = M.Settings.AutoUpdateCheck; LowBox.IsChecked = M.Settings.LowResource; CleanBox.IsChecked = M.Settings.DeleteReadReplays; ShowOverlayChoice(); GoalOff.IsChecked = M.GoalKind == 0; GoalDay.IsChecked = M.GoalKind == 1; GoalWeek.IsChecked = M.GoalKind == 2; GoalBox.Text = M.GoalTarget.ToString(); }   // it can also be switched from the tray menu
+        if (SettingsTab.IsChecked == true) { StartupBox.IsChecked = LNXcounter.Services.Startup.IsEnabled; AlertBox.IsChecked = M.Settings.HourAlert; WarnBox.IsChecked = M.Settings.HourWarn; AutoUpdateBox.IsChecked = M.Settings.AutoUpdateCheck; LowBox.IsChecked = M.Settings.LowResource; CleanBox.IsChecked = M.Settings.DeleteReadReplays; ToastBox.IsChecked = M.Settings.MatchToast; SyncHotkey(); SyncSize(); ShowOverlayChoice(); GoalOff.IsChecked = M.GoalKind == 0; GoalDay.IsChecked = M.GoalKind == 1; GoalWeek.IsChecked = M.GoalKind == 2; GoalBox.Text = M.GoalTarget.ToString(); }   // it can also be switched from the tray menu
     }
 
     void Pause_Click(object sender, RoutedEventArgs e) => M.TogglePause();
@@ -94,7 +94,76 @@ public partial class MainWindow : Window
         M.Save();
         App.Overlay.ApplyStyle();
         ShowOverlayChoice();
+        SyncSize();
     }
+
+    // ----- size of the full overlay -----
+    bool syncing;
+    System.Windows.Threading.DispatcherTimer? sizeSave;
+
+    void SyncSize()
+    {
+        syncing = true;
+        SizeSlider.Value = Math.Clamp(M.Settings.OverlayScale, 0.6, 1.6);
+        SizeText.Text = $"{Math.Round(SizeSlider.Value * 100)}%";
+        syncing = false;
+        SizeRow.IsEnabled = !M.Settings.MinimalOverlay; SizeRow.Opacity = M.Settings.MinimalOverlay ? 0.4 : 1;
+    }
+
+    void Size_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (syncing || SizeText == null) return;
+        M.Settings.OverlayScale = Math.Round(e.NewValue, 2);
+        SizeText.Text = $"{Math.Round(e.NewValue * 100)}%";
+        App.Overlay.ApplyStyle();
+        sizeSave ??= new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
+        sizeSave.Tick -= SizeSave_Tick; sizeSave.Tick += SizeSave_Tick;
+        sizeSave.Stop(); sizeSave.Start();                      // saved when the slider has stopped moving, not on every step
+    }
+
+    void SizeSave_Tick(object? sender, EventArgs e) { sizeSave?.Stop(); M.Save(); }
+
+    // ----- hotkey -----
+    bool capturing;
+
+    void SyncHotkey()
+    {
+        HotkeyBox.IsChecked = M.Settings.HotkeyOn;
+        HotkeyBtn.Content = Hotkey.Describe(M.Settings.HotkeyMods, M.Settings.HotkeyKey);
+        capturing = false;
+    }
+
+    void Hotkey_Toggle(object sender, RoutedEventArgs e)
+    {
+        M.Settings.HotkeyOn = HotkeyBox.IsChecked == true;
+        bool ok = Hotkey.Apply(M.Settings.HotkeyOn, M.Settings.HotkeyMods, M.Settings.HotkeyKey);
+        HotkeyMsg.Text = ok ? "" : Loc.T("Another program already uses these keys.");
+        M.Save();
+    }
+
+    void HotkeyBtn_Click(object sender, RoutedEventArgs e) { capturing = true; HotkeyMsg.Text = ""; HotkeyBtn.Content = Loc.T("Press the keys…"); }
+
+    void HotkeyBtn_Lost(object sender, RoutedEventArgs e) { if (capturing) SyncHotkey(); }
+
+    void HotkeyBtn_Key(object sender, KeyEventArgs e)
+    {
+        if (!capturing) return;
+        e.Handled = true;
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        if (key == Key.Escape) { SyncHotkey(); return; }
+        if (key is Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt or Key.LeftShift or Key.RightShift or Key.LWin or Key.RWin or Key.None) return;   // wait for the real key
+        uint mods = (uint)Keyboard.Modifiers;                   // Alt 1, Ctrl 2, Shift 4, Win 8: the same bits as the Windows API
+        if (mods == 0) { HotkeyMsg.Text = Loc.T("Add Ctrl, Alt, Shift or Win to the key."); return; }
+        uint vk = (uint)KeyInterop.VirtualKeyFromKey(key);
+        uint oldMods = M.Settings.HotkeyMods, oldKey = M.Settings.HotkeyKey;
+        if (Hotkey.Apply(true, mods, vk)) { M.Settings.HotkeyMods = mods; M.Settings.HotkeyKey = vk; M.Settings.HotkeyOn = true; HotkeyMsg.Text = ""; M.Save(); }
+        else { Hotkey.Apply(M.Settings.HotkeyOn, oldMods, oldKey); HotkeyMsg.Text = Loc.T("Another program already uses these keys. The old ones are kept."); }
+        SyncHotkey();
+    }
+
+    // ----- match pop-up -----
+    void MatchToast_Click(object sender, RoutedEventArgs e) { M.Settings.MatchToast = ToastBox.IsChecked == true; M.Save(); }
+    void MatchToastTest_Click(object sender, RoutedEventArgs e) => MatchToast.Show(12, 1, true, M.SessionOpened + 12, M.TotalOpened);
 
     void Nudge_Click(object sender, RoutedEventArgs e)
     {

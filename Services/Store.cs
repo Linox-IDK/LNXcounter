@@ -78,6 +78,14 @@ public class Settings
     /// <summary>Fine-tuning of the small overlay under the minimap, in pixels of a 1080p screen (Settings has the arrows).</summary>
     public double OverlayNudgeX { get; set; }
     public double OverlayNudgeY { get; set; }
+    /// <summary>Size of the full (framed) overlay, 0.6 to 1.6. The small style scales with the game instead.</summary>
+    public double OverlayScale { get; set; } = 1.0;
+    /// <summary>A silent pop-up after each new match is read.</summary>
+    public bool MatchToast { get; set; } = true;
+    /// <summary>Global hotkey that shows / hides the overlay: modifiers (Alt 1, Ctrl 2, Shift 4, Win 8) and a virtual-key code. Default Ctrl+Alt+O.</summary>
+    public bool HotkeyOn { get; set; } = true;
+    public uint HotkeyMods { get; set; } = 3;
+    public uint HotkeyKey { get; set; } = 0x4F;
     /// <summary>Delete a replay for good once it was counted (never one that is less than an hour old). Off unless the user turns it on.</summary>
     public bool DeleteReadReplays { get; set; }
     /// <summary>Chests added by hand (played on another device, or before the app was installed). Counted as normal chests.</summary>

@@ -412,6 +412,37 @@
                                 <Button Style="{StaticResource GoldButton}" Content="▼" Tag="0,4" MinWidth="40" Margin="6,0,0,0" Click="Nudge_Click"/>
                                 <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Reset position'}" Tag="reset" Margin="14,0,0,0" Click="Nudge_Click"/>
                             </StackPanel>
+
+                            <TextBlock Text="{loc:Tr 'Size of the full overlay (the minimal one follows the game)'}" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,16,0,0"/>
+                            <StackPanel x:Name="SizeRow" Orientation="Horizontal" Margin="0,6,0,0">
+                                <Slider x:Name="SizeSlider" Style="{StaticResource FlatSlider}" Width="240" Minimum="0.6" Maximum="1.6" TickFrequency="0.05" IsSnapToTickEnabled="True" ValueChanged="Size_Changed"/>
+                                <TextBlock x:Name="SizeText" Margin="14,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" FontSize="13"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="22,18">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Tr 'OVERLAY HOTKEY'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
+                                       Text="{loc:Tr 'Shows or hides the overlay from the keyboard, even while you are in the game. Click the keys, then press the ones you want (with Ctrl, Alt, Shift or Win).'}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox x:Name="HotkeyBox" Style="{StaticResource SettingCheck}" Content="{loc:Tr 'Show / hide the overlay with'}" Click="Hotkey_Toggle"/>
+                                <Button x:Name="HotkeyBtn" Style="{StaticResource GoldButton}" MinWidth="150" Margin="14,0,0,0" Click="HotkeyBtn_Click" PreviewKeyDown="HotkeyBtn_Key" LostFocus="HotkeyBtn_Lost"/>
+                            </StackPanel>
+                            <TextBlock x:Name="HotkeyMsg" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="22,18">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Tr 'MATCH POP-UP'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
+                                       Text="{loc:Tr 'A silent pop-up in the bottom right corner each time a new match has been counted, for example +12 chests. It does not show after Rescan all or Re-read recent.'}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox x:Name="ToastBox" Style="{StaticResource SettingCheck}" Content="{loc:Tr 'Show a pop-up after each match'}" Click="MatchToast_Click"/>
+                                <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Test'}" Margin="18,0,0,0" MinWidth="72" Click="MatchToastTest_Click"/>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 

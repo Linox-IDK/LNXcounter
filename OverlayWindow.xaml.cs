@@ -77,7 +77,9 @@ public partial class OverlayWindow : Window
         else
         {
             Opacity = 1;
-            Width = 280; SizeToContent = SizeToContent.Height;
+            double sc = Math.Clamp(s.OverlayScale, 0.6, 1.6);
+            FullBox.LayoutTransform = sc == 1 ? Transform.Identity : new ScaleTransform(sc, sc);   // only the framed style has a size setting
+            Width = 280 * sc; SizeToContent = SizeToContent.Height;
             if (double.IsNaN(s.OverlayLeft) || double.IsNaN(s.OverlayTop))
             {
                 Left = SystemParameters.WorkArea.Right - Width - 24;
