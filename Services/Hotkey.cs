@@ -31,6 +31,7 @@ public static class Hotkey
         if (registered) { UnregisterHotKey(source.Handle, Id); registered = false; }
         if (!on || mods == 0 || key == 0) return true;
         registered = RegisterHotKey(source.Handle, Id, mods | MOD_NOREPEAT, key);
+        if (!registered) Log.Warn($"Hotkey {Describe(mods, key)} could not be registered (another program uses it)");
         return registered;
     }
 

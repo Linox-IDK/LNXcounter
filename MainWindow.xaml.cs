@@ -252,6 +252,41 @@ public partial class MainWindow : Window
         App.Restart(save: false);
     }
 
+    // ----- logs -----
+    void LogCopy_Click(object sender, RoutedEventArgs e)
+    {
+        try { System.Windows.Clipboard.SetText(LNXcounter.Services.Log.Report()); LogMsg.Text = Loc.T("Log copied. Paste it in your bug report."); }
+        catch (Exception ex) { LogMsg.Text = Loc.T("Could not copy the log: ") + ex.Message; }
+    }
+
+    void LogSave_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new SaveFileDialog { Title = Loc.T("Save the log"), Filter = "Text file (*.txt)|*.txt", DefaultExt = ".txt", AddExtension = true, FileName = $"LNXcounter-log-{DateTime.Now:yyyy-MM-dd}.txt" };
+        if (dlg.ShowDialog(this) != true) return;
+        try { System.IO.File.WriteAllText(dlg.FileName, LNXcounter.Services.Log.Report(), new System.Text.UTF8Encoding(true)); LogMsg.Text = Loc.F("Saved {0}.", System.IO.Path.GetFileName(dlg.FileName)); }
+        catch (Exception ex) { LogMsg.Text = Loc.T("Could not save the file: ") + ex.Message; }
+    }
+
+    void LogOpen_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            System.IO.Directory.CreateDirectory(LNXcounter.Services.Log.Dir);
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(LNXcounter.Services.Log.Dir) { UseShellExecute = true });
+        }
+        catch (Exception ex) { LogMsg.Text = ex.Message; }
+    }
+
+    // ----- uninstall -----
+    void Uninstall_Click(object sender, RoutedEventArgs e)
+    {
+        if (MessageBox.Show(this, Loc.T("Uninstall LNXcounter completely? Your stats, settings, logs and the program itself are deleted for good, with nothing left behind. Your Fortnite replays and the files you saved yourself are not touched. This cannot be undone."),
+                "LNXcounter", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        var err = LNXcounter.Services.Uninstaller.Start();
+        if (err != null) { LogMsg.Text = Loc.T("Uninstall failed: ") + err; return; }
+        App.Quit(save: false);   // the hidden script deletes everything as soon as the app is closed
+    }
+
     void Kofi_Click(object sender, RoutedEventArgs e)
     {
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://ko-fi.com/lnxidk") { UseShellExecute = true }); } catch { }

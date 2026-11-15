@@ -85,6 +85,29 @@
         </Setter>
     </Style>
 
+    <!-- red button for something that cannot be undone (uninstall) -->
+    <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource GoldButton}">
+        <Setter Property="Foreground" Value="#FFFF6B6B"/>
+        <Setter Property="BorderBrush" Value="#99FF6B6B"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="b" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="14,7">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="b" Property="Background" Value="#33FF4D4D"/>
+                            <Setter TargetName="b" Property="BorderBrush" Value="#FFFF6B6B"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ===== Thin gold scrollbar (no arrows) ===== -->
     <Style x:Key="ScrollPageButton" TargetType="RepeatButton">
         <Setter Property="Focusable" Value="False"/>

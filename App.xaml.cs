@@ -69,7 +69,12 @@ public partial class App : Application
         showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, "LNXcounter.ShowMain");
         new Thread(() => { while (showEvent.WaitOne()) Dispatcher.BeginInvoke(ShowMain); }) { IsBackground = true }.Start();
 
-        SessionEnding += (_, _) => { try { Model?.Save(); } catch { } };   // Windows is shutting down or logging off: save first
+        SessionEnding += (_, _) => { try { Log.Info("Windows is ending the session"); Model?.Save(); } catch { } };   // Windows is shutting down or logging off: save first
+        // anything that goes wrong without being caught is written to the log first (see Settings > Data > Logs)
+        DispatcherUnhandledException += (_, ev) => Log.Error("Unhandled error", ev.Exception);
+        AppDomain.CurrentDomain.UnhandledException += (_, ev) => Log.Error("Fatal error" + (ev.IsTerminating ? " (the app closes)" : ""), ev.ExceptionObject as Exception);
+        TaskScheduler.UnobservedTaskException += (_, ev) => Log.Warn("Background task error: " + ev.Exception.GetBaseException().Message);
+        Log.Info($"LNXcounter {Version} started" + (e.Args.Contains("--startup") ? " (with Windows)" : "") + (Low ? ", low-resource mode" : ""));
         Model = new AppModel();
         Model.Start();
         if (!Model.Settings.LowChecked)
@@ -178,6 +183,7 @@ public partial class App : Application
     public static void Quit(bool save = true)
     {
         Quitting = true;
+        Log.Info("LNXcounter closed");
         var app = (App)Current;
         if (save) Model.Save();
         app.tray?.Dispose();

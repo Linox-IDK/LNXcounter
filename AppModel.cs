@@ -192,6 +192,7 @@ public class AppModel : Notify
     {
         Save();
         File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(state, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+        Log.Info("Backup saved");
     }
 
     /// <summary>Loads a backup file as this app's data. Returns an error text, or null when it worked (the app then restarts).</summary>
@@ -199,7 +200,7 @@ public class AppModel : Notify
     {
         StateFile? s;
         try { s = System.Text.Json.JsonSerializer.Deserialize<StateFile>(File.ReadAllText(path)); }
-        catch { return Loc.T("That file is not a LNXcounter backup."); }
+        catch (Exception ex) { Log.Warn("Restore: not a backup file: " + ex.Message); return Loc.T("That file is not a LNXcounter backup."); }
         if (s == null || s.Matches == null || s.Settings == null || (s.Matches.Count == 0 && s.Settings.ManualChests == 0 && s.Found.Count == 0))
             return Loc.T("That file is not a LNXcounter backup (or it is empty).");
         // the folder and the overlay position belong to this PC, not to the backup
@@ -207,6 +208,7 @@ public class AppModel : Notify
         s.Settings.ReplayFolder = mine.ReplayFolder; s.Settings.OverlayLeft = mine.OverlayLeft; s.Settings.OverlayTop = mine.OverlayTop;
         s.Settings.OverlayVisible = mine.OverlayVisible; s.Settings.OverlayCollapsed = mine.OverlayCollapsed;
         Store.Save(s);   // keeps the previous save as state.json.bak
+        Log.Info($"Backup restored: {s.Matches.Count} match(es)");
         return null;
     }
 
@@ -239,11 +241,11 @@ public class AppModel : Notify
         var (info, err) = await Updater.CheckAsync();
         if (info != null)
         {
-            update = info; UpdateAvailable = true;
+            update = info; UpdateAvailable = true; Log.Info($"Update available: {info.Tag}");
             UpdateHeadline = Loc.F("New update available {0}", info.Tag);
             UpdateNote = Loc.F("You have v{0}. Press Update to download it ({1} MB) and restart.", Updater.Current.ToString(3), info.Size / 1_048_576);
         }
-        else if (err != null) { if (manual) UpdateNote = err; }
+        else if (err != null) { Log.Warn("Update check: " + err); if (manual) UpdateNote = err; }
         else
         {
             update = null; UpdateAvailable = false;
@@ -258,7 +260,8 @@ public class AppModel : Notify
         UpdateBusy = true;
         var res = await Updater.InstallAsync(update, new Progress<int>(p => UpdateNote = Loc.F("Downloading {0}... {1}%", update.Tag, p)));
         UpdateBusy = false;
-        if (res != null) { UpdateNote = res; return; }
+        if (res != null) { Log.Error("Update failed: " + res); UpdateNote = res; return; }
+        Log.Info($"Updated to {update.Tag}, restarting");
         UpdateNote = Loc.T("Updated. Restarting...");
         await Task.Delay(600);
         App.Restart();
@@ -349,10 +352,13 @@ public class AppModel : Notify
 
     void UpdateFolder()
     {
+        bool was = FolderOk;
         FolderOk = Directory.Exists(ReplayFolder);
+        if (FolderOk != was || folderLogged != ReplayFolder) { folderLogged = ReplayFolder; Log.Info(FolderOk ? $"Replay folder: {ReplayFolder}" : $"Replay folder not found: {ReplayFolder}"); }
         FolderText = ReplayFolder;
     }
 
+    string? folderLogged;
     public void SetFolder(string folder) { Settings.ReplayFolder = folder; UpdateFolder(); Save(); _ = ScanAsync(); }
     public void Save() => Store.Save(state);
 
@@ -461,8 +467,9 @@ public class AppModel : Notify
                     state.Matches.Add(rec);
                     foreach (var tf in rec.Finds.Where(x => x.Mine && x.DropId != ""))
                         Drops?.AutoFound(tf.DropId == "token" ? "token" : $"w{tf.Week}:{tf.DropId}");   // a golden chest reward of yours ticks itself
-                    if (rec.Error != null) failed++;
-                    else if (firstScanDone)
+                    if (rec.Error != null) { failed++; Log.Warn($"Replay could not be read: {rec.File} ({f.Length / 1048576} MB): {rec.Error}"); }
+                    else Log.Info($"Match read: {rec.File} ({f.Length / 1048576} MB), {rec.Opened} chests opened{(old != null ? " (read again, it had grown)" : "")}");
+                    if (rec.Error == null && firstScanDone)
                     {
                         SessionOpened += delta; LastMatchOpened = rec.Opened;
                         // only a match that was never read before: not a replay that was still growing, and nothing after "Rescan all" (firstScanDone is false then)
@@ -474,6 +481,7 @@ public class AppModel : Notify
                 if (dirty && (k == order.Count - 1 || (DateTime.UtcNow - lastSave).TotalSeconds >= 1)) { Rebuild(); Save(); lastSave = DateTime.UtcNow; dirty = false; }
             }
             sw.Stop(); await ticker;
+            if (order.Count > 0) Log.Info($"Scan finished: {done} replay(s) in {sw.Elapsed.TotalSeconds:0.0}s, {par} at a time{(waited ? ", some waited for the lobby" : "")}");
             if (dirty) { Rebuild(); Save(); }
             if (toastMatches > 0 && state.Settings.MatchToast) MatchToast.Show(toastChests, toastMatches, toastTreasure, SessionOpened, TotalOpened);
             if (waited && InMatch) { Status = Loc.T("Waiting for the lobby to read your matches…"); firstScanDone = true; return; }
@@ -483,7 +491,7 @@ public class AppModel : Notify
             Status = failed > 0 ? Loc.F("Watching for new matches  ·  {0} replay(s) could not be read (game update?)", failed)
                 : inProgress ? Loc.T("Match in progress, it will be counted as soon as it ends") : Loc.T("Watching for new matches");
         }
-        catch (Exception e) { Status = Loc.T("Scan error: ") + e.Message; }
+        catch (Exception e) { Log.Error("Scan error", e); Status = Loc.T("Scan error: ") + e.Message; }
         finally { scanning = false; MemoryTrim.Busy = false; if (Paused) Status = PausedText; }
     }
 
@@ -585,9 +593,10 @@ public class AppModel : Notify
                 Rebuild(); Save();
             }
             MemoryTrim.Schedule(3000);
+            Log.Info($"Re-read {files.Count} match(es), {changed} changed");
             Status = Loc.F("Re-read {0} matches, {1} changed", files.Count, changed);
         }
-        catch (Exception e) { Status = Loc.T("Scan error: ") + e.Message; }
+        catch (Exception e) { Log.Error("Re-read error", e); Status = Loc.T("Scan error: ") + e.Message; }
         finally { scanning = false; }
     }
 
@@ -597,12 +606,13 @@ public class AppModel : Notify
         state.Matches.RemoveAll(m => File.Exists(Path.Combine(ReplayFolder, m.File))); known.Clear(); foreach (var m in state.Matches) known.Add(m.File);
         failed = 0; firstScanDone = false; Paused = false;
         SessionOpened = 0; LastMatchOpened = -1;
+        Log.Info("Rescan all started");
         Rebuild(); Save();
         await ScanAsync();
     }
 
     bool fortniteRunning;
-    public bool FortniteRunning { get => fortniteRunning; private set => Set(ref fortniteRunning, value); }
+    public bool FortniteRunning { get => fortniteRunning; private set { if (Set(ref fortniteRunning, value)) Log.Info(value ? "Fortnite started" : "Fortnite closed"); } }
     bool inMatch;
     /// <summary>Fortnite is open and a replay is being written right now, i.e. a match is being played (not the lobby).</summary>
     public bool InMatch { get => inMatch; private set => Set(ref inMatch, value); }

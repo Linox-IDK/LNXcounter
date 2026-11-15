@@ -120,7 +120,8 @@ public static class Store
     {
         foreach (var p in new[] { FilePath, FilePath + ".bak" })
         {
-            try { if (File.Exists(p)) return JsonSerializer.Deserialize<StateFile>(File.ReadAllText(p)) ?? new(); } catch { }
+            try { if (File.Exists(p)) return JsonSerializer.Deserialize<StateFile>(File.ReadAllText(p)) ?? new(); }
+            catch (Exception ex) { Log.Error($"Could not read {Path.GetFileName(p)}" + (p == FilePath ? ", trying the backup" : ""), ex); }
         }
         return new();
     }
@@ -141,6 +142,6 @@ public static class Store
             if (File.Exists(FilePath)) File.Copy(FilePath, FilePath + ".bak", true);
             File.Move(tmp, FilePath, true);
         }
-        catch { }
+        catch (Exception ex) { Log.Error("Could not save state.json", ex); }
     }
 }

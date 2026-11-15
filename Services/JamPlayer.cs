@@ -122,6 +122,7 @@ public class JamPlayer : Notify
         catch (Exception e)
         {
             Log("start failed: " + e);
+            LNXcounter.Services.Log.Error("Jam track preview could not start", e);
             IsLoading = false; IsPlaying = false; Failed = true;
             Message = e is WebView2RuntimeNotFoundException ? "Preview needs the Microsoft Edge WebView2 runtime." : "Could not start the preview: " + e.Message;
         }
@@ -202,6 +203,7 @@ public class JamPlayer : Notify
                 case "error":
                     IsPlaying = false; IsLoading = false; Failed = true;
                     Message = "YouTube would not play this one inside the app.";
+                    LNXcounter.Services.Log.Warn($"Jam track {videoId}: YouTube would not play it inside the app");
                     break;
             }
         }
