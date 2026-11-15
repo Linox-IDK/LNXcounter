@@ -59,7 +59,7 @@ public static class DropsData
     // Weeks 3 to 5: names only (leaked, not confirmed by Epic yet), no pictures yet, so the tiles show the "?" placeholder.
     static WeekItem Named(string category, string title) => new("unknown", category, title, NoImage: true);
 
-    static Dictionary<string, WeekItem> NamedItems(string outfit, string backBling, string car, string jam, string loading)
+    static Dictionary<string, WeekItem> NamedItems(string outfit, string backBling, string car, string jam, string loading, string? video = null, string? song = null)
     {
         var d = new Dictionary<string, WeekItem>
         {
@@ -67,15 +67,15 @@ public static class DropsData
             ["outfit"]  = Named("OUTFIT", outfit),
             ["pickaxe"] = Named("BACK BLING", backBling),
             ["vehicle"] = Named("CAR", car),
-            ["jam"]     = Named("JAM TRACK", jam),
+            ["jam"]     = new("unknown", "JAM TRACK", jam, false, video, song, true),
             ["loading"] = Named("LOADING SCREEN", loading),
         };
         AddGizmos(d); return d;
     }
 
-    static Dictionary<string, WeekItem> Week3Items() => NamedItems("SOLID GOLD MIKU", "MIKU'S TAKARABAKO", "CORVETTE ZR1", "PPPP", "MAY FORTUNE FIND YOU");
+    static Dictionary<string, WeekItem> Week3Items() => NamedItems("SOLID GOLD MIKU", "MIKU'S TAKARABAKO", "CORVETTE ZR1", "PPPP", "MAY FORTUNE FIND YOU", "8Cm-7oCq9HA", "PPPP · TAK feat. Hatsune Miku & Kasane Teto");
     static Dictionary<string, WeekItem> Week4Items() => NamedItems("SOLID GOLD KASANE TETO", "ROGUE WAVE AND TIDEWALKER", "LAMBORGHINI URUS SE", "SEA SHANTY", "OSCAR'S WRAPS");
-    static Dictionary<string, WeekItem> Week5Items() => NamedItems("SOLID GOLD CAPTAIN X", "ROASTED MEAT", "G-WAGON", "I FOLLOW RIVERS", "JONES AND THE STRAW HATS");
+    static Dictionary<string, WeekItem> Week5Items() => NamedItems("SOLID GOLD CAPTAIN X", "ROASTED MEAT", "G-WAGON", "I FOLLOW RIVERS", "JONES AND THE STRAW HATS", "9dzub7uXWl4", "I Follow Rivers · Lykke Li");
 
     // Week boundaries are estimates (assumed 14:00 UTC). Week names come from fortnite.bot/treasure.
     public static readonly List<WeekDef> Weeks = new()

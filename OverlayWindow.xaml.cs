@@ -129,10 +129,10 @@ public partial class OverlayWindow : Window
         double y = top + UnderMap * s + set.OverlayNudgeY * s - Pad * s;
         Left = x / dpi; Top = y / dpi;
 
-        // only while Fortnite is the window in front (on the desktop or in another program it would just float there), and while this app is in front
-        // so that the position can be checked and fine-tuned in Settings
+        // shown for as long as Fortnite is open with a visible window (not minimized), whatever is in front of it or whether the main window is open,
+        // hidden or closed to the tray; with no game it only shows while this app is in front, so that the position can be checked and fine-tuned in Settings
         GetWindowThreadProcessId(GetForegroundWindow(), out uint fg);
-        Opacity = (inGame && fg == (uint)AppModel.FortnitePid) || fg == (uint)Environment.ProcessId ? 1 : 0;
+        Opacity = inGame || fg == (uint)Environment.ProcessId ? 1 : 0;
     }
 
     void ApplyCollapsed(bool collapsed)
