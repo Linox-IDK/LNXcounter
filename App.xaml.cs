@@ -17,7 +17,7 @@ public partial class App : Application
 
     Mutex? mutex;
     EventWaitHandle? showEvent;
-    System.Windows.Forms.NotifyIcon? tray;
+    TrayIcon? tray;
     Window? helper;
     bool trayTipShown;
 
@@ -25,6 +25,8 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        // every animation (the pulses, the floating token) is capped at 24 frames per second instead of 60: far less CPU, no visible difference
+        System.Windows.Media.Animation.Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(System.Windows.Media.Animation.Timeline), new FrameworkPropertyMetadata(24));
         base.OnStartup(e);
         Loc.Install();   // texts follow the language of Windows
 
@@ -70,8 +72,8 @@ public partial class App : Application
     void KeepMemoryLow()
     {
         MemoryTrim.Schedule(5000);
-        MainWindow.IsVisibleChanged += (_, _) => MemoryTrim.Schedule(MainWindow.IsVisible ? 6000 : 2000);
-        MainWindow.StateChanged += (_, _) => MemoryTrim.Schedule(MainWindow.WindowState == WindowState.Minimized ? 2000 : 6000);
+        MainWindow.IsVisibleChanged += (_, _) => { MemoryTrim.Schedule(MainWindow.IsVisible ? 6000 : 2000); Model.Wake(); };
+        MainWindow.StateChanged += (_, _) => { MemoryTrim.Schedule(MainWindow.WindowState == WindowState.Minimized ? 2000 : 6000); Model.Wake(); };
         var t = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
         t.Tick += (_, _) => { if (!MainWindow.IsVisible || MainWindow.WindowState == WindowState.Minimized) MemoryTrim.Now(); };
         t.Start();
@@ -79,17 +81,8 @@ public partial class App : Application
 
     void CreateTray()
     {
-        tray = new System.Windows.Forms.NotifyIcon
-        {
-            Icon = System.Drawing.Icon.ExtractAssociatedIcon(Environment.ProcessPath!),
-            Text = "LNXcounter",
-            Visible = true,
-        };
-        tray.MouseUp += (_, ev) => Dispatcher.BeginInvoke(() =>
-        {
-            if (ev.Button == System.Windows.Forms.MouseButtons.Left) ShowMain();
-            else if (ev.Button == System.Windows.Forms.MouseButtons.Right) ShowTrayMenu();
-        });
+        tray = new TrayIcon(Environment.ProcessPath!, "LNXcounter");
+        tray.Clicked += right => Dispatcher.BeginInvoke(() => { if (right) ShowTrayMenu(); else ShowMain(); });
         void UpdateTip() => tray.Text = $"LNXcounter - {Model.TotalOpened} chests";
         UpdateTip();
         Model.PropertyChanged += (_, ev) => { if (ev.PropertyName == nameof(AppModel.TotalOpened)) UpdateTip(); };
@@ -110,12 +103,12 @@ public partial class App : Application
         var app = (App)Current;
         if (app.trayTipShown || app.tray == null) return;
         app.trayTipShown = true;
-        app.tray.ShowBalloonTip(3000, "LNXcounter is still running",
-            "Left-click the tray icon to reopen it, right-click for options.", System.Windows.Forms.ToolTipIcon.Info);
+        app.tray.ShowBalloon("LNXcounter is still running", "Left-click the tray icon to reopen it, right-click for options.");
     }
 
     void ShowTrayMenu()
     {
+        Model.Wake();
         // WPF menus need a focused window to close properly when you click elsewhere
         helper ??= new Window
         {
@@ -146,6 +139,7 @@ public partial class App : Application
     {
         Model.Settings.OverlayVisible = visible;
         if (visible) Overlay.Show(); else Overlay.Hide();
+        Model.Wake();
         Model.Save();
     }
 
@@ -161,7 +155,7 @@ public partial class App : Application
         Quitting = true;
         var app = (App)Current;
         if (save) Model.Save();
-        if (app.tray != null) { app.tray.Visible = false; app.tray.Dispose(); }
+        app.tray?.Dispose();
         Overlay.Close();
         Current.MainWindow?.Close();
         Current.Shutdown();

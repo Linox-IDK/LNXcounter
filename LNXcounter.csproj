@@ -3,7 +3,8 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
+    <!-- only the languages the app is translated into: the .NET runtime ships 13 sets of translated texts, about 14 MB -->
+    <SatelliteResourceLanguages>en;fr;es;de</SatelliteResourceLanguages>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>LNXcounter</AssemblyName>

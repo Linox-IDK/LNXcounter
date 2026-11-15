@@ -8,9 +8,15 @@ Every update of LNXcounter, newest first. Download any version from the [Release
 - **The app no longer fights the game for your CPU.** Nothing new is read while a match is being played: it waits for the lobby (the status says *Waiting for the lobby to read your matches...*), then reads everything that is queued.
 - **No more stalls while reading.** The memory cleaner used to run in the middle of a read, forcing the reader to reload its memory again and again; it now waits until the reading is finished.
 - **A live counter** next to the status (*Reading match 3/12... 8s*) shows that it is working, and the screen and the save file are refreshed as results arrive instead of after every single replay.
-- **A damaged or unsupported replay can no longer freeze the reader.** If one makes the replay library loop on the same spot, or takes more than two minutes, it is skipped and reported as unreadable instead of hanging the whole scan.
+- **A damaged or unsupported replay can no longer freeze the reader.** If one makes the replay library loop on the same spot, or takes far longer than a normal match (a normal one takes 1 to 3 seconds), it is skipped and reported as unreadable instead of hanging the whole scan.
 - Fixed the status briefly flashing *Reading match 0/0...* every two seconds when there was nothing to read.
 - Counts are exactly the same as before: all 100 replays on disk give identical results read one by one or in parallel.
+
+**Lighter on disk, CPU and memory**
+- **The exe is 38 MB smaller** (170 MB down to 132 MB): the tray icon no longer needs Windows Forms, and the unused translations that come with .NET are left out.
+- **About 3 times less CPU with the window open** (Overview tab: about 31% of one core down to about 9%): the pulsing dots and the floating token now run at 24 images per second instead of 60.
+- **Almost nothing when hidden in the tray:** the clock and the replay check slow down to once every 5 seconds while the window and the overlay are closed (they are instant again as soon as you open them), and Fortnite is looked for every 3 seconds instead of every second.
+- **Less memory while reading in the tray:** 2 replays are read at a time while the window is hidden (up to 4 when it is open).
 
 ## v1.20.2
 **Treasure Hour extended**

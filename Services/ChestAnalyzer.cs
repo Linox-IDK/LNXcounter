@@ -21,7 +21,8 @@ public static class ChestAnalyzer
         try
         {
             using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-            var reader = new ChestReader();
+            // a normal match is read in 1 to 3 seconds; a replay that takes ten times longer than that is stuck, so it is given up on (and tried again later)
+            var reader = new ChestReader { LimitSeconds = 30 + fs.Length / 1048576.0 * 1.5 };
             reader.ReadReplay(fs);
             reader.Fill(rec);
         }
@@ -128,6 +129,7 @@ public static class ChestAnalyzer
         public ChestReader() : base(null!, ParseMode.Full) { }
 
         readonly System.Diagnostics.Stopwatch clock = System.Diagnostics.Stopwatch.StartNew();
+        public double LimitSeconds = 120;
         DataBunch? lastBunch; int lastPos = -1, same;
         /// <summary>Some replays make the library read the same spot forever (a content block that never advances). Stop that replay instead of hanging.</summary>
         public override uint? ReadContentBlockPayload(DataBunch bunch, out bool bObjectDeleted, out bool bOutHasRepLayout, out uint? payload)
@@ -137,7 +139,7 @@ public static class ChestAnalyzer
             same = ReferenceEquals(lastBunch, bunch) && pos == lastPos ? same + 1 : 0;
             lastBunch = bunch; lastPos = pos;
             if (same >= 200) throw new InvalidDataException("Replay could not be read (unsupported or damaged)");
-            if ((same & 1023) == 0 || (lastPos & 255) == 0) { if (clock.Elapsed.TotalSeconds > 120) throw new TimeoutException("Replay took too long to read"); }
+            if ((same & 1023) == 0 || (lastPos & 255) == 0) { if (clock.Elapsed.TotalSeconds > LimitSeconds) throw new TimeoutException("Replay took too long to read"); }
             return r;
         }
 

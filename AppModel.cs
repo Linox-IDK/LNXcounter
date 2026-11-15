@@ -400,7 +400,8 @@ public class AppModel : Notify
             // The replays are read several at a time (each on its own thread, one core each); the results are then taken in order.
             // Nothing new is started during a match, so the game keeps the CPU: those replays are simply read once back in the lobby.
             var order = todo.OrderBy(f => f.LastWriteTimeUtc).ToList();
-            int par = Math.Clamp(Environment.ProcessorCount / 2, 1, 4), done = 0;
+            // nobody is watching while the window is hidden: 2 readers there (less memory at once), up to 4 when you look at it
+            int par = Math.Clamp(Environment.ProcessorCount / 2, 1, System.Windows.Application.Current?.MainWindow is { IsVisible: true } ? 4 : 2), done = 0;
             string Label() => Loc.F(order.Count > 0 && order.All(f => mapOnly.Contains(f.Name)) ? "Adding map data {0}/{1}…" : "Reading match {0}/{1}…", Math.Min(done + 1, order.Count), order.Count);
             MemoryTrim.Busy = order.Count > 0;
             var gate = new System.Threading.SemaphoreSlim(par);
@@ -565,10 +566,18 @@ public class AppModel : Notify
         catch { return false; }
     }
 
+    DateTime nextFortniteCheck;
+    /// <summary>Refreshes the clocks right away (the window or the tray menu was just opened).</summary>
+    public void Wake() { nextFortniteCheck = default; Tick(); }
+
     void Tick()
     {
         var now = DateTime.UtcNow;
-        FortniteRunning = IsFortniteUp();
+        // hidden in the tray with no overlay nobody sees the seconds, so the clock runs once every 5 s (the alerts have minutes of leeway)
+        bool live = System.Windows.Application.Current?.MainWindow is { IsVisible: true, WindowState: not System.Windows.WindowState.Minimized } || App.Overlay?.IsVisible == true;
+        var every = TimeSpan.FromSeconds(live ? 1 : 5);
+        if (clockTimer.Interval != every) { clockTimer.Interval = every; scanTimer.Interval = TimeSpan.FromSeconds(live ? 2 : 5); }   // a replay is only read once it is 8 s old, so 5 s is fast enough for the tray
+        if (now >= nextFortniteCheck) { nextFortniteCheck = now.AddSeconds(3); FortniteRunning = IsFortniteUp(); }   // listing every process is not free: every 3 s is enough
         if (!FortniteRunning) InMatch = false;
         else if (now >= nextMatchCheck) { nextMatchCheck = now.AddSeconds(2); InMatch = IsMatchBeingRecorded(); }
         Drops?.Tick();
