@@ -23,7 +23,7 @@ public partial class MainWindow : Window
             else if (a.StartsWith("--goal=")) { var gp = a[7..].Split(','); if (gp.Length == 2 && int.TryParse(gp[0], out var gk) && int.TryParse(gp[1], out var gt)) App.Model.SetGoal(gk, gt); }
             else if (a == "--map") { var mt = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(10) }; mt.Tick += (_, _) => { mt.Stop(); if (App.Model.Matches.FirstOrDefault(x => x.Spots.Count > 0) is { } mm) new MapWindow(mm) { Owner = this }.Show(); }; mt.Start(); }
             else if (a == "--updatenow") { var ut = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(22) }; ut.Tick += async (_, _) => { ut.Stop(); await App.Model.InstallUpdateAsync(); }; ut.Start(); }
-            else if (a == "--scrollend") Loaded += (_, _) => Dispatcher.BeginInvoke(() => SettingsPanel.ScrollToEnd(), System.Windows.Threading.DispatcherPriority.ContextIdle);
+            else if (a == "--scrollend") Loaded += (_, _) => Dispatcher.BeginInvoke(() => SettingsScroll.ScrollToEnd(), System.Windows.Threading.DispatcherPriority.ContextIdle);
             else if (a == "--fakehour") App.Model.Drops.ForceHour(new LNXcounter.Services.TreasureWindow(DateTime.UtcNow.AddHours(-1), DateTime.UtcNow.AddHours(1), true));
             else if (a == "--selftest-found") { foreach (var t in App.Model.Drops.Tiles.Where(t => t.Title.Contains("TOKEN") || t.Category == "OUTFIT")) t.SetFoundSilently(true); }
             else if (a.StartsWith("--open=")) { var t = App.Model.Drops.Tiles.FirstOrDefault(x => x.Title.Contains(a[7..].ToUpperInvariant()) || x.Category == a[7..].ToUpperInvariant()); if (t != null) App.Model.Drops.OpenTile(t); }
@@ -84,6 +84,15 @@ public partial class MainWindow : Window
         if (OverviewPanel == null || DropsPanel == null || SettingsPanel == null) return; // fires once during InitializeComponent
         SwitchPanel(OverviewTab.IsChecked == true ? 0 : DropsTab.IsChecked == true ? 1 : 2);
         if (SettingsTab.IsChecked == true) { StartupBox.IsChecked = LNXcounter.Services.Startup.IsEnabled; AlertBox.IsChecked = M.Settings.HourAlert; WarnBox.IsChecked = M.Settings.HourWarn; AutoUpdateBox.IsChecked = M.Settings.AutoUpdateCheck; LowBox.IsChecked = M.Settings.LowResource; CleanBox.IsChecked = M.Settings.DeleteReadReplays; ToastBox.IsChecked = M.Settings.MatchToast; SyncHotkey(); SyncSize(); ShowOverlayChoice(); GoalOff.IsChecked = M.GoalKind == 0; GoalDay.IsChecked = M.GoalKind == 1; GoalWeek.IsChecked = M.GoalKind == 2; GoalBox.Text = M.GoalTarget.ToString(); }   // it can also be switched from the tray menu
+    }
+
+    /// <summary>Settings: shows the section picked in the list on the left.</summary>
+    void SetPage_Checked(object sender, RoutedEventArgs e)
+    {
+        if (SetData == null || SettingsScroll == null) return;   // fires while the window is being built
+        var pages = new (System.Windows.Controls.RadioButton nav, UIElement page)[] { (NavGeneral, SetGeneral), (NavOverlay, SetOverlay), (NavNotify, SetNotify), (NavCount, SetCount), (NavData, SetData) };
+        foreach (var (nav, page) in pages) page.Visibility = nav.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        SettingsScroll.ScrollToTop();
     }
 
     void Pause_Click(object sender, RoutedEventArgs e) => M.TogglePause();

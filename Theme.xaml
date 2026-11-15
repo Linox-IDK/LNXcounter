@@ -212,6 +212,41 @@
         </Setter>
     </Style>
 
+    <!-- a status line under a button: takes no room while it is empty -->
+    <Style x:Key="MsgText" TargetType="TextBlock">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Text}" Value=""><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Settings: the list of sections on the left -->
+    <Style x:Key="NavRadio" TargetType="RadioButton">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="bg" Background="Transparent" CornerRadius="8" Padding="16,9,12,10" Margin="0,0,0,4">
+                        <Grid>
+                            <Border x:Name="bar" Width="3" HorizontalAlignment="Left" Background="Transparent" CornerRadius="1.5" Margin="-10,2,0,2"/>
+                            <StackPanel>
+                                <TextBlock x:Name="t" Text="{TemplateBinding Content}" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextBrush}"/>
+                                <TextBlock x:Name="s" Text="{TemplateBinding Tag}" FontSize="11.5" Foreground="{StaticResource MutedBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bg" Property="Background" Value="#14D4AF37"/></Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="bg" Property="Background" Value="#26D4AF37"/>
+                            <Setter TargetName="bar" Property="Background" Value="{StaticResource GoldBrush}"/>
+                            <Setter TargetName="t" Property="Foreground" Value="{StaticResource GoldBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- "found" tick shown on each drop tile -->
     <Style x:Key="FoundCheck" TargetType="CheckBox">
         <Setter Property="Cursor" Value="Hand"/>
