@@ -511,8 +511,6 @@ public class AppModel : Notify
                     if (old != null) state.Matches.Remove(old);
                     known.Add(rec.File);
                     state.Matches.Add(rec);
-                    foreach (var tf in rec.Finds.Where(x => x.Mine && x.DropId != ""))
-                        Drops?.AutoFound(tf.DropId == "token" ? "token" : $"w{tf.Week}:{tf.DropId}");   // a golden chest reward of yours ticks itself
                     if (rec.Error != null) { failed++; Log.Warn($"Replay could not be read: {rec.File} ({f.Length / 1048576} MB): {rec.Error}"); }
                     else Log.Info($"Match read: {rec.File} ({f.Length / 1048576} MB), {rec.Opened} chests opened{(old != null ? " (read again, it had grown)" : "")}");
                     if (rec.Error == null && firstScanDone)

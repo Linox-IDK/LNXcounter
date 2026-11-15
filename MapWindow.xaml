@@ -11,7 +11,7 @@
             <Grid Background="Transparent" MouseLeftButtonDown="Title_Down">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/Assets/logo.png" Width="26" Height="26" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <TextBlock x:Name="TitleText" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="18" FontWeight="Bold" Foreground="{StaticResource GoldGradient}"/>
+                    <TextBlock FontFamily="{StaticResource PirateFont}" x:Name="TitleText" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="18" Foreground="{StaticResource GoldGradient}"/>
                 </StackPanel>
                 <Button Style="{StaticResource CaptionButton}" Content="✕" HorizontalAlignment="Right" Click="Close_Click"/>
             </Grid>

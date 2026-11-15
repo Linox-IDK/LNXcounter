@@ -26,6 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\*.png" />
+    <Resource Include="Assets\*.ttf" />
     <Resource Include="Assets\map.jpg" />
   </ItemGroup>
 </Project>

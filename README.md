@@ -165,4 +165,5 @@ Questions, bugs or ideas? You can DM me on Discord:
 - Treasure Hours, drop rates and the weekly rewards come from [fortnite.bot/treasure](https://fortnite.bot/treasure) and from Epic Games' announcements.
 - The idea of reading the Treasure Hunters rewards (golden chest prize ids, equipped gizmos) from the replay was inspired by [LED-N's Fortnite-ChestCounter](https://github.com/LED-N/Fortnite-ChestCounter) (MIT). LNXcounter uses its own code. The prize ids of the known rewards come from that project's public list.
 - Jam track previews play the official YouTube videos through YouTube's own embedded player. Nothing is downloaded or copied.
+- The lettering uses [Pirata One](https://fonts.google.com/specimen/Pirata+One) by Rodrigo Fuenzalida and Nicolas Massi, under the SIL Open Font License 1.1 (the license text is in `Assets/PirataOne-OFL.txt`).
 - **LNXcounter is a fan-made tool. It is not affiliated with, endorsed by or sponsored by Epic Games.** Fortnite and all related names, images and logos are trademarks of Epic Games, Inc.

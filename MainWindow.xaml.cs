@@ -21,6 +21,7 @@ public partial class MainWindow : Window
             else if (a.StartsWith("--addchests=") && int.TryParse(a[12..], out var ac)) App.Model.AddManual(ac);
             else if (a.StartsWith("--toast")) { int tm = a.Length > 8 && int.TryParse(a[8..], out var tv) ? tv : 0; System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(() => App.Model.TestHourAlert(tm)); }
             else if (a.StartsWith("--goal=")) { var gp = a[7..].Split(','); if (gp.Length == 2 && int.TryParse(gp[0], out var gk) && int.TryParse(gp[1], out var gt)) App.Model.SetGoal(gk, gt); }
+            else if (a.StartsWith("--card=")) { var cp = a[7..]; var ct = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(8) }; ct.Tick += (_, _) => { ct.Stop(); StatsCard.SavePng(StatsCard.Render(App.Model), cp); }; ct.Start(); }
             else if (a == "--graph") { var gt = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(6) }; gt.Tick += (_, _) => { gt.Stop(); try { new GraphWindow(App.Model) { Owner = this }.Show(); } catch (Exception ex) { Log.Error("graph test", ex); } }; gt.Start(); }
             else if (a == "--map") { var mt = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(10) }; mt.Tick += (_, _) => { mt.Stop(); if (App.Model.Matches.FirstOrDefault(x => x.Spots.Count > 0) is { } mm) new MapWindow(mm) { Owner = this }.Show(); }; mt.Start(); }
             else if (a == "--updatenow") { var ut = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(22) }; ut.Tick += async (_, _) => { ut.Stop(); await App.Model.InstallUpdateAsync(); }; ut.Start(); }
@@ -331,6 +332,25 @@ public partial class MainWindow : Window
             M.ExportMessage = Loc.F("Saved {0}.", System.IO.Path.GetFileName(dlg.FileName));
         }
         catch (Exception ex) { M.ExportMessage = Loc.T("Could not save the file: ") + ex.Message; }
+    }
+
+    void CardSave_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new SaveFileDialog
+        {
+            Title = Loc.T("Save your stats card as PNG"), Filter = "PNG image (*.png)|*.png", DefaultExt = ".png", AddExtension = true,
+            FileName = $"LNXcounter-card-{DateTime.Now:yyyy-MM-dd}.png",
+            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
+        };
+        if (dlg.ShowDialog(this) != true) return;
+        try { StatsCard.SavePng(StatsCard.Render(M), dlg.FileName); M.ExportMessage = Loc.F("Saved {0}.", System.IO.Path.GetFileName(dlg.FileName)); }
+        catch (Exception ex) { Log.Error("Stats card", ex); M.ExportMessage = Loc.T("Could not save the file: ") + ex.Message; }
+    }
+
+    void CardCopy_Click(object sender, RoutedEventArgs e)
+    {
+        try { Clipboard.SetImage(StatsCard.Render(M)); M.ExportMessage = Loc.T("Copied the card to the clipboard."); }
+        catch (Exception ex) { Log.Error("Stats card copy", ex); M.ExportMessage = Loc.T("Could not copy the card: ") + ex.Message; }
     }
 
     // click a reward tile -> details popup (the checkbox inside the tile handles its own click)

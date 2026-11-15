@@ -42,7 +42,7 @@
             <Image Source="/Assets/chest.png" Width="64" Height="64" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="Fant">
                 <Image.Effect><DropShadowEffect ShadowDepth="0" BlurRadius="5" Color="Black" Opacity="0.9"/></Image.Effect>
             </Image>
-            <TextBlock Text="{Binding OverlayNumber}" Margin="10,0,0,0" VerticalAlignment="Center" FontFamily="Segoe UI Black" FontSize="46" Foreground="White">
+            <TextBlock Text="{Binding OverlayNumber}" Margin="10,0,0,0" VerticalAlignment="Center" FontFamily="{StaticResource PirateFont}" FontSize="46" Foreground="White">
                 <TextBlock.Effect><DropShadowEffect ShadowDepth="0" BlurRadius="5" Color="Black" Opacity="1"/></TextBlock.Effect>
             </TextBlock>
         </StackPanel>

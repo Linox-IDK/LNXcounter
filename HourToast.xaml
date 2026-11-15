@@ -27,7 +27,7 @@
                                 <Ellipse x:Name="Dot" Width="9" Height="9" Fill="#FF5BE37D" VerticalAlignment="Center"/>
                                 <TextBlock x:Name="Chip" Text="{loc:Tr 'LIVE NOW'}" Margin="7,0,0,0" FontSize="11" FontWeight="Bold" Foreground="#FF5BE37D" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock Text="{loc:Tr 'TREASURE HOUR'}" FontSize="22" FontWeight="Black" Foreground="{StaticResource GoldGradient}" Margin="0,2,0,0"/>
+                            <TextBlock FontFamily="{StaticResource PirateFont}" Text="{loc:Tr 'TREASURE HOUR'}" FontSize="22" Foreground="{StaticResource GoldGradient}" Margin="0,2,0,0"/>
                             <TextBlock x:Name="Boosts" FontSize="12.5" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                             <TextBlock x:Name="Ends" FontSize="11.5" Foreground="{StaticResource MutedBrush}" Margin="0,3,0,0"/>
                         </StackPanel>

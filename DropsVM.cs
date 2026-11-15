@@ -332,16 +332,6 @@ public class DropsVM : Notify
         ? state.Found.Keys.Any(k => k == "token" || k.EndsWith(":token"))
         : state.Found.GetValueOrDefault(key);
 
-    /// <summary>A reward seen in one of the player's own replays (golden chest): ticks it as found, like the player would.</summary>
-    public void AutoFound(string key)
-    {
-        if (IsFound(key)) return;
-        state.Found[key] = true;
-        foreach (var t in Tiles.Where(t => t.Key == key)) t.SetFoundSilently(true);
-        UpdateFoundText();
-        save();
-    }
-
     public void OnFoundChanged(string key, bool value)
     {
         if (key == "token")

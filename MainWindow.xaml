@@ -17,7 +17,7 @@
             <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="TitleBar_Down" Margin="16,10,10,0">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/Assets/logo.png" Width="30" Height="30" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <TextBlock Text="LNXcounter" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{StaticResource GoldGradient}"/>
+                    <TextBlock FontFamily="{StaticResource PirateFont}" Text="LNXcounter" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="20" Foreground="{StaticResource GoldGradient}"/>
                     <Border Margin="12,0,0,0" Padding="9,2" CornerRadius="9" VerticalAlignment="Center" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1.5" ToolTip="{loc:Tr 'Your Fortnite name'}">
                         <Border.Style>
                             <Style TargetType="Border">
@@ -82,7 +82,7 @@
                         <Grid>
                             <StackPanel>
                                 <TextBlock Text="{loc:Tr 'CHESTS OPENED'}" Style="{StaticResource Label}"/>
-                                <TextBlock Text="{Binding TotalOpened}" FontSize="92" FontWeight="Bold" Foreground="{StaticResource GoldGradient}" Margin="0,-6,0,-4"/>
+                                <TextBlock FontFamily="{StaticResource PirateFont}" Text="{Binding TotalOpened}" FontSize="92" Foreground="{StaticResource GoldGradient}" Margin="0,-6,0,-4"/>
                                 <TextBlock Text="{Binding CountNote}" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
                                 <TextBlock Text="{Binding TreasureNote}" Foreground="{StaticResource GoldBrush}" FontSize="11.5" Margin="0,2,0,0"/>
                             </StackPanel>
@@ -97,19 +97,19 @@
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Style="{StaticResource Card}">
                             <StackPanel><TextBlock Text="{loc:Tr 'TREASURES'}" Style="{StaticResource Label}"/>
-                                <TextBlock Text="{Binding TotalTreasures}" FontSize="30" FontWeight="Bold" Foreground="{StaticResource GoldLightBrush}"/></StackPanel>
+                                <TextBlock FontFamily="{StaticResource PirateFont}" Text="{Binding TotalTreasures}" FontSize="30" Foreground="{StaticResource GoldLightBrush}"/></StackPanel>
                         </Border>
                         <Border Grid.Column="2" Style="{StaticResource Card}">
                             <StackPanel><TextBlock Text="{loc:Tr 'MATCHES'}" Style="{StaticResource Label}"/>
-                                <TextBlock Text="{Binding MatchCount}" FontSize="30" FontWeight="Bold" Foreground="{StaticResource GoldLightBrush}"/></StackPanel>
+                                <TextBlock FontFamily="{StaticResource PirateFont}" Text="{Binding MatchCount}" FontSize="30" Foreground="{StaticResource GoldLightBrush}"/></StackPanel>
                         </Border>
                         <Border Grid.Column="4" Style="{StaticResource Card}">
                             <StackPanel><TextBlock Text="{loc:Tr 'AVG / MATCH'}" Style="{StaticResource Label}"/>
-                                <TextBlock Text="{Binding AvgText}" FontSize="30" FontWeight="Bold" Foreground="{StaticResource GoldLightBrush}"/></StackPanel>
+                                <TextBlock FontFamily="{StaticResource PirateFont}" Text="{Binding AvgText}" FontSize="30" Foreground="{StaticResource GoldLightBrush}"/></StackPanel>
                         </Border>
                         <Border Grid.Column="6" Style="{StaticResource Card}" ToolTip="{Binding TeamNote}">
                             <StackPanel><TextBlock Text="{loc:Tr 'TEAM CHESTS'}" Style="{StaticResource Label}"/>
-                                <TextBlock Text="{Binding TeamChestsText}" FontSize="30" FontWeight="Bold" Foreground="{StaticResource GoldLightBrush}"/></StackPanel>
+                                <TextBlock FontFamily="{StaticResource PirateFont}" Text="{Binding TeamChestsText}" FontSize="30" Foreground="{StaticResource GoldLightBrush}"/></StackPanel>
                         </Border>
                     </Grid>
 
@@ -217,7 +217,7 @@
                                         <TextBlock Text="{Binding HeadBadge}" FontSize="11.5" FontWeight="Bold" Foreground="{Binding HeadBadgeFg}"/>
                                     </Border>
                                     <TextBlock Text="{Binding HeadLabel}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource MutedBrush}" Margin="0,10,0,0"/>
-                                    <TextBlock Text="{Binding HeadClock}" FontFamily="Segoe UI Black" FontSize="36" Foreground="White" Margin="0,-3,0,0"/>
+                                    <TextBlock Text="{Binding HeadClock}" FontFamily="{StaticResource PirateFont}" FontSize="36" Foreground="White" Margin="0,-3,0,0"/>
                                     <TextBlock Text="{Binding HeadWhen}" FontSize="12" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,1,0,0"/>
                                 </StackPanel>
                                 <Button Grid.Column="1" Style="{StaticResource EyeButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-12,-12,0" Click="Graph_Click" ToolTip="{loc:Tr 'Chests per day, week and month'}">
@@ -228,7 +228,7 @@
 
                             <StackPanel Grid.Row="1" Margin="20,0,20,10">
                                 <Border Height="1" Background="{StaticResource LineBrush}" Margin="-20,0,-20,14"/>
-                                <TextBlock Text="{loc:Tr 'TREASURE HOURS'}" FontFamily="Segoe UI Black" FontSize="15" Foreground="White"/>
+                                <TextBlock Text="{loc:Tr 'TREASURE HOURS'}" FontFamily="{StaticResource PirateFont}" FontSize="15" Foreground="White"/>
                                 <TextBlock Text="{loc:Tr 'Every Treasure Hour so far and announced, in Paris time'}" FontSize="11.5" Foreground="{StaticResource MutedBrush}" Margin="0,2,0,0"/>
                             </StackPanel>
 
@@ -319,7 +319,7 @@
                 <ScrollViewer x:Name="SettingsScroll" Grid.Column="1" Margin="22,0,0,0" VerticalScrollBarVisibility="Auto">
                     <Grid MaxWidth="760" HorizontalAlignment="Left">
                         <StackPanel x:Name="SetGeneral" Visibility="Visible">
-                            <TextBlock Text="{loc:Tr 'General'}" FontFamily="Segoe UI Black" FontSize="26" Foreground="White"/>
+                            <TextBlock Text="{loc:Tr 'General'}" FontFamily="{StaticResource PirateFont}" FontSize="26" Foreground="White"/>
                             <TextBlock Text="{loc:Tr 'Updates, startup and performance'}" Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,2,0,16"/>
                             <Border Style="{StaticResource Card}" Margin="0,0,0,14" Padding="22,18">
                                 <StackPanel>
@@ -407,7 +407,7 @@
                             </Button>
                         </StackPanel>
                         <StackPanel x:Name="SetOverlay" Visibility="Collapsed">
-                            <TextBlock Text="{loc:Tr 'Overlay'}" FontFamily="Segoe UI Black" FontSize="26" Foreground="White"/>
+                            <TextBlock Text="{loc:Tr 'Overlay'}" FontFamily="{StaticResource PirateFont}" FontSize="26" Foreground="White"/>
                             <TextBlock Text="{loc:Tr 'What shows over your game'}" Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,2,0,16"/>
                             <Border Style="{StaticResource Card}" Margin="0,0,0,14" Padding="22,18">
                                 <StackPanel>
@@ -448,7 +448,7 @@
                                                         <Border Width="62" Height="62" CornerRadius="3" Background="#FF86A64E" BorderBrush="#FF31401F" BorderThickness="1.5"/>
                                                         <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                                                             <Image Source="/Assets/chest.png" Width="30" Height="30" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="Fant"/>
-                                                            <TextBlock Text="{Binding OverlayNumber}" Margin="5,0,0,0" VerticalAlignment="Center" FontFamily="Segoe UI Black" FontSize="22" Foreground="White">
+                                                            <TextBlock Text="{Binding OverlayNumber}" Margin="5,0,0,0" VerticalAlignment="Center" FontFamily="{StaticResource PirateFont}" FontSize="22" Foreground="White">
                                                                 <TextBlock.Effect><DropShadowEffect ShadowDepth="0" BlurRadius="4" Color="Black" Opacity="1"/></TextBlock.Effect>
                                                             </TextBlock>
                                                         </StackPanel>
@@ -510,7 +510,7 @@
                             </Border>
                         </StackPanel>
                         <StackPanel x:Name="SetNotify" Visibility="Collapsed">
-                            <TextBlock Text="{loc:Tr 'Notifications'}" FontFamily="Segoe UI Black" FontSize="26" Foreground="White"/>
+                            <TextBlock Text="{loc:Tr 'Notifications'}" FontFamily="{StaticResource PirateFont}" FontSize="26" Foreground="White"/>
                             <TextBlock Text="{loc:Tr 'Pop-ups and alerts'}" Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,2,0,16"/>
                             <Border Style="{StaticResource Card}" Margin="0,0,0,14" Padding="22,18">
                                 <StackPanel>
@@ -541,7 +541,7 @@
                             </Border>
                         </StackPanel>
                         <StackPanel x:Name="SetCount" Visibility="Collapsed">
-                            <TextBlock Text="{loc:Tr 'Chests and goal'}" FontFamily="Segoe UI Black" FontSize="26" Foreground="White"/>
+                            <TextBlock Text="{loc:Tr 'Chests and goal'}" FontFamily="{StaticResource PirateFont}" FontSize="26" Foreground="White"/>
                             <TextBlock Text="{loc:Tr 'Your count, adjustments and targets'}" Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,2,0,16"/>
                             <Border Style="{StaticResource Card}" Margin="0,0,0,14" Padding="22,18">
                                 <StackPanel>
@@ -595,7 +595,7 @@
                             </Border>
                         </StackPanel>
                         <StackPanel x:Name="SetData" Visibility="Collapsed">
-                            <TextBlock Text="{loc:Tr 'Data'}" FontFamily="Segoe UI Black" FontSize="26" Foreground="White"/>
+                            <TextBlock Text="{loc:Tr 'Data'}" FontFamily="{StaticResource PirateFont}" FontSize="26" Foreground="White"/>
                             <TextBlock Text="{loc:Tr 'Replays, export, backup, logs and uninstall'}" Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="0,2,0,16"/>
                             <Border Style="{StaticResource Card}" Margin="0,0,0,14" Padding="22,18">
                                 <StackPanel>
@@ -620,6 +620,18 @@
                                         <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Per day'}" MinWidth="96" Tag="Daily" Click="ExportCsv_Click"/>
                                         <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Per week'}" Margin="8,0,0,0" MinWidth="96" Tag="Weekly" Click="ExportCsv_Click"/>
                                         <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Per month'}" Margin="8,0,0,0" MinWidth="96" Tag="Monthly" Click="ExportCsv_Click"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,14" Padding="22,18">
+                                <StackPanel>
+                                    <TextBlock Text="{loc:Tr 'STATS CARD'}" Style="{StaticResource Label}" Foreground="{StaticResource GoldBrush}"/>
+                                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" FontSize="13" Margin="0,8,0,12" LineHeight="19"
+                                               Text="{loc:Tr 'A picture of your numbers to share: chests, team chests, treasures, matches, best day, milestones and your last 7 days (1080 px wide, PNG). The Card button at the bottom does the same in one click.'}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Save PNG'}" MinWidth="110" Click="CardSave_Click"/>
+                                        <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Copy image'}" Margin="8,0,0,0" MinWidth="110" Click="CardCopy_Click"/>
                                     </StackPanel>
                                     <TextBlock Style="{StaticResource MsgText}" Text="{Binding ExportMessage}" Foreground="#FF6FDB8C" FontSize="13" TextWrapping="Wrap" Margin="0,10,0,0"/>
                                 </StackPanel>
@@ -698,7 +710,7 @@
                     <Image Source="{Binding Drops.HeroIcon}" Height="92" Width="92" Margin="0,0,14,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Drops.WeekLabel}" Foreground="{Binding Drops.AccentBrush}" Opacity="{Binding Drops.LabelOpacity}" FontWeight="Bold" FontSize="13"/>
-                        <TextBlock Text="{Binding Drops.Title}" FontFamily="Segoe UI Black" FontSize="36" Foreground="{Binding Drops.TitleBrush}" Margin="0,-4,0,0"/>
+                        <TextBlock Text="{Binding Drops.Title}" FontFamily="{StaticResource PirateFont}" FontSize="36" Foreground="{Binding Drops.TitleBrush}" Margin="0,-4,0,0"/>
                         <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                             <Border Width="14" Height="14" CornerRadius="3" BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="1.5" VerticalAlignment="Center">
                                 <TextBlock Text="✓" Foreground="White" FontSize="10" FontWeight="ExtraBold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0">
@@ -727,7 +739,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Drops.EndLabel}" Foreground="{StaticResource MutedBrush}" FontWeight="Bold" FontSize="11" HorizontalAlignment="Right"/>
-                        <TextBlock Text="{Binding Drops.Countdown}" Foreground="{Binding Drops.AccentBrush}" FontWeight="Bold" FontSize="30" HorizontalAlignment="Right"/>
+                        <TextBlock FontFamily="{StaticResource PirateFont}" Text="{Binding Drops.Countdown}" Foreground="{Binding Drops.AccentBrush}" FontSize="30" HorizontalAlignment="Right"/>
                     </StackPanel>
                 </Grid>
 
@@ -790,7 +802,7 @@
                                                 </Border.Background>
                                                 <StackPanel>
                                                     <TextBlock Text="{Binding Category}" FontSize="9.5" FontWeight="Bold" Foreground="#FFD7D0B8"/>
-                                                    <TextBlock Text="{Binding Title}" FontFamily="Segoe UI Black" FontSize="13" Foreground="White" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                    <TextBlock Text="{Binding Title}" FontFamily="{StaticResource PirateFont}" FontSize="13" Foreground="White" TextWrapping="Wrap" Margin="0,2,0,0"/>
                                                 </StackPanel>
                                             </Border>
                                             <CheckBox Style="{StaticResource FoundCheck}" IsChecked="{Binding Found, Mode=TwoWay}" IsEnabled="{Binding CanTick}" Visibility="{Binding CheckVisibility}"
@@ -872,7 +884,7 @@
                                                 </EventTrigger>
                                             </Ellipse.Triggers>
                                         </Ellipse>
-                                        <TextBlock Text="{loc:Tr 'DROP ODDS'}" FontFamily="Segoe UI Black" FontSize="15" Foreground="White" Margin="9,0,0,0"/>
+                                        <TextBlock Text="{loc:Tr 'DROP ODDS'}" FontFamily="{StaticResource PirateFont}" FontSize="15" Foreground="White" Margin="9,0,0,0"/>
                                     </StackPanel>
                                     <TextBlock Text="{loc:Tr 'Each chest you open in a normal match'}" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,2,0,0"/>
                                     <Border BorderBrush="{StaticResource GoldDimBrush}" BorderThickness="2,0,0,0" Margin="0,10,0,0" Padding="10,1,0,1">
@@ -910,7 +922,7 @@
                                                         <Image Source="{Binding Icon}" Margin="4" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
                                                     </local:ClipBorder>
                                                     <StackPanel Margin="62,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left">
-                                                        <TextBlock Text="{Binding Name}" FontFamily="Segoe UI Black" FontSize="14.5" Foreground="White"/>
+                                                        <TextBlock Text="{Binding Name}" FontFamily="{StaticResource PirateFont}" FontSize="14.5" Foreground="White"/>
                                                         <Border CornerRadius="5" Background="#FF14381F" Padding="6,1" Margin="0,3,0,0" HorizontalAlignment="Left">
                                                             <Border.Style>
                                                                 <Style TargetType="Border">
@@ -924,7 +936,7 @@
                                                         </Border>
                                                     </StackPanel>
                                                     <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding OneInText}" FontFamily="Segoe UI Black" FontSize="14.5" HorizontalAlignment="Right">
+                                                        <TextBlock Text="{Binding OneInText}" FontFamily="{StaticResource PirateFont}" FontSize="14.5" HorizontalAlignment="Right">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
                                                                     <Setter Property="Foreground" Value="White"/>
@@ -977,6 +989,7 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button x:Name="OverlayBtn" Style="{StaticResource GoldButton}" Content="{loc:Tr 'Overlay'}" Click="Overlay_Click" Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Card'}" Click="CardSave_Click" Margin="0,0,8,0" ToolTip="{loc:Tr 'Save a picture of your stats (PNG)'}"/>
                     <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Folder…'}" Click="Folder_Click" Margin="0,0,8,0"/>
                     <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Re-read recent'}" Click="Refresh_Click" Margin="0,0,8,0" ToolTip="{loc:Tr 'Re-reads the replays still on your PC and keeps the older matches as they are.'}"/>
                     <Button Style="{StaticResource GoldButton}" Content="{loc:Tr 'Rescan all'}" Click="Rescan_Click" Margin="0,0,8,0"/>
@@ -1000,8 +1013,8 @@
                     <StackPanel>
                         <Grid>
                             <StackPanel Margin="0,0,44,0">
-                                <TextBlock Text="{Binding Category}" FontFamily="Segoe UI Black" FontSize="11.5" Foreground="#FF9A9A9A"/>
-                                <TextBlock Text="{Binding ModalTitle}" FontFamily="Segoe UI Black" FontSize="22" Foreground="White" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                <TextBlock Text="{Binding Category}" FontFamily="{StaticResource PirateFont}" FontSize="11.5" Foreground="#FF9A9A9A"/>
+                                <TextBlock Text="{Binding ModalTitle}" FontFamily="{StaticResource PirateFont}" FontSize="22" Foreground="White" TextWrapping="Wrap" Margin="0,3,0,0"/>
                             </StackPanel>
                             <Button Content="✕" Style="{StaticResource CaptionButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-6,-8,0" Click="ModalClose_Click" FontSize="16"/>
                         </Grid>
@@ -1032,7 +1045,7 @@
                         </StackPanel>
                         <Grid Margin="0,16,0,0">
                             <Border HorizontalAlignment="Left" VerticalAlignment="Center" Background="{Binding TierBg}" CornerRadius="8" Padding="12,8">
-                                <TextBlock Text="{Binding TierText}" Foreground="{Binding TierFg}" FontFamily="Segoe UI Black" FontSize="13"/>
+                                <TextBlock Text="{Binding TierText}" Foreground="{Binding TierFg}" FontFamily="{StaticResource PirateFont}" FontSize="13"/>
                             </Border>
                             <CheckBox Style="{StaticResource FoundToggle}" IsChecked="{Binding Found, Mode=TwoWay}" IsEnabled="{Binding CanTick}" Visibility="{Binding CheckVisibility}" HorizontalAlignment="Right"/>
                         </Grid>
@@ -1066,14 +1079,14 @@
                         </Border.Background>
                     </Border>
                     <TextBlock Text="{Binding Drops.Connecting}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="52,0,0,40"
-                               FontFamily="Segoe UI Black" FontSize="46" Foreground="White">
+                               FontFamily="{StaticResource PirateFont}" FontSize="46" Foreground="White">
                         <TextBlock.Effect><DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="3" Opacity="0.85"/></TextBlock.Effect>
                     </TextBlock>
                     <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="600">
                         <Button Style="{StaticResource FnClose}" HorizontalAlignment="Right" Margin="0,0,40,-4" Click="PreviewClose_Click"/>
                         <Grid>
                             <Polygon Points="0,0 600,26 600,150 0,150" Fill="#FF34438F" Stretch="Fill"/>
-                            <TextBlock Text="{Binding Drops.Tip}" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="21" TextWrapping="Wrap" Margin="34,38,30,22"/>
+                            <TextBlock Text="{Binding Drops.Tip}" Foreground="White" FontFamily="{StaticResource PirateFont}" FontSize="21" TextWrapping="Wrap" Margin="34,38,30,22"/>
                         </Grid>
                     </StackPanel>
                 </Grid>

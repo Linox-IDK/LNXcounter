@@ -21,7 +21,7 @@
                         <Image Source="/Assets/chest.png" Width="48" Height="48" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="Fant"/>
                         <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
                             <TextBlock x:Name="Chip" Text="{loc:Tr 'MATCH COUNTED'}" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource MutedBrush}"/>
-                            <TextBlock x:Name="Big" FontSize="24" FontWeight="Black" Foreground="{StaticResource GoldGradient}" Margin="0,1,0,0"/>
+                            <TextBlock FontFamily="{StaticResource PirateFont}" x:Name="Big" FontSize="24" Foreground="{StaticResource GoldGradient}" Margin="0,1,0,0"/>
                             <TextBlock x:Name="Line" FontSize="12" Foreground="{StaticResource TextBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
                             <TextBlock x:Name="Extra" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource GoldLightBrush}" Margin="0,3,0,0" Visibility="Collapsed"/>
                         </StackPanel>

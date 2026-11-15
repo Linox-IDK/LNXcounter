@@ -7,10 +7,11 @@ Every update of LNXcounter, newest first. Download any version from the [Release
 - **Chest heat map.** The chest map (the eye on a match) has two switches at the top of the map: **Chest spots / Chest heat**, and **This match / All matches**. *Heat* paints where you open the most chests, blue to green to yellow to red; with *All matches* it shows every match still stored, so you can see your best farming spots.
 - **Chest graph.** A small graph icon above the Treasure Hour countdown opens bar graphs of the chests you opened: **daily** (last 30 days), **weekly** (last 12 weeks, Monday to Sunday) or **monthly** (last 12 months). Hover a bar for the exact count.
 - **Milestones.** Five chips on the Overview, **500, 1K, 5K, 10K and 20K chests**: gold once reached, with the chests left on hover. A pop-up announces the next one when a new match takes you over it (milestones you had already passed are not announced).
+- **Stats card (PNG).** A picture of your numbers to share, 1080 px wide in the black and gold style: chests, team chests, treasures, matches, best day, the milestone chips and a bar graph of your last 7 days. Click **Card** at the bottom of the window to save it in one click, or use *Settings > Data > Stats card* to save it or copy it to the clipboard.
+- **Pirate lettering.** Titles, numbers, tabs, buttons and labels use the *Pirata One* pirate font (included in the app, SIL Open Font License); paragraphs and tooltips keep the normal font so they stay easy to read.
 - **Animation smoothness.** *Settings > General > Animation smoothness*: **24** (default, light on the CPU), **60** or **120 FPS** for the pulses and the floating token. The app restarts to apply it.
 
 **Team chests** (also in this version)
-- **Auto-tick for week 3 rewards.** The app ticks a reward by itself when your replay shows you opening it. The token and weeks 1 and 2 already worked; week 3's **jam track (PPPP)** now does too. The other week 3 rewards tick themselves as soon as their ids are known (the log lists any id the app does not know yet).
 - **Team chests.** A 4th card on Overview, next to Treasures, Matches and Avg / match: the chests opened by **you and your teammates together**. Hover it to see your part and your teammates' part. Only your human squad mates count (not bots, not other teams), and it is never shown on the overlays. Teammates' chests are known for the matches read from now on and for the replays still on your PC (they are read again once); older matches whose replay is gone count only your own chests.
 
 ## v1.25.1

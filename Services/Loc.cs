@@ -363,6 +363,17 @@ public static class Loc
         ["ALL MATCHES"] = new[] { "TOUS LES MATCHS", "TODAS LAS PARTIDAS", "ALLE MATCHES" },
         ["All matches · {0} on the map"] = new[] { "Tous les matchs · {0} sur la carte", "Todas las partidas · {0} en el mapa", "Alle Matches · {0} auf der Karte" },
         ["Brighter and redder = more chests opened there."] = new[] { "Plus c'est clair et rouge, plus il y a de coffres ouverts.", "Más brillante y rojo = más cofres abiertos ahí.", "Heller und roter = mehr Truhen dort geöffnet." },
+        ["STATS CARD"] = new[] { "CARTE DE STATS", "TARJETA DE ESTADÍSTICAS", "STATISTIK-KARTE" },
+        ["A picture of your numbers to share: chests, team chests, treasures, matches, best day, milestones and your last 7 days (1080 px wide, PNG). The Card button at the bottom does the same in one click."] = new[] { "Une image de tes chiffres à partager : coffres, coffres d'équipe, trésors, matchs, meilleur jour, étapes et tes 7 derniers jours (1080 px de large, PNG). Le bouton Carte en bas fait la même chose en un clic.", "Una imagen de tus números para compartir: cofres, cofres de equipo, tesoros, partidas, mejor día, hitos y tus últimos 7 días (1080 px de ancho, PNG). El botón Tarjeta de abajo hace lo mismo con un clic.", "Ein Bild deiner Zahlen zum Teilen: Truhen, Team-Truhen, Schätze, Matches, bester Tag, Meilensteine und deine letzten 7 Tage (1080 px breit, PNG). Die Schaltfläche Karte unten macht dasselbe mit einem Klick." },
+        ["Save PNG"] = new[] { "Enregistrer PNG", "Guardar PNG", "PNG speichern" },
+        ["Copy image"] = new[] { "Copier l'image", "Copiar imagen", "Bild kopieren" },
+        ["Card"] = new[] { "Carte", "Tarjeta", "Karte" },
+        ["Save a picture of your stats (PNG)"] = new[] { "Enregistrer une image de tes stats (PNG)", "Guardar una imagen de tus estadísticas (PNG)", "Ein Bild deiner Statistiken speichern (PNG)" },
+        ["Save your stats card as PNG"] = new[] { "Enregistrer ta carte de stats en PNG", "Guardar tu tarjeta de estadísticas como PNG", "Statistik-Karte als PNG speichern" },
+        ["Copied the card to the clipboard."] = new[] { "Carte copiée dans le presse-papiers.", "Tarjeta copiada al portapapeles.", "Karte in die Zwischenablage kopiert." },
+        ["Could not copy the card: "] = new[] { "Impossible de copier la carte : ", "No se pudo copiar la tarjeta: ", "Karte konnte nicht kopiert werden: " },
+        ["BEST DAY"] = new[] { "MEILLEUR JOUR", "MEJOR DÍA", "BESTER TAG" },
+        ["last 7 days"] = new[] { "7 derniers jours", "últimos 7 días", "letzte 7 Tage" },
         ["Treasure found"] = new[] { "Trésor trouvé", "Tesoro encontrado", "Schatz gefunden" },
     };
 }
